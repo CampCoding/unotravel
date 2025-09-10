@@ -21,7 +21,7 @@ export default function page() {
       <HomeApp />
       <HomeProjects />
       <HomeSubscribe/>
-      <HomeTestimonial/>
+      {/* <HomeTestimonial/> */}
       <HomeReels />
       <HomePartners />
     </div>
