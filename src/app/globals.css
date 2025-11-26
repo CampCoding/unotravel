@@ -1,0 +1,314 @@
+@import "tailwindcss";
+:root {
+  --main-dark-color: #264787;
+  --main-light-color: #3b85c1;
+
+  /* Font Families */
+  --font-filson: "filson";
+  --font-filson-italic: "filson-italic";
+  --font-filson-bold: "filson-bold";
+  --font-filson-bold-italic: "filson-bold-italic";
+  --font-filson-book: "filson-book";
+  --font-filson-book-italic: "filson-book-italic";
+  --font-filson-heavy: "filson-heavy";
+  --font-filson-heavy-italic: "filson-heavy-italic";
+  --font-filson-light: "filson-light";
+  --font-filson-light-italic: "filson-light-italic";
+  --font-filson-medium: "filson-medium";
+  --font-filson-medium-italic: "filson-medium-italic";
+  --font-filson-regular: "filson-regular";
+  --font-filson-regular-italic: "filson-regular-italic";
+  --font-filson-thin: "filson-thin";
+  --font-filson-thin-italic: "filson-thin-italic";
+}
+
+@font-face {
+  font-family: filson;
+  src: url("/font/FilsonProBlack.otf");
+}
+
+@font-face {
+  font-family: filson-italic;
+  src: url("/font/FilsonProBlackItalic.otf");
+}
+
+@font-face {
+  font-family: filson-bold;
+  src: url("/font/FilsonProBold.otf");
+}
+
+@font-face {
+  font-family: filson-bold-italic;
+  src: url("/font/FilsonProBoldItalic.otf");
+}
+
+@font-face {
+  font-family: filson-book;
+  src: url("/font/FilsonProBook.otf");
+}
+
+@font-face {
+  font-family: filson-book-italic;
+  src: url("/font/FilsonProBookItalic.otf");
+}
+
+@font-face {
+  font-family: filson-heavy;
+  src: url("/font/FilsonProHeavy.otf");
+}
+
+@font-face {
+  font-family: filson-heavy-italic;
+  src: url("/font/FilsonProHeavyItalic.otf");
+}
+
+@font-face {
+  font-family: filson-light;
+  src: url("/font/FilsonProLight.otf");
+}
+
+@font-face {
+  font-family: filson-light-italic;
+  src: url("/font/FilsonProLightItalic.otf");
+}
+
+@font-face {
+  font-family: filson-medium;
+  src: url("/font/FilsonProMedium.otf");
+}
+
+@font-face {
+  font-family: filson-medium-italic;
+  src: url("/font/FilsonProMediumItalic.otf");
+}
+
+@font-face {
+  font-family: filson-regular;
+  src: url("/font/FilsonProRegular.otf");
+}
+
+@font-face {
+  font-family: filson-regular-italic;
+  src: url("/font/FilsonProRegularItalic.otf");
+}
+
+@font-face {
+  font-family: filson-thin;
+  src: url("/font/FilsonProThin.otf");
+}
+
+@font-face {
+  font-family: filson-thin-italic;
+  src: url("/font/FilsonProThinItalic.otf");
+}
+
+
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+body {
+  background-color: #ffffff;
+  min-height: 100vh;
+ font-family: filson-medium !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-y: auto !important;
+}
+
+a {
+  text-decoration: none !important;
+  white-space: nowrap !important;
+}
+
+.react-datepicker {
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+  overflow: hidden;
+}
+.react-datepicker__header {
+  background-color: white !important;
+  border-bottom: none !important;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+  background-color: #379ff2 !important;
+  color: white !important;
+}
+.react-datepicker__day--keyboard-selected {
+  background-color: #d0e8f9 !important;
+  color: #333;
+}
+
+:where(.css-dev-only-do-not-override-7t2xvq).ant-picker-outlined {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+
+:where(.css-dev-only-do-not-override-7t2xvq).ant-picker-outlined:focus,
+:where(.css-dev-only-do-not-override-7t2xvq).ant-picker-outlined:focus-within {
+  box-shadow: inset !important;
+}
+
+:where(.css-dev-only-do-not-override-7t2xvq).ant-picker {
+  padding: 0px !important;
+}
+
+:where(.css-dev-only-do-not-override-7t2xvq).ant-picker
+  .ant-picker-input
+  > input {
+  color: black !important; /* text color */
+  font-weight: 500 !important;
+  font-size: 16px !important;
+}
+
+:where(.css-dev-only-do-not-override-7t2xvq).ant-picker
+  .ant-picker-input
+  > input::placeholder {
+  color: #b4b4b4 !important; /* text color */
+  font-weight: 500 !important;
+  font-size: 15px !important;
+}
+
+:where(.css-dev-only-do-not-override-7t2xvq).ant-picker-outlined:focus,
+:where(.css-dev-only-do-not-override-7t2xvq).ant-picker-outlined:focus-within {
+  box-shadow: none !important;
+}
+
+footer {
+  background: transparent linear-gradient(360deg, #ffffff 0%, #3b85c1 100%) 0%
+    0% no-repeat padding-box;
+}
+
+footer .main-content {
+  background: transparent
+    url("/images/purepng.com-white-cloudnaturestylenaturalbeautifulgreen-5415211264555x7ih.png")
+    0% 0% no-repeat padding-box;
+  background-size: cover;
+  background-position: center;
+}
+
+.radio_container {
+  display: block;
+  position: relative;
+  padding-left: 25px;
+  /* margin-bottom: 12px; */
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.radio_container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* On mouse-over, add a grey background color */
+.radio_container:hover input ~ .checkmark {
+  /* background-color: #fff; */
+}
+
+/* When the checkbox is checked, add a blue background */
+.radio_container input:checked ~ .checkmark {
+  /* background-color: #2196F3; */
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.radio_container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.radio_container .checkmark:after {
+  left: 6px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+input[type="time"]::-moz-focus-inner {
+  border: 0;
+}
+
+.swiper-pagination-bullet {
+  background-color: white !important;
+}
+
+.swiper-pagination-bullet .swiper-pagination-bullet-active {
+  background-color: #3b85c1 !important;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fff;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b85c1;
+  border-radius: 8px;
+}
+
+
+.ti-widget[data-layout-id='5'][data-set-id='light-background'] {
+  overflow: hidden !important;
+}
+
+.ti-widget[data-layout-id='5'][data-set-id='light-background'] .ti-widget-container {
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.ti-amp-iframe-body {
+  overflow:  hidden !important;
+}
