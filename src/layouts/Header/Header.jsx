@@ -9,7 +9,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { handleGetLayoutData } from "../../lib/features/layoutSlice";
+import { handleGetLayoutData, initializeLanguage, setSelectedLanguage } from "../../lib/features/layoutSlice";
+import ErrorImage from "../../components/shared/ErrorImage";
 
 const links = [
   { id: 1, name: "Home", route: "/" },
@@ -42,7 +43,7 @@ const languages = [
 
 const profile_drop_down = [
   { id: 1, name: "My Activities", route: "/my-activities", icon: <ClockFading size={18} className="text-[#3B85C1]" /> },
-  { id: 2, name: "Currency", route: "/", icon: <DollarSign size={18} className="text-[#3B85C1]" />, suffix: "EUR ▾" },
+  { id: 2, name: "Currency", route: "/", icon: <DollarSign size={18} className="text-[#3B85C1]" />, suffix: "EUR ▾", isCurrencyDropdown: true },
   { id: 3, name: "Profile Setting", route: "/profile-settings", icon: <UserRoundPlus size={18} className="text-[#3B85C1]" /> }, // opens modal
   { id: 4, name: "Support", route: "/", icon: <MessageCircleDashed size={18} className="text-[#3B85C1]" /> },
   { id: 5, name: "About Us", route: "/about-us", icon: <Info size={18} className="text-[#3B85C1]" /> },
@@ -59,37 +60,53 @@ export default function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openProfileSetting, setProfileSetting] = useState(false);
+  const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState("EUR");
 
   const langMenuRef = useRef(null);
   const dropdownRef = useRef(null);
   const profileRef = useRef(null);
   const mobileMenuRef = useRef(null);
+  const currencyMenuRef = useRef(null);
 
   const currentLang = languages.find((lang) => lang.code === selectedLang) || languages[0];
   
   const dispatch = useDispatch();
-  const {layout_loading , layout_data} = useSelector(state => state?.layout)
+  const {layout_loading , layout_data , selectedLanguage} = useSelector(state => state?.layout)
   const [allLinks , setAllLinks] = useState([]);
   const [allLanguages , setAllLanguages] = useState([]);
   const [allCurrencies , setAllCurrencies] = useState([]);
   const [isLoggedIn , setIsLoggedIn] = useState(false);
 
+  useEffect(() => {
+    dispatch(initializeLanguage());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(handleGetLayoutData())
   } , [dispatch])
   
   useEffect(() => {
-    console.log(layout_data?.data?.data?.header)
+    setAllLinks(layout_data?.data?.data?.header?.links)
+    setAllLanguages(layout_data?.data?.data?.header?.languages);
+    setAllCurrencies(layout_data?.data?.data?.header?.currency);
     setIsLoggedIn(layout_data?.data?.data?.header?.loggedInUser);
-    // setAllCurrencies(layout_data?.data?.data?.)
   } , [layout_data])
+
   // Helper: close all menus
   const closeAllMenus = () => {
     setOpenDropdownId(null);
     setIsProfileOpen(false);
     setLangMenuOpen(false);
     setIsMobileMenuOpen(false);
+    setCurrencyMenuOpen(false);
+  };
+
+  const handleCurrencySelect = (currencyCode) => {
+    setSelectedCurrency(currencyCode);
+    setCurrencyMenuOpen(false);
+    // You can add additional logic here like updating the global currency state
+    // or making API calls to update user preference
   };
 
   useEffect(() => {
@@ -98,6 +115,7 @@ export default function Header() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpenDropdownId(null);
       if (profileRef.current && !profileRef.current.contains(e.target)) setIsProfileOpen(false);
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)) setIsMobileMenuOpen(false);
+      if (currencyMenuRef.current && !currencyMenuRef.current.contains(e.target)) setCurrencyMenuOpen(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -113,46 +131,47 @@ export default function Header() {
     <header className="w-full">
       <div className="flex container mx-auto py-4 lg:py-[29px] justify-between items-center">
         {/* Logo */}
-        <div className="flex-shrink-0">
-          <Image
-            src="/images/Group 47503.webp"
+        <Link href={`${layout_data?.data?.data?.logos?.find(item => item?.logo_id == 1)?.link_url}`} className="flex-shrink-0">
+          <ErrorImage
+          FALLBACK_IMG="/images/Group 47503.webp"
+            image={layout_data?.data?.data?.logos?.find(item => item?.logo_id == 1)?.image_url}
             width={333}
             height={55}
             alt="Main Logo"
             className="h-6 sm:h-7 md:h-9 lg:h-[55px] w-auto"
           />
-        </div>
+        </Link>
 
         <div className="flex items-center justify-between gap-4 xl:gap-6">
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center justify-between gap-4 xl:gap-6">
-            {links.map((item) =>
-              item.children && item.children.length > 0 ? (
+            {allLinks?.map((item) =>
+              item?.item_type == "dropdown_link"  ? (
                 <div key={item.id} className="relative" ref={dropdownRef}>
                   <div
                     className="flex gap-[6px] justify-center items-center cursor-pointer"
-                    onClick={() => setOpenDropdownId((prev) => (prev === item.id ? null : item.id))}
+                    onClick={() => setOpenDropdownId((prev) => (prev === item?.item_id ? null : item?.item_id))}
                   >
                     <p
-                      className={`${pathname === item.route ? "text-[var(--main-light-color)] " : "text-[var(--main-dark-color)]"} !text-sm xl:!text-base my-auto whitespace-nowrap capitalize font[filson-bold]`}
+                      className={`${pathname === item?.item_url ? "text-[var(--main-light-color)] !font-bold" : "text-[var(--main-dark-color)]"} !text-sm xl:!text-base my-auto whitespace-nowrap capitalize !font-[filson-bold]`}
                     >
-                      {item.name}
+                      {item?.item_label}
                     </p>
                     <ChevronDown size={15} color="#264787" />
                   </div>
 
-                  {openDropdownId === item.id && (
+                  {openDropdownId === item?.item_id && item?.routes?.length > 0 && (
                     <div className="absolute top-10 left-0 mt-2 bg-white border border-[#3B85C1] rounded-[7px] p-6 w-[280px] shadow-md z-50">
                       <div className="grid grid-cols-1 gap-3">
-                        {item.children.map((child) => (
+                        {item?.route?.map((child) => (
                           <Link
-                            key={child.id}
-                            href={child.route}
+                            key={child?.parent_item_id}
+                            href={`${child?.url}`}
                             className="flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition"
                             onClick={closeAllMenus} // close on click
                           >
-                            <img src={child.img} className="w-6 h-5 object-cover" alt={child.name} />
-                            <span className="text-black text-base">{child.name}</span>
+                            <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.title} />
+                            <span className="text-black text-base">{child?.title}</span>
                           </Link>
                         ))}
                       </div>
@@ -160,13 +179,14 @@ export default function Header() {
                   )}
                 </div>
               ) : (
+                item?.item_type == "link" && 
                 <Link
-                  key={item.id}
-                  href={item.route}
-                  className={`${pathname === item.route ? "!text-[var(--main-light-color)] !font-[filson-bold]" : "!text-[var(--main-dark-color)]"} !font-[filson-bold] text-sm xl:text-base capitalize whitespace-nowrap`}
+                  key={item?.item_id}
+                  href={`${item?.item_url}`}
+                  className={`${pathname === item?.item_url ? "!text-[var(--main-light-color)] !font-[filson-bold]" : "!text-[var(--main-dark-color)]"} !font-[filson-bold] text-sm xl:text-base capitalize whitespace-nowrap`}
                   onClick={closeAllMenus} // close on click
                 >
-                  {item.name}
+                  {item?.item_label}
                 </Link>
               )
             )}
@@ -183,21 +203,21 @@ export default function Header() {
               />
               {langMenuOpen && (
                 <div className="bg-white p-[25px_36px] w-[198px] absolute z-40 right-0 top-8 lg:top-10 h-auto border border-[#3B85C1] rounded-[7px] flex flex-col gap-3">
-                  {languages.map((lang) => {
-                    const isCurrent = selectedLang === lang.code;
+                  {allLanguages?.map((lang) => {
+                    const isCurrent = selectedLang === lang?.language_code;
                     return isCurrent ? (
-                      <p key={lang.code} className="flex w-full mb-0 pb-0 justify-between items-center">
-                        <span className="text-[#3B85C1] font-bold text-lg">{lang.name}</span>
+                      <p key={lang?.language_code} className="flex w-full mb-0 pb-0 justify-between items-center">
+                        <span className="text-[#3B85C1] font-bold text-lg">{lang?.language_name}</span>
                         <span className="text-[14px] text-[#16294F]">(Current)</span>
                       </p>
                     ) : (
                       <button
-                        key={lang.code}
+                        key={lang?.language_code}
                         className="flex justify-between items-center cursor-pointer w-full"
-                        onClick={() => { setSelectedLang(lang.code); closeAllMenus(); }} // close after selection
+                        onClick={() => {  dispatch(setSelectedLanguage(lang?.language_id)); closeAllMenus(); }} // close after selection
                       >
-                        <span className="text-[#16294F] text-lg">{lang.name}</span>
-                        <Image src={lang.flag} width={34} height={22} alt={`${lang.name} flag`} className="object-cover" />
+                        <span className="text-[#16294F] text-lg">{lang?.language_name}</span>
+                        <Image src={lang.flag} width={34} height={22} alt={`${lang?.language_name} flag`} className="object-cover" />
                       </button>
                     );
                   })}
@@ -214,11 +234,54 @@ export default function Header() {
                 <User size={16} className="lg:w-5 lg:h-5" color="#264787" />
               </div>
 
-              {isProfileOpen && (
-                <div className="absolute top-full right-0 mt-3 w-[260px] bg-white border border-[#3B85C1] shadow-md rounded-[7px] p-4 z-50">
+              {isProfileOpen && isLoggedIn && (
+                <div className="absolute top-full right-0 mt-3 w-[260px] bg-white border border-[#3B85C1] shadow-md rounded-[7px] p-5 z-50">
                   <ul className="flex m-0 p-0 flex-col gap-[27px]">
                     {profile_drop_down.map((item) => {
                       const isProfileSettings = item.id === 3;
+                      const isCurrencyDropdown = item.isCurrencyDropdown;
+
+                      if (isCurrencyDropdown) {
+                        return (
+                          <li key={item.id} className="relative" ref={currencyMenuRef}>
+                            <button
+                              className="flex items-center justify-between w-full hover:text-[#3B85C1]"
+                              onClick={() => setCurrencyMenuOpen((prev) => !prev)}
+                            >
+                              <div className="flex items-center gap-[17px]">
+                                {item.icon}
+                                <span className="text-sm xl:text-base text-black">{item.name}</span>
+                              </div>
+                              <span className="text-sm xl:text-base font-bold text-black flex items-center">
+                                {selectedCurrency} <ChevronDown size={16} className={`ml-1 transition-transform ${currencyMenuOpen ? 'rotate-180' : ''}`} />
+                              </span>
+                            </button>
+                            
+                            {currencyMenuOpen && allCurrencies && allCurrencies.length > 0 && (
+                              <div className="absolute left-0 right-0 mt-2 bg-white border border-[#3B85C1] rounded-[7px] p-3 shadow-md z-50">
+                                <div className="flex flex-col gap-2">
+                                  {allCurrencies.map((currency) => {
+                                    const isCurrent = selectedCurrency === currency?.currency_code;
+                                    return (
+                                      <button
+                                        key={currency?.currency_code}
+                                        className={`flex justify-between items-center w-full p-2 rounded-[5px] hover:bg-[#F5F5F5] transition ${
+                                          isCurrent ? ' bg-opacity-10 text-[#3B85C1] font-bold' : 'text-[#16294F]'
+                                        }`}
+                                        onClick={() => handleCurrencySelect(currency?.currency_code)}
+                                      >
+                                        <span>{currency?.currency_name} ({currency?.currency_symbol})</span>
+                                        {isCurrent && <span className="text-xs">(Current)</span>}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      }
+
                       if (isProfileSettings) {
                         return (
                           <li key={item.id}>
@@ -232,23 +295,53 @@ export default function Header() {
                           </li>
                         );
                       }
+                      
                       return (
                         <li
                           key={item.id}
                           className={`${item.danger ? "text-red-500 hover:text-red-700" : "hover:text-[#3B85C1]"}`}
                         >
                           <Link
-                            href={item.route}
+                            href={`${item.route}`}
                             className="flex items-center gap-[17px] w-full"
                             onClick={closeAllMenus} // close on click
                           >
                             {item.icon}
                             <span className="text-sm xl:text-base flex-1 text-black">{item.name}</span>
-                            {item.suffix && <span className="text-sm xl:text-base font-bold text-black">{item.suffix}</span>}
+                            {item.suffix && !item.isCurrencyDropdown && <span className="text-sm xl:text-base font-bold text-black">{item.suffix}</span>}
                           </Link>
                         </li>
                       );
                     })}
+                  </ul>
+                </div>
+              )}
+
+               {isProfileOpen && !isLoggedIn && (
+                <div className="absolute top-full right-0 mt-3 w-[260px] bg-white border border-[#3B85C1] shadow-md rounded-[7px] p-2 z-50">
+                  <ul className="flex m-0 p-0 flex-col gap-[27px]">
+                        <li
+                          className={`flex flex-col gap-4`}
+                        >
+                          <Link
+                            href={'/register'}
+                            className="flex items-center gap-[17px] w-full"
+                            onClick={closeAllMenus} // close on click
+                          >
+                            
+                            <span className="text-sm xl:text-base flex-1 text-black">Sign Up</span>
+                          </Link>
+
+                          <Link
+                            href={'/sign-in'}
+                            className="flex items-center gap-[17px] w-full"
+                            onClick={closeAllMenus} // close on click
+                          >
+                            
+                            <span className="text-sm xl:text-base flex-1 text-black">Sign In</span>
+                          </Link>
+                        </li>
+                      
                   </ul>
                 </div>
               )}
@@ -293,7 +386,7 @@ export default function Header() {
                           {item.children.map((child) => (
                             <Link
                               key={child.id}
-                              href={child.route}
+                              href={`${child.route}`}
                               className="flex gap-3 items-center p-2 rounded-md hover:bg-white transition"
                               onClick={closeAllMenus} // close on click
                             >
@@ -307,7 +400,7 @@ export default function Header() {
                   ) : (
                     <Link
                       key={item.id}
-                      href={item.route}
+                      href={`${item.route}`}
                       className={`${pathname === item.route ? "!text-[var(--main-light-color)]" : "!text-[var(--main-dark-color)]"} text-base capitalize py-2 block`}
                       onClick={closeAllMenus} // close on click
                     >

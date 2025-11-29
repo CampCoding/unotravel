@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import CustomHeading from "@/components/shared/CustomHeading/CustomHeading";
 import Image from "next/image";
+import Link from "next/link";
+import ErrorImage from "../../../shared/ErrorImage";
 
 const MotionImage = motion(Image);
 
@@ -37,24 +39,47 @@ const images = [
   "/images/Authorized Sales Agent logos (5).webp",
 ];
 
-export default function HomeSalesAgent() {
+export default function HomeSalesAgent({ data }) {
   return (
     <div className="container home_sales_agents mt-[123px]">
-      <CustomHeading first_title={"Authorized"} second_title={"Sales Agent"} />
+         <div
+       dangerouslySetInnerHTML={{__html : data?.sectionName}}
+      ></div>
+
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 items-center mt-[63px]">
-        {images.map((image, idx) => (
-          <MotionImage
-            key={idx}
+        {data?.data?.map((image, idx) => (
+          <Link
             variants={childVariant}
             initial="initial"
             whileInView="animate"
-            viewport={{ once: true }}
-            width={80}
-            height={80}
-            src={image}
-            alt="agent-logo"
-            className="object-cover mx-auto"
-          />
+            href={`${image?.website_url}`}
+            key={image?.agent_id}
+          >
+            {/* <MotionImage
+              variants={childVariant}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              width={80}
+              height={80}
+              src={image?.logo_image}
+              alt="agent-logo"
+              className="object-cover mx-auto"
+            /> */}
+
+            <ErrorImage 
+            variants={childVariant}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              width={80}
+              height={80}
+              FALLBACK_IMG={images[image?.agent_id]}
+              image={image?.logo_image}
+              alt="agent-logo"
+              className="object-cover mx-auto"
+            />
+          </Link>
         ))}
       </div>
     </div>

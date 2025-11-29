@@ -1,7 +1,9 @@
 "use client";
 import CustomHeading from "@/components/shared/CustomHeading/CustomHeading";
+import Link from "next/link";
 import React, { useRef, useState } from "react";
 import "swiper/css";
+import ErrorImage from "../../../shared/ErrorImage";
 
 const videos = [
   { id: 1, video: "/videos/videos reel (1).mp4" },
@@ -12,7 +14,7 @@ const videos = [
   { id: 6, video: "/videos/videos reel (6).mp4" },
 ];
 
-export default function HomeReels() {
+export default function HomeReels({ data }) {
   const containerRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playingIndex, setPlayingIndex] = useState(null);
@@ -45,7 +47,7 @@ export default function HomeReels() {
   return (
     <div data-aos="zoom-in-up" className="mt-[98px]">
       <div className="container">
-        <CustomHeading first_title="FEATURED" second_title="REELS" />
+        <div dangerouslySetInnerHTML={{ __html: data?.sectionName }}></div>
       </div>
 
       <div className="overflow-hidden w-full mt-[61px] bg-white">
@@ -55,17 +57,19 @@ export default function HomeReels() {
             isPlaying ? "" : "animate-marquee"
           }`}
         >
-          {[...videos, ...videos].map((video, index) => (
-            <video
-              key={index}
-              src={video.video}
+          {data?.data?.map((video, index) => (
+            <ErrorImage
+            isImg={false}
+              key={video?.reel_id}
+              image={video?.reel_video}
+              FALLBACK_IMG={videos[video?.reel_id]?.video}
               muted
               loop
               playsInline
               preload="metadata"
               onClick={(e) => handleVideoClick(e, index)}
               className={`${
-                index < videos.length
+                index < data?.data?.length
                   ? "w-[300px] h-[590px] 2xl:w-[351px] 2xl:h-[623px] rounded-xl even:!mt-12"
                   : "w-[300px] h-[500px] !rounded-lg"
               } object-cover cursor-pointer`}

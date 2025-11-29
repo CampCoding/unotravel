@@ -1,10 +1,12 @@
 "use client";
 import CustomHeading from "@/components/shared/CustomHeading/CustomHeading";
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Award, Handshake, MapPin, Medal, Users } from "lucide-react";
-import Tilt from 'react-parallax-tilt';
+import Tilt from "react-parallax-tilt";
 import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import ErrorImage from "../../../../shared/ErrorImage";
 
 const data = [
   {
@@ -55,7 +57,12 @@ const childVariant = {
   },
 };
 
-export default function HomeChooseUs({banner =true}) {
+export default function HomeChooseUs({ banner = true, data: chooseUSData }) {
+
+  useEffect(() => {
+    console.log(chooseUSData?.data?.items?.map(item => item?.title));
+  }, [chooseUSData]);
+
   return (
     <motion.div
       variants={parentVariant}
@@ -64,18 +71,13 @@ export default function HomeChooseUs({banner =true}) {
       viewport={{ once: true, amount: 0.2 }}
       className="container mt-[100px] mb-[60px]"
     >
-      <CustomHeading
-        first_title="Why Choose"
-        second_title="Uno Travels?"
-        className="text-center mb-[50px]"
-      />
+      <div
+        dangerouslySetInnerHTML={{ __html: chooseUSData?.sectionName }}
+      ></div>
 
       <div className="grid grid-cols-2 mt-20 sm:grid-cols-3 lg:grid-cols-5 gap-6 items-center justify-center">
-        {data.map((item) => (
-          <motion.div
-            key={item.id}
-            variants={childVariant}
-          >
+        {chooseUSData?.data?.items?.map((item) => (
+          <motion.div key={item?.item_id} variants={childVariant}>
             <Tilt
               className="bg-[#F5F6FA] h-[160px] rounded-md flex flex-col items-center justify-center px-4 py-6 text-center"
               glareEnable={true}
@@ -84,19 +86,50 @@ export default function HomeChooseUs({banner =true}) {
               glarePosition="bottom"
               scale={1.05}
             >
-              <img src={item?.icon} className="w-[60px] h-[60px] mb-2"/>
+              <ErrorImage
+               image={item?.item_icon} 
+               alt={item?.title}
+               FALLBACK_IMG={data[item?.item_id]?.icon}
+               className="w-[60px] h-[60px] mb-2"
+               width={60}
+               height={60}
+              />
               <p className="text-[14px] sm:text-[15px] md:text-[16px] text-[#264787] font-medium leading-snug">
-                {item.title}
+                {item?.title}
               </p>
             </Tilt>
           </motion.div>
         ))}
       </div>
 
-     {banner &&  <img
+      {/* {banner &&  <img
       data-aos="fade-up"
       data-aos-delay={1000}
-      src="/images/Image 314.png" className="object-contain lg:object-cover !rounded-lg mt-[54px] h-[198px]"/>}
+      src="/images/Image 314.png" className="object-contain lg:object-cover !rounded-lg mt-[54px] h-[198px]"/>} */}
+      <div className="w-full">
+        <Swiper 
+        className="w-full"
+        slidesPerView={1} >
+          {chooseUSData?.data?.banners?.map((item) => (
+            <SwiperSlide key={item?.banner_id}>
+              {/* <img
+                data-aos="fade-up"
+                data-aos-delay={1000}
+                src={item?.image_url}
+                className="object-contain lg:object-cover !rounded-lg mt-[54px] h-[198px]"
+              /> */}
+
+              <ErrorImage 
+              data-aos="fade-up"
+                data-aos-delay={1000}
+                image={item?.image_url}
+                FALLBACK_IMG={"/images/Image 314.png"}
+                className="!object-contain lg:object-cover w-full rounded-lg! mt-[54px] h-[198px]"
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
     </motion.div>
   );
 }

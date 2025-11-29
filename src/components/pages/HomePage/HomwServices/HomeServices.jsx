@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import AOS from "aos";
 import Image from "next/image";
+import ErrorImage from "../../../shared/ErrorImage";
 
 export const services = [
   {
@@ -103,7 +104,7 @@ const childVariant = {
   },
 };
 
-export default function HomeServices() {
+export default function HomeServices({data}) {
   return (
     <motion.div
       variants={parentVariant}
@@ -112,24 +113,36 @@ export default function HomeServices() {
       viewport={{ once: true }}
       className="container mt-[123px]"
     >
-      <CustomHeading first_title={"Our"} second_title={"Services"} />
+      <div
+       dangerouslySetInnerHTML={{__html : data?.sectionName}}
+      ></div>
+
+      {/* <CustomHeading first_title={data?.sectionName?.length > 0 &&  data?.sectionName?.split(" ")[0] || "Our"} second_title={data?.sectionName?.length > 0 &&  data?.sectionName?.split(" ")[1] || "Services"} /> */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-10 gap-3 items-center">
-        {services.map((service) => (
-          <motion.div key={service.id} variants={childVariant}>
+        {data?.data?.map((service) => (
+          <motion.div key={service?.service_id} variants={childVariant}>
             <div
               className="bg-[#F5F6FA] relative cursor-pointer rounded-xl min-h-[126px]"
             >
               <div className="flex h-[81px] justify-center items-center">
-                <Image
-                  src={service?.icon}
+                <ErrorImage 
+                 image={service?.service_image}
+                 FALLBACK_IMG={"/images/services icon  (2).svg"}
                   width={40}
                   alt="home service"
                   height={40}
                   objectFit="cover"
                 />
+                {/* <Image
+                  src={service?.service_image  ??  "/images/services icon  (2).svg"}
+                  width={40}
+                  alt="home service"
+                  height={40}
+                  objectFit="cover"
+                /> */}
               </div>
               <div className="absolute bottom-0 left-0 h-[38px] right-0 flex text-lg 2xl:text-xl font-bold justify-center items-center text-white bg-[#3B85C1] rounded-br-[7px] rounded-bl-[7px]">
-                {service.name}
+                {service?.service_name}
               </div>
             </div>
           </motion.div>

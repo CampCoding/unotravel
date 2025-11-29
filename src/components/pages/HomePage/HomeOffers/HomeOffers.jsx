@@ -7,6 +7,9 @@ import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import Image from "next/image";
+import ErrorImage from "../../../shared/ErrorImage";
+import { useDispatch, useSelector } from "react-redux";
+import { handleGetLayoutData } from "../../../../lib/features/layoutSlice";
 
 const offers = [
   "/images/Uno Offers (1).webp",
@@ -17,10 +20,11 @@ const offers = [
   "/images/Uno Offers (6).webp",
 ];
 
-export default function HomeOffers() {
+export default function HomeOffers({data ,logo}) {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const swiperRef = useRef(null);
+
 
   return (
     <div
@@ -36,9 +40,10 @@ export default function HomeOffers() {
             fill
             className="absolute object-cover w-full h-full"
           />
-          <Image
-            src="/images/BusinessCardLogo-removebg-preview.png"
-            alt="Uno Travel Logo"
+          <ErrorImage
+            FALLBACK_IMG="/images/BusinessCardLogo-removebg-preview.png"
+            image={logo}
+            alt={data?.data?.sectionName}
             width={280}
             height={176}
             className="relative z-10 object-contain w-56 h-36 sm:w-64 sm:h-40 md:w-72 md:h-44 lg:w-80 lg:h-52 xl:w-[350px] xl:h-[220px]"
@@ -50,12 +55,7 @@ export default function HomeOffers() {
       <div className="flex flex-col gap-4 md:gap-6 flex-1 min-w-0 w-full">
         {/* Header */}
         <div className="flex flex-row justify-between items-center gap-4 sm:gap-0">
-          <CustomHeading
-            first_title={"Uno"}
-            second_title={"Offers"}
-            font_size={28}
-            className="text-center sm:text-left text-2xl sm:text-3xl lg:text-4xl"
-          />
+          <div dangerouslySetInnerHTML={{__html : data?.sectionName}}></div>
           <div className="flex items-center gap-3 sm:mr-8 md:mr-12 lg:mr-16 xl:mr-20">
             <p className="text-[#3B85C1] my-auto text-base md:text-lg font-medium">
               Browse All
@@ -148,11 +148,12 @@ export default function HomeOffers() {
               });
             }}
           >
-            {offers.map((offer, index) => (
+            {data?.data?.map((offer, index) => (
               <SwiperSlide key={index}>
                 <div className="w-full max-w-[235px] mx-auto cursor-pointer h-64 sm:h-72 md:h-80 lg:h-[300px] rounded-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                  <Image
-                    src={offer}
+                  <ErrorImage
+                    FALLBACK_IMG={offers[offer?.offer_id]}
+                    image={`${offer?.image_url}`}
                     alt={`Offer ${index + 1}`}
                     width={235}
                     height={300}

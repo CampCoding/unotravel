@@ -1,17 +1,36 @@
-import axios from "axios";
-import { configs } from "../configs";
-import { base_url } from "../constants";
 
-const token = localStorage.getItem(configs.localstorageTokenName);
+// api.js
+import axios from "axios";
+import { base_url } from "../constants";
+import { getToken } from "../../utils/token";
+import { getLanguage } from "../../utils/language";
 
 const apiInstance = axios.create({
   baseURL: base_url,
   headers: {
     "Content-Type": "application/json",
-    "all-langs":false,
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    "all-langs": false,
+    // "accept-language" : 
   },
 });
+
+// Use the utility function in request interceptor
+apiInstance.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    const lang = getLanguage();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+     if (lang) {
+      config.headers["accept-language"] = lang;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 const _get = (url, config = {}) => {
   return apiInstance.get(url, config);

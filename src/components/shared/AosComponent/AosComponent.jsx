@@ -8,8 +8,11 @@ export default function AosAnimation() {
     useEffect(() => {
     AOS.init({
       duration: 800,      // animation duration
-      once: true,         // whether animation should happen only once
-      offset: 120,        // offset (in px) from the original trigger point
+      once: false,         // whether animation should happen only once
+      offset: 80,   
+      easing:"ease-out",
+      mirror:true
+      // offset (in px) from the original trigger point
     });
   }, []);
 

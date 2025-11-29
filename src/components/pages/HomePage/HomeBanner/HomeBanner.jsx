@@ -5,210 +5,210 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Pagination, Navigation, Autoplay } from "swiper/modules";
 import { motion } from "framer-motion";
 import Image from "next/image";
+
 import "swiper/css";
 import "swiper/css/effect-fade";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import {
-  PlaneTakeoff,
-  BedDouble,
-  Car,
-  CarTaxiFront,
-  Map,
-  Wind,
-  MoveRight,
-  ArrowRightLeft,
-  GitCompareArrows,
-  CircleChevronDown,
-  PlaneLanding,
-  CalendarDays,
-  User,
-  Minus,
-  Plus
-} from "lucide-react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { format } from "date-fns";
-import { Calendar } from "lucide-react";
-import "./style.css";
-import HomeBannerFlight from "./HomeBannerFlight/HomeBannerFlight";
-import HomeBannerHotels from "./HomeBannerHotels/HomeBannerHotels";
-import HomeBannerCars from "./HomeBannerCars/HomeBannerCars";
-import HomeBannerRide from "./HomeBannerRide/HomeBannerRide";
-import HomeBannerHelicopter from "./HomeBannerHelicopter/HomeBannerHelicopter";
-import HomeBannerTour from "./HomeBannerTour/HomeBannerTour";
 
-// Data
+import "./style.css";
+import ErrorImage from "../../../shared/ErrorImage";
+
 const data = [
   {
     id: 1,
     images: [
       "/images/Flights slider (1).webp",
       "/images/Flights slider (2).webp",
-      "/images/Flights slider (3).webp"
+      "/images/Flights slider (3).webp",
     ],
     main_title: "Uno Travel",
     tab_title: "Flights",
     icon: "/images/Flights.svg",
-    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services."
+    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services.",
   },
   {
     id: 2,
     images: [
       "/images/Hotel booking slider (1).webp",
       "/images/Hotel booking slider (2).webp",
-      "/images/Hotel booking slider (3).webp"
+      "/images/Hotel booking slider (3).webp",
     ],
     main_title: "Uno Hotels",
     tab_title: "Hotels Booking",
     icon: "/images/Hotels Booking.svg",
-    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services."
+    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services.",
   },
   {
     id: 3,
     images: [
-      "/images/Rent a car slider  (1).webp",
-      "/images/Rent a car slider  (2).webp",
-      "/images/Rent a car slider  (3).webp"
+      "/images/Rent a car slider (1).webp",
+      "/images/Rent a car slider (2).webp",
+      "/images/Rent a car slider (3).webp",
     ],
     main_title: "Uno Cars",
     tab_title: "Rent a Car",
     icon: "/images/Rent a Car.svg",
-    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services."
+    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services.",
   },
   {
     id: 4,
     images: [
       "/images/Get a Ride slider (1).webp",
       "/images/Get a Ride slider (2).webp",
-      "/images/Get a Ride slider (3).webp"
+      "/images/Get a Ride slider (3).webp",
     ],
     main_title: "Uno Ride",
     tab_title: "Get a Ride",
     icon: "/images/Get a Ride.svg",
-    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services."
+    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services.",
   },
   {
     id: 5,
     images: [
-      "/images/Create a Tour slider  (1).webp",
-      "/images/Create a Tour slider  (2).webp",
-      "/images/Create a Tour slider  (3).webp"
+      "/images/Create a Tour slider (1).webp",
+      "/images/Create a Tour slider (2).webp",
+      "/images/Create a Tour slider (3).webp",
     ],
     main_title: "Uno Tours",
     tab_title: "Create a Tour",
     icon: "/images/Create a Tour.svg",
-    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services."
+    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services.",
   },
   {
     id: 6,
     images: [
       "/images/Get a Helicopter slider (1).webp",
       "/images/Get a Helicopter slider (2).webp",
-      "/images/Get a Helicopter slider (3).webp"
+      "/images/Get a Helicopter slider (3).webp",
     ],
     main_title: "Uno Helicopter",
     tab_title: "Get a Helicopter",
     icon: "/images/Get a Helicopter.svg",
-    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services."
-  }
+    desc: "We Make Your Life Easier And More Comfortable With A Wide Range Of Professional Travel And Booking Services.",
+  },
 ];
 
-export default function HomeBanner() {
+export default function HomeBanner({ hero_services = [] }) {
   const swiperRef = useRef(null);
-  const [selectedTab, setSelectedTab] = useState(data[0]);
+  const [selectedTab, setSelectedTab] = useState(null);
   const [openAdultModal, setOpenAdultModal] = useState(false);
 
+  // Set default selected tab when hero_services loads
+  useEffect(() => {
+    if (hero_services && hero_services.length > 0) {
+      setSelectedTab(hero_services[0]);
+    }
+  }, [hero_services]);
+
+  // If no services, render nothing (or fallback)
+  if (!hero_services || hero_services.length === 0 || !selectedTab) {
+    return null;
+  }
+
   return (
-    <div className="relative home-banner   w-full">
-      {data.map((item) => (
-        <div
-          key={item.id}
-          className={`${selectedTab.id === item.id ? "block" : "hidden"}`}
+    <div className="relative home-banner w-full">
+      {/* Only one active block driven by selectedTab */}
+      <div className="block">
+        <Swiper
+          modules={[EffectFade, Pagination, Autoplay, Navigation]}
+          effect="fade"
+          // autoplay={{ delay: 4000, disableOnInteraction: false }}
+          // loop
+          className="mySwiper"
         >
-          <Swiper
-            modules={[EffectFade, Pagination, Autoplay, Navigation]}
-            effect="fade"
-            // autoplay={{ delay: 4000, disableOnInteraction: false }}
-            // loop
-            className="mySwiper"
-          >
-            {item.images.map((img, idx) => (
-              <SwiperSlide className="!h-auto" key={idx}>
-                <div className="relative home-banner-swiper sm:!min-h-[700px] flex flex-col justify-end">
-                  <Image
-                    src={img}
-                    alt={`Slide ${idx}`}
-                    fill
-                    className="object-cover"
-                    priority={idx === 0}
-                  />
+          {selectedTab?.banners?.map((img, idx) =>
+          {
+            console.log(img);
+          return(
+            <SwiperSlide className="!h-auto" key={img?.banner_id}>
+              <div className="relative home-banner-swiper sm:!min-h-[700px] flex flex-col justify-end">
+                {/* Banner image / video */}
+                <ErrorImage
+                  isImg={img?.media_type === "image"}
+                  image={img?.media_url} // e.g. "/uploads/banners/search-flights.jpg"
+                  FALLBACK_IMG={data[img?.idx]?.images[img?.banner_id]}
+                  alt={img?.banner_title || "Hero banner"}
+                  className="object-cover"
+                  priority={idx === 0}
+                  width={1920}
+                  height={900}
+                />
 
-                  <Image
-                    src="/images/logo hover.svg"
-                    width={300}
-                    height={300}
-                    alt="logo hover"
-                    className="absolute z-50  block right-4 sm:right-10 top-4 sm:top-10"
-                  />
+                {/* Floating logo */}
+                <Image
+                  src="/images/logo hover.svg"
+                  width={300}
+                  height={300}
+                  alt="logo hover"
+                  className="absolute z-50 block right-4 sm:right-10 top-4 sm:top-10"
+                />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                  <div className="py-4 !z-[9999] container absolute bottom-0  flex flex-col justify-center items-center   sm:bottom-10 left-1/2 -translate-x-1/2 w-full px-4 sm:px-6 text-white">
-                    <div className="w-full">
-                      <motion.h2
-                        style={{
-                          textShadow: "0px 0px 10px rgba(255,255,255,0.64)"
-                        }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="text-[32px] text sm:text-[40px]  md:text-[56px] !font-[filson-bold] bg-[#16294F] px-4 flex justify-center items-center !shadow-lg h-[50px] sm:h-[60px] xl:h-[70px] rounded-md w-fit mb-2"
-                      >
-                        {item.main_title}
-                      </motion.h2>
-                      <motion.p
-                        style={{
-                          textShadow: "0px 0px 10px rgba(255,255,255,0.64)"
-                        }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 0.6 }}
-                        className="text-sm sm:text-base md:text-lg max-w-full !font-[filson-bold] md:max-w-[50%] text-white"
-                      >
-                        {item.desc}
-                      </motion.p>
-                    </div>
+                {/* Dark gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
 
-                    {/* Tabs */}
+                {/* Content */}
+                <div className="py-4 !z-[9999] container absolute bottom-0 flex flex-col justify-center items-center sm:bottom-10 left-1/2 -translate-x-1/2 w-full px-4 sm:px-6 text-white">
+                  <div className="w-full">
+                    {/* Title */}
+                    <motion.h2
+                      style={{
+                        textShadow: "0px 0px 10px rgba(255,255,255,0.64)",
+                      }}
+                      dangerouslySetInnerHTML={{__html : img?.banner_title || data[selectedTab?.service_id]?.main_title}}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6 }}
+                      className="text-[32px] sm:text-[40px] md:text-[56px] !font-[filson-bold] bg-[#16294F] px-4 flex justify-center items-center !shadow-lg h-[50px] sm:h-[60px] xl:h-[70px] rounded-md w-fit mb-2"
+                    >
+                    </motion.h2>
+
+                    {/* Description (HTML from backend) */}
+                    <motion.p
+                      style={{
+                        textShadow: "0px 0px 10px rgba(255,255,255,0.64)",
+                      }}
+                      dangerouslySetInnerHTML={{ __html: img?.banner_text || data[selectedTab?.service_id]?.desc}}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2, duration: 0.6 }}
+                      className="text-sm sm:text-base md:text-lg max-w-full !font-[filson-bold] md:max-w-[50%] text-white"
+                    />
+
+                    {/* Tabs (all hero services) */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4, duration: 0.6 }}
-                      className= "tabs bg-[#16294F]  h-auto w-full rounded-md gap-2 mt-3 md:mt-6 p-2 sm:p-[6px_10px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
+                      className="tabs bg-[#16294F] h-auto w-full rounded-md gap-2 mt-3 md:mt-6 p-2 sm:p-[6px_10px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
                     >
-                      {data.map((tab) => (
+                      {hero_services.map((service) => (
                         <div
-                          key={tab.id}
-                          onClick={() => setSelectedTab(tab)}
-                          className={`cursor-pointer p-2 xl:px-[14px] flex items-center rounded-[4px] gap-2 transition-all ${
-                            selectedTab.id === tab.id
+                          key={service?.service_id}
+                          onClick={() => setSelectedTab(service)}
+                          className={`cursor-pointer p-2 xl:px-[14px] h-fit flex items-center rounded-[4px] gap-2 transition-all ${
+                            selectedTab?.service_id === service?.service_id
                               ? "bg-[rgba(228,76,74,0.58)]"
                               : "bg-transparent hover:bg-white/10"
                           }`}
                         >
-                          <Image
-                            src={tab.icon}
+                          <ErrorImage
+                            image={service?.service_image} // "/uploads/services/.."
+                            FALLBACK_IMG={data[service?.service_id]?.icon}
                             width={24}
                             height={24}
-                            alt="banner icon"
+                            alt={service?.service_name || "Service icon"}
                             className="object-cover"
                           />
                           <span className="text-white text-xs sm:text-sm">
-                            {tab.tab_title}
+                            {service?.service_hero_title ||
+                              service?.service_name}
                           </span>
                         </div>
                       ))}
                     </motion.div>
+
+                    {/* Booking Widget (kept as is) */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -218,42 +218,45 @@ export default function HomeBanner() {
                       <motion.iframe
                         id="fb-widget"
                         title="Booking Widget"
-                        allowTransparency="true"
-                        allowFullscreen=""
+                        allowTransparency={true}
+                        allowFullScreen
                         style={{
                           position: "relative",
                           width: "100%",
                           border: "none",
                           minHeight: "245px",
-                          // overflow: "hidden",
-                          marginTop: "20px"
+                          marginTop: "20px",
                         }}
                         src="https://booking.aerotravels.dk/da?client_base_url=https%3A%2F%2Fwww.aerotravels.dk&amp;auth_key=1a5bd74963123cfff4b9cbcc6fe7c426"
                         height="200px"
-                      ></motion.iframe>
+                      />
                     </motion.div>
-                    {/* Forms per tab */}
-                    {/* <div className="mt-0  lg:mt-6">
-                      {item?.id === 1 && (
+
+                    {/* Forms per tab (if you want to re-enable later)
+                    <div className="mt-0 lg:mt-6">
+                      {selectedTab?.service_slug === "search-flights" && (
                         <HomeBannerFlight
-                          key={selectedTab?.id}
+                          key={selectedTab?.service_id}
                           openAdultModal={openAdultModal}
                           setOpenAdultModal={setOpenAdultModal}
                         />
                       )}
-                      {item?.id === 2 && <HomeBannerHotels key={selectedTab?.id} setOpenAdultModal={setOpenAdultModal} />}
-                      {item?.id === 3 && <HomeBannerCars key={selectedTab?.id}  setOpenAdultModal={setOpenAdultModal}/>}
-                      {item?.id === 4 && <HomeBannerRide key={selectedTab?.id} setOpenAdultModal={setOpenAdultModal} />}
-                      {item?.id === 5 && <HomeBannerTour key={selectedTab?.id} setOpenAdultModal={setOpenAdultModal} />}
-                      {item?.id === 6 && <HomeBannerHelicopter key={selectedTab?.id} setOpenAdultModal={setOpenAdultModal} />}
-                    </div> */}
+                      {selectedTab?.service_slug === "hotels-booking" && (
+                        <HomeBannerHotels
+                          key={selectedTab?.service_id}
+                          setOpenAdultModal={setOpenAdultModal}
+                        />
+                      )}
+                      // ... etc for other slugs
+                    </div>
+                    */}
                   </div>
                 </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      ))}
+              </div>
+            </SwiperSlide>
+          )})}
+        </Swiper>
+      </div>
     </div>
   );
 }

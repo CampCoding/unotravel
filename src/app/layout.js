@@ -51,8 +51,8 @@ export default function RootLayout({ children }) {
             {!hideLayout && <Header />}
             <main>{children}</main>
             {!hideLayout && <Footer />}
-            <AosAnimation />
           </UmrahProvider>
+            <AosAnimation />
         </DefaultLayout>
       </body>
     </html>
