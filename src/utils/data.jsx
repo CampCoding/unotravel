@@ -296,3 +296,55 @@ export const blog_data = [
     ]
   }
 ]
+
+export const carData = [
+  {
+    id: 1,
+    model: "Nissan Sunny 2025",
+    category: "ECONOMY",
+    description: "Rent a Nissan Sunny from Kayan and enjoy a reliable and comfortable sedan for your next adventure or everyday driving.",
+    features: ["Automatic", "AC", "4 Seats"],
+    price: "1100.0",
+    currency: "EGP",
+    // Using a placeholder for reliable display
+    imgUrl: "/images/2.png",
+    popular: false,
+    rating: 4.5,
+  },
+  {
+    id: 2,
+    model: "Chevrolet Optra 2021",
+    category: "ECONOMY",
+    description: "Rent a Chevrolet Optra from Kayan and enjoy a practical and reliable sedan for your next adventure or everyday driving.",
+    features: ["Automatic", "AC", "5 Seats"],
+    price: "1100.0",
+    currency: "EGP",
+    imgUrl: "/images/3.png",
+    popular: true,
+    rating: 4.8,
+  },
+  {
+    id: 3,
+    model: "Chery Arizo 2023",
+    category: "SEDAN",
+    description: "Rent the stylish and efficient Chery Arizo. Book now!",
+    features: ["Automatic", "AC", "5 Seats"],
+    price: "1150.0",
+    currency: "EGP",
+    imgUrl: "/images/4.png",
+    popular: false,
+    rating: 4.6,
+  },
+  {
+    id: 4,
+    model: "Mercedes-Benz C200",
+    category: "PREMIUM",
+    description: "Experience luxury and performance with the Mercedes-Benz C200.",
+    features: ["Automatic", "AC", "5 Seats", "GPS"],
+    price: "3500.0",
+    currency: "EGP",
+    imgUrl: "/images/5.png",
+    popular: true,
+    rating: 4.9,
+  },
+];

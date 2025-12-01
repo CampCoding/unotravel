@@ -44,7 +44,7 @@ export default function FareFlightUnaccompanied() {
           >
             <div className="rounded-[140px] w-full overflow-hidden">
               <img
-                src="/images/Screenshot__438_-removebg-preview.png"
+                src="/images/Untitled design - 2025-12-01T132222.842.png"
                 alt="Unaccompanied minors lounge"
                 className="h-full w-full object-cover"
               />

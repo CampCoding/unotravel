@@ -1,4 +1,3 @@
-// next.config.mjs (or next.config.ts)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -10,13 +9,13 @@ const nextConfig = {
       },
       {
         protocol: "http",
-        hostname: "uno-travel.vercel.app",
-        pathname: "/uploads/**", 
+        hostname: "camp-coding.site",
+        pathname: "/uno-travel/uploads/**",
       },
       {
         protocol: "https",
-        hostname: "uno-travel.vercel.app",
-        pathname: "/uploads/**", 
+        hostname: "camp-coding.site",
+        pathname: "/uno-travel/uploads/**",
       },
     ],
   },

@@ -53,15 +53,15 @@ export default function FareFlightSupport() {
       </div>
 
       {/* Content */}
-      <div 
-      
-      className="mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+      <div
+
+        className="mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
         {/* Left: bullets */}
-        <div 
-        data-aos="fade-right"
-     data-aos-offset="300"
-     data-aos-easing="ease-in-sine"
-        className="space-y-6">
+        <div
+          data-aos="fade-right"
+          data-aos-offset="300"
+          data-aos-easing="ease-in-sine"
+          className="space-y-6">
           {supportItems.map((item, index) => (
             <div key={item.id} className="flex flex-col gap-1.5">
               {/* Number pill */}
@@ -91,13 +91,13 @@ export default function FareFlightSupport() {
         </div>
 
         {/* Right: image cluster (your PNG) */}
-        <div 
-        data-aos="fade-left"
-     data-aos-offset="300"
-     data-aos-easing="ease-in-sine"
-        className="flex justify-center lg:justify-end">
+        <div
+          data-aos="fade-left"
+          data-aos-offset="300"
+          data-aos-easing="ease-in-sine"
+          className="flex justify-center lg:justify-end">
           <img
-            src="/images/Screenshot__434_-removebg-preview.png"
+            src="/images/Untitled design - 2025-12-01T131545.643.png"
             alt="Travel support illustration"
             className="w-full max-w-md lg:max-w-lg object-contain drop-shadow-2xl"
           />

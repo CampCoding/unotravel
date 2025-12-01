@@ -285,6 +285,7 @@ input[type="time"]::-moz-focus-inner {
 
 ::-webkit-scrollbar {
   width: 10px;
+  height: 6px;
   border-radius: 8px;
 }
 
