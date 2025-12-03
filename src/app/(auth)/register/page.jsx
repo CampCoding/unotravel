@@ -1,26 +1,21 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  MapPin,
-  X,
-  Clock,
-} from "lucide-react";
+import { ArrowLeft, MapPin, X, Clock } from "lucide-react";
 import ServiceTime from "@/components/pages/auth/Register/ServiceTime";
 import ServiceLocation from "@/components/pages/auth/Register/ServiceLocation";
 
 export default function SignUpPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-
+  if (typeof window == undefined) {
+    return null;
+  }
   return (
     <div className="min-h-screen bg-gray-50 p-3">
       {/* Header */}
       <div className="p-5 max-w-5xl mx-auto">
         <div className="flex items-center p-5 mx-auto mb-5">
-         
-
           <div className="flex flex-col items-center flex-grow">
             <h1 className="text-3xl font-[filson-bold] text-[var(--main-dark-color)] relative text-center leading-tight">
               Lead{" "}
@@ -48,7 +43,7 @@ export default function SignUpPage() {
         </div>
 
         {/* =================== MODAL =================== */}
-        {isOpen && (
+        {isOpen &&
           <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
             <div className="bg-white rounded-3xl w-[90%] max-w-[650px] relative max-h-[90vh] overflow-y-auto shadow-lg px-4 py-6 md:p-6">
               {/* Close Button */}
@@ -90,7 +85,10 @@ export default function SignUpPage() {
                   <div className="w-full flex flex-col gap-5">
                     <div className="flex items-center justify-between w-full">
                       <div className="flex ml-5 items-center gap-2">
-                        <Clock size={17} className="text-[var(--main-light-color)]" />
+                        <Clock
+                          size={17}
+                          className="text-[var(--main-light-color)]"
+                        />
                         <p className="text-[var(--main-light-color)] font-[filson-medium] tracking-wide">
                           TIME
                         </p>
@@ -114,8 +112,7 @@ export default function SignUpPage() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* =================== MAIN SIGN-UP FORM =================== */}
         <div className="bg-white rounded-3xl shadow-2xl p-12">
@@ -129,9 +126,10 @@ export default function SignUpPage() {
             <p className="underline text-red-400 font-[filson-light] cursor-pointer">
               Already have an account?
             </p>
-            <button 
-            onClick={() => router.push(`/sign-in`)}
-            className="bg-[var(--main-dark-color)] hover:bg-[#1f3a6d] text-white font-[filson-thin] !rounded-xl px-4 py-1 transition">
+            <button
+              onClick={() => router.push(`/sign-in`)}
+              className="bg-[var(--main-dark-color)] hover:bg-[#1f3a6d] text-white font-[filson-thin] !rounded-xl px-4 py-1 transition"
+            >
               Log In
             </button>
           </div>
@@ -214,7 +212,7 @@ export default function SignUpPage() {
 
           {/* Continue */}
           <button
-          onClick={() => router.push(`/sign-in`)}
+            onClick={() => router.push(`/sign-in`)}
             type="button"
             className="w-full !mt-4 bg-[var(--main-dark-color)] hover:bg-[#1f3a6d] text-white py-4 font-[filson-regular] !rounded-full cursor-pointer transition-all"
           >
