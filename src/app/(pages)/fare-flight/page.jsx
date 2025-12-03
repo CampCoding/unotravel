@@ -6,7 +6,7 @@ import FareFlightFeatures from '../../../components/pages/FareFlightPage/FareFli
 import FareFlightUnaccompained from '../../../components/pages/FareFlightPage/FareFlightUnaccompained/FareFlightUnaccompained'
 import FlightFareBestTravels from '../../../components/pages/FareFlightPage/FlightFareBestTravels/FlightFareBestTravels'
 
-export default function page() {
+export default function Page() {
   return (
     <div className='overflow-hidden!'>
       <FareFlightBanner />

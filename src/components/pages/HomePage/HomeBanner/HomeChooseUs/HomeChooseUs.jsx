@@ -124,7 +124,7 @@ export default function HomeChooseUs({ banner = true, data: chooseUSData }) {
                 data-aos-delay={1000}
                 image={item?.image_url}
                 FALLBACK_IMG={"/images/Image 314.png"}
-                className="!object-contain lg:!object-cover w-full rounded-lg! mt-[54px] h-[200px]!"
+                className= "!object-contain lg:!object-cover w-full rounded-lg! mt-[54px] h-[200px]!"
               />
             </SwiperSlide>
           ))}

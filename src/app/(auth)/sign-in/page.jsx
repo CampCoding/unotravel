@@ -4,7 +4,7 @@ import Link from "next/link";
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-export default function page() {
+export default function Page() {
   return (
     <div className="bg-[#F5F6FA] overflow-hidden h-screen flex justify-center items-center">
       <div

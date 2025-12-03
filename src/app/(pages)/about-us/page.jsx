@@ -7,14 +7,14 @@ import HomePartners from '@/components/pages/HomePage/HomePartners/HomePartners'
 import HomeSubscribe from '@/components/pages/HomePage/HomeSubscribe/HomeSubscribe';
 import React from 'react'
 
-export default function page() {
+export default function Page() {
   return (
     <div>
       <AboutBanners />
       <AboutContent />
       <HomeApp />
       <AboutStatistics />
-      <HomeSubscribe />
+      {/* <HomeSubscribe /> */}
       <HomePartners />
     </div>
   )

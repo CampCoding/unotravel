@@ -4,7 +4,7 @@ import ToursContent from '@/components/pages/ToursDetails/ToursContent/ToursCont
 import ToursDetailsBanner from '@/components/pages/ToursDetails/ToursDetailsBanner/ToursDetailsBanner'
 import React from 'react'
 
-export default function page() {
+export default function Page() {
   return (
     <div className='!overflow-x-hidden'>
         <ToursDetailsBanner/>

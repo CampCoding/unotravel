@@ -6,7 +6,7 @@ import HomeChooseUs from '@/components/pages/HomePage/HomeBanner/HomeChooseUs/Ho
 import HomePartners from '@/components/pages/HomePage/HomePartners/HomePartners'
 import React from 'react'
 
-export default function page() {
+export default function Page() {
   return (
     <div className='overflow-x-hidden'>
       <ContactUsContent />

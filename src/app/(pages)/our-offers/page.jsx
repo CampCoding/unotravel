@@ -5,7 +5,7 @@ import OurOffersSection from '@/components/pages/OurOffers/OurOffersSection/OurO
 import AboutStatistics from '@/components/pages/AboutPage/AboutStatistics/AboutStatistics';
 import React from 'react'
 
-export default function page() {
+export default function Page() {
   return (
     <div>
       <OurOfferBanner />

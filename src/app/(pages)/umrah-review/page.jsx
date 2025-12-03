@@ -3,7 +3,7 @@
 import React from 'react'
 import { CheckCircle} from 'lucide-react'
 import { motion } from "framer-motion";
-export default function page() {
+export default function Page() {
   return (
     <div className='p-5 container mx-auto py-4 lg:py-[29px]'>
 

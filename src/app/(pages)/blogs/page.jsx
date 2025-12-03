@@ -8,7 +8,7 @@ import CustomHeading from '../../../components/shared/CustomHeading/CustomHeadin
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
-export default function page() {
+export default function Page() {
   const router = useRouter();
 
   return (

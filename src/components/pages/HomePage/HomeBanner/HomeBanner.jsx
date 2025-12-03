@@ -121,15 +121,14 @@ export default function HomeBanner({ hero_services = [] }) {
           {
             console.log(img);
           return(
-            <SwiperSlide className="!h-auto" key={img?.banner_id}>
-              <div className="relative home-banner-swiper sm:!min-h-[700px] flex flex-col justify-end">
-                {/* Banner image / video */}
+            <SwiperSlide className="!h-screen" key={img?.banner_id}>
+              <div className="relative home-banner-swiper sm:!min-h-screen flex flex-col justify-end">
                 <ErrorImage
                   isImg={img?.media_type === "image"}
                   image={img?.media_url} // e.g. "/uploads/banners/search-flights.jpg"
                   FALLBACK_IMG={data[img?.idx]?.images[img?.banner_id]}
                   alt={img?.banner_title || "Hero banner"}
-                  className="object-cover"
+                  className="object-cover !min-h-[100vh]"
                   priority={idx === 0}
                   width={1920}
                   height={900}
@@ -200,7 +199,7 @@ export default function HomeBanner({ hero_services = [] }) {
                             alt={service?.service_name || "Service icon"}
                             className="object-cover"
                           />
-                          <span className="text-white text-xs sm:text-sm">
+                          <span className="text-white text-xs sm:text-[11px">
                             {service?.service_hero_title ||
                               service?.service_name}
                           </span>

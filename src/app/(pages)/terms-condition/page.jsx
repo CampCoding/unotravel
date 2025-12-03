@@ -4,12 +4,12 @@ import TermsAndConditionBanner from '@/components/pages/TermsAndCondition/TermsA
 import TermsAndConditionContent from '@/components/pages/TermsAndCondition/TermsAndConditionContent/TermsAndConditionContent'
 import React from 'react'
 
-export default function page() {
+export default function Page() {
   return (
     <div>
       <TermsAndConditionBanner />
       <TermsAndConditionContent/>
-      <HomeSubscribe />
+      {/* <HomeSubscribe /> */}
       <HomePartners />
     </div>
   )

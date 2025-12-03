@@ -7,7 +7,7 @@ import UmraPackages from '@/components/pages/OurServices/Umra/UmraPackages/UmraP
 import TourFaq from '@/components/pages/ToursDetails/TourFaq/TourFaq'
 import React from 'react'
 
-export default function page() {
+export default function Page() {
   return (
     <div>
         <UmraBanner />

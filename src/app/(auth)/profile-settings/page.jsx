@@ -3,7 +3,7 @@ import CustomHeading from '@/components/shared/CustomHeading/CustomHeading'
 import Modal from '@/components/shared/Modal/Modal'
 import React, { useState } from 'react'
 
-export default function page() {
+export default function Page() {
   const [openModal , setOpenModal] = useState(false);
 
   return (

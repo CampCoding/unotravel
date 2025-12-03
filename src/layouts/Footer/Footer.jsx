@@ -107,11 +107,12 @@ export default function Footer() {
     <footer data-aos="zoom-in" className=" pt-[130px] mt-5">
       <div className=" main-content">
       <div className="grid container grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_2fr] gap-6 md:gap-20 lg:gap-[89px]">
+      {console.log("layout_data", layout_data?.data?.data?.logos?.find(item => item?.logo_key == "footer-logo")?.image_url)}
         <div className="flex flex-col">
-          <Link href={`${layout_data?.data?.data?.logos[1]?.link_url}`}>
+          <Link href={`${layout_data?.data?.data?.logos?.find(item=>item?.logo_key=="footer-logo")?.logo_url || "/" }`}>
            <Image
-            src={layout_data?.data?.data?.logos.find(item => item?.logo_id == 2)?.image_url || "/images/BusinessCardLogo-removebg-preview.png"}
-            alt="main-logo"
+            src={layout_data?.data?.data?.logos?.find(item => item?.logo_key == "footer-logo")?.image_url}
+            alt="Uno Travel Logo"
             width={309}
             height={188}
             className="w-[170px] h-[90px] md:w-[200px] md:h-[100px] lg:w-[309px] lg:h-[188px] "

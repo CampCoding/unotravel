@@ -3,7 +3,7 @@ import React from 'react'
 import { AnimatePresence, motion } from "framer-motion";
 import { useUmrah } from "@/context/UmrahContext";
 import { useRouter } from "next/navigation";
-export default function page() {
+export default function Page() {
    const { selectedPackage } = useUmrah();
    const router = useRouter();
    const handleSubmit = (e) => {

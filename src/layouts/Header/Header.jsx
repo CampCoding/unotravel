@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleGetLayoutData, initializeLanguage, setSelectedLanguage } from "../../lib/features/layoutSlice";
@@ -112,7 +112,7 @@ export default function Header() {
   useEffect(() => {
     function handleClickOutside(e) {
       if (langMenuRef.current && !langMenuRef.current.contains(e.target)) setLangMenuOpen(false);
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpenDropdownId(null);
+      // if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpenDropdownId(null);
       if (profileRef.current && !profileRef.current.contains(e.target)) setIsProfileOpen(false);
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target)) setIsMobileMenuOpen(false);
       if (currencyMenuRef.current && !currencyMenuRef.current.contains(e.target)) setCurrencyMenuOpen(false);
@@ -126,7 +126,7 @@ export default function Header() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
+const router = useRouter()
   return (
     <header className="w-full">
       <div className="flex container mx-auto py-4 lg:py-[29px] justify-between items-center">
@@ -150,7 +150,7 @@ export default function Header() {
                 <div key={item.id} className="relative" ref={dropdownRef}>
                   <div
                     className="flex gap-[6px] justify-center items-center cursor-pointer"
-                    onClick={() => setOpenDropdownId((prev) => (prev === item?.item_id ? null : item?.item_id))}
+                    onClick={() => setOpenDropdownId((prev) => item?.item_id)}
                   >
                     <p
                       className={`${pathname === item?.item_url ? "text-[var(--main-light-color)] !font-bold" : "text-[var(--main-dark-color)]"} !text-sm xl:!text-base my-auto whitespace-nowrap capitalize !font-[filson-bold]`}
@@ -159,18 +159,18 @@ export default function Header() {
                     </p>
                     <ChevronDown size={15} color="#264787" />
                   </div>
-
-                  {openDropdownId === item?.item_id && item?.routes?.length > 0 && (
+{console.log("openDropdownId",item, openDropdownId)}
+                  {openDropdownId == item?.item_id && item?.routes?.length > 0 && (
                     <div className="absolute top-10 left-0 mt-2 bg-white border border-[#3B85C1] rounded-[7px] p-6 w-[280px] shadow-md z-50">
                       <div className="grid grid-cols-1 gap-3">
-                        {item?.route?.map((child) => (
+                        {item?.routes?.map((child) => (
                           <Link
                             key={child?.parent_item_id}
-                            href={`${child?.url}`}
-                            className="flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition"
-                            onClick={closeAllMenus} // close on click
+                            onClick={()=> typeof window!=undefined ? window.location.href = `/our-services/${child?.url}`:null}
+                            className= "flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition"
+                            href="#"
                           >
-                            <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.title} />
+                            {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.title} /> : null}
                             <span className="text-black text-base">{child?.title}</span>
                           </Link>
                         ))}

@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleGetHomeData, handleGetLayoutData } from "../lib/features/layoutSlice";
 
-export default function page() {
+export default function Page() {
   const dispatch = useDispatch();
   const {home_loading , home_data , selectedLanguage ,layout_loading ,layout_data} = useSelector(state => state?.layout);
   const [offerLogo , setOfferLogo]  = useState("");
