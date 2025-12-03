@@ -123,9 +123,9 @@ export default function HomeServices({data}) {
           <motion.div key={service?.service_id} variants={childVariant}>
             <div
               className="bg-[#F5F6FA] relative cursor-pointer rounded-xl min-h-[126px]"
-              onClick={()=>{
-                if(typeof window != undefined && service?.service_origin_type == "internal"){
-window.location.href =  "/our-services/" + service?.service_slug;
+              onClick={() => {
+                if (typeof window !== 'undefined' && service?.service_origin_type == "internal") {
+                  window.location.href = "/our-services/" + service?.service_slug;
                 }
               }}
             >

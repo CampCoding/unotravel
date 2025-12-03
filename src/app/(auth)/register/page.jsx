@@ -8,7 +8,7 @@ import ServiceLocation from "@/components/pages/auth/Register/ServiceLocation";
 export default function SignUpPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  if (typeof window == undefined) {
+  if (typeof window === 'undefined') {
     return null;
   }
   return (
