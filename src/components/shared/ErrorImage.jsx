@@ -9,7 +9,6 @@ export default function ErrorImage({
   FALLBACK_IMG = "/images/fallback.png",
   width = 40,
   height = 40,
- className ="",
   ...props
 }) {
   const initialSrc = useMemo(() => {
@@ -60,7 +59,7 @@ export default function ErrorImage({
       src={src}
       alt={alt || "Image"}
       onError={handleError } // TS sometimes complains, this is fine in practice
-      className={`object-cover ${className} `}
+      className="object-cover"
       {...props}
     />
   );
