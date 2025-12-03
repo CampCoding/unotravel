@@ -22,7 +22,7 @@ const data = [
 
 export default function UmraBanner() {
   return (
-    <div data-aos="zoom-in-right" className="overflow-hidden">
+    <div data-aos="zoom-in-right" className="overflow-hidden  h-fit">
       <Swiper
         modules={[Pagination]}
         pagination={{ clickable: true }}

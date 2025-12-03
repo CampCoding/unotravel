@@ -65,7 +65,7 @@ function handleScroll() {
     }
 
   return (
-    <div className="mx-4 md:mx-6 lg:mx-10">
+    <div className="mx-4 md:mx-6 lg:mx-10  h-fit">
       <Swiper
         modules={[Autoplay]}
         className="bannerSwiper"

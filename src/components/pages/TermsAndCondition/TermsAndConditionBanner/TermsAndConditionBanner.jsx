@@ -13,7 +13,7 @@ const data = [
 
 export default function TermsAndConditionBanner() {
   return (
-    <div data-aos="zoom-in-right" className="overflow-x-hidden">
+    <div data-aos="zoom-in-right" className="overflow-x-hidden  h-fit">
       <Swiper>
         {data?.map((item) => (
           <SwiperSlide key={item?.id} className="w-full">

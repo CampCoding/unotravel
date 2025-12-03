@@ -55,10 +55,10 @@ export default function OurOffersSection() {
 
       <div
         data-aos-delay={1000}
-        className="!ps-[20px] md:!ps-[80px] mt-10"
+        className="!ps-[20px] md:!ps-[80px] mt-10  h-fit"
         data-aos="zoom-in-up"
       >
-        <div className="overflow-hidden">
+        <div className="overflow-hidden  h-fit">
           <Swiper
             ref={swiperRef}
             spaceBetween={75}

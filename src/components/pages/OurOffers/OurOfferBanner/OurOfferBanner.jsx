@@ -22,7 +22,7 @@ export default function OurOfferBanner() {
       exit={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="w-full"
+      className="w-full  h-fit"
     >
       <Swiper
         modules={[Autoplay, Pagination]}

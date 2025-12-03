@@ -22,13 +22,13 @@ export default function BlogBanner() {
       exit={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="w-full"
+      className= "w-full  h-fit"
     >
       <Swiper
         modules={[Autoplay, Pagination]}
         autoplay={{ delay: 4000 }}
         loop
-        className="w-full"
+        className="w-full  h-fit"
       >
         {data.map((item) => (
           <SwiperSlide key={item.id}>

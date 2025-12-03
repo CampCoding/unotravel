@@ -166,12 +166,12 @@ const router = useRouter()
                         {item?.routes?.map((child) => (
                           <Link
                             key={child?.parent_item_id}
-                            onClick={() => (typeof window !== 'undefined' ? window.location.href = `${child?.item_url}` : null)}
+                            onClick={() => (typeof window !== 'undefined' ? window.location.href = `/our-services/${child?.url}` : null)}
                             className= "flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition"
                             href="#"
                           >
-                            {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.item_label} /> : null}
-                            <span className="text-black text-base">{child?.item_label}</span>
+                            {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.title} /> : null}
+                            <span className="text-black text-base">{child?.title}</span>
                           </Link>
                         ))}
                       </div>

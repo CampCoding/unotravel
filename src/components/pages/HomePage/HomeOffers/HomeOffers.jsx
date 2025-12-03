@@ -86,7 +86,7 @@ export default function HomeOffers({data ,logo}) {
         </div>
 
         {/* Swiper Container */}
-        <div className="overflow-hidden">
+        <div className="overflow-hidden  h-fit">
           <Swiper
             ref={swiperRef}
             spaceBetween={15}

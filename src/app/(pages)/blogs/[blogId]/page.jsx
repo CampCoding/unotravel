@@ -378,7 +378,7 @@ const BlogPostDetail = () => {
             </div>
           </div>
 
-          <div className="bg-white/90 rounded-3xl border border-slate-100 shadow-md shadow-slate-200/70 px-3 sm:px-4 md:px-6 py-4 sm:py-5 md:py-6">
+          <div className= "bg-white/90 rounded-3xl border border-slate-100 shadow-md shadow-slate-200/70 px-3 sm:px-4 md:px-6 py-4 sm:py-5 md:py-6">
             <Swiper
               modules={[Autoplay]}
               onSwiper={setRelatedSwiper}

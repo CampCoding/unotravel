@@ -91,7 +91,7 @@ const travelers = [
 
 export default function FlightFareBestTravels() {
   return (
-    <section className="mt-16">
+    <section className= "mt-16">
       <div className="mx-auto px-4">
         {/* Heading + arrows */}
         <div className="flex items-center justify-between gap-4 mb-8">

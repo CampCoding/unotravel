@@ -107,7 +107,7 @@ export default function HomeBanner({ hero_services = [] }) {
   }
 
   return (
-    <div className="relative home-banner w-full">
+    <div className="relative home-banner w-full  h-fit">
       {/* Only one active block driven by selectedTab */}
       <div className="block">
         <Swiper
@@ -148,7 +148,7 @@ export default function HomeBanner({ hero_services = [] }) {
 
                 {/* Content */}
                 <div className="py-4 !z-[9999] container absolute bottom-0 flex flex-col justify-center items-center sm:bottom-10 left-1/2 -translate-x-1/2 w-full px-4 sm:px-6 text-white">
-                  <div className="w-full">
+                  <div className= "w-full  h-fit">
                     {/* Title */}
                     <motion.h2
                       style={{

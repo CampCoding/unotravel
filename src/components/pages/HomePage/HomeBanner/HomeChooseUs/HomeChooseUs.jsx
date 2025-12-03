@@ -69,18 +69,17 @@ export default function HomeChooseUs({ banner = true, data: chooseUSData }) {
       initial="initial"
       whileInView="animate"
       viewport={{ once: true, amount: 0.2 }}
-      className= "container mt-[100px] mb-[60px] !h-fit"
+      className="container mt-[100px] mb-[60px]"
     >
       <div
-      className=" !h-fit"
         dangerouslySetInnerHTML={{ __html: chooseUSData?.sectionName }}
       ></div>
 
-      <div className= "grid grid-cols-2 mt-20 sm:grid-cols-3 lg:grid-cols-5 gap-6 items-center justify-center  !h-fit">
+      <div className="grid grid-cols-2 mt-20 sm:grid-cols-3 lg:grid-cols-5 gap-6 items-center justify-center">
         {chooseUSData?.data?.items?.map((item) => (
           <motion.div key={item?.item_id} variants={childVariant}>
             <Tilt
-              className="bg-[#F5F6FA] h-[160px] rounded-md flex flex-col items-center justify-center px-4 py-6 text-center "
+              className="bg-[#F5F6FA] h-[160px] rounded-md flex flex-col items-center justify-center px-4 py-6 text-center"
               glareEnable={true}
               glareMaxOpacity={0.3}
               glareColor="#ffffff"
@@ -107,7 +106,7 @@ export default function HomeChooseUs({ banner = true, data: chooseUSData }) {
       data-aos="fade-up"
       data-aos-delay={1000}
       src="/images/Image 314.png" className="object-contain lg:object-cover !rounded-lg mt-[54px] h-[198px]"/>} */}
-      <div className="w-full">
+      <div className="w-full  h-fit">
         <Swiper 
         className="w-full"
         slidesPerView={1} >
