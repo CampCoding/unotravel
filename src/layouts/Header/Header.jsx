@@ -166,7 +166,7 @@ const router = useRouter()
                         {item?.routes?.map((child) => (
                           <Link
                             key={child?.parent_item_id}
-                            onClick={() => (typeof window !== 'undefined' ? window.location.href = `/our-services/${child?.item_url}` : null)}
+                            onClick={() => (typeof window !== 'undefined' ? window.location.href = `${child?.item_url}` : null)}
                             className= "flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition"
                             href="#"
                           >
