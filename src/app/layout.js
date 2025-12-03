@@ -33,7 +33,9 @@ export default function RootLayout({ children }) {
   const pathname = usePathname();
   // List of paths where Header/Footer should be hidden
   const hideLayout = ["/sign-in"].some((path) => pathname.startsWith(path));
-
+ if (typeof window == undefined) {
+    return null;
+  }
 
   return (
     <html lang="en">
