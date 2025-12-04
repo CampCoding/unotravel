@@ -55,7 +55,7 @@ export default function ComingSoon() {
           <div className="mb-8">
             <div className="flex justify-center mb-6">
               <div className="relative">
-                <Compass className="w-20 h-20 text-blue-600 animate-pulse" />
+                {/* <Compass className="w-20 h-20 text-blue-600 animate-pulse" /> */}
                 <Plane className="w-10 h-10 text-blue-800 absolute -top-2 -right-2 rotate-12" />
               </div>
             </div>
