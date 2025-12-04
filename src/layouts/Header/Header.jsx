@@ -159,19 +159,19 @@ const router = useRouter()
                     </p>
                     <ChevronDown size={15} color="#264787" />
                   </div>
-{console.log("openDropdownId",item, openDropdownId)}
+
                   {openDropdownId == item?.item_id && item?.routes?.length > 0 && (
                     <div className="absolute top-10 left-0 mt-2 bg-white border border-[#3B85C1] rounded-[7px] p-6 w-[280px] shadow-md z-50">
                       <div className="grid grid-cols-1 gap-3">
                         {item?.routes?.map((child) => (
                           <Link
                             key={child?.parent_item_id}
-                            onClick={() => (typeof window !== 'undefined' ? window.location.href = `/our-services/${child?.url}` : null)}
+                           onClick={() => (typeof window !== 'undefined' ? window.location.href = `/our-services/${child?.url}` : null)}
                             className= "flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition"
                             href="#"
                           >
-                            {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.title} /> : null}
-                            <span className="text-black text-base">{child?.item_title}</span>
+                            {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.item_label} /> : null}
+                            <span className="text-black text-base">{child?.item_label}</span>
                           </Link>
                         ))}
                       </div>
