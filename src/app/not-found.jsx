@@ -50,7 +50,7 @@ export default function ComingSoon() {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center px-4">
-        <div className="max-w-4xl w-full text-center">
+        <div className="max-w-4xl w-full text-center pt-4">
           {/* Logo / Title */}
           <div className="mb-8">
             <div className="flex justify-center mb-6">
@@ -79,7 +79,7 @@ export default function ComingSoon() {
           </div>
 
           {/* Countdown Timer */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-3xl mx-auto mb-12">
+          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-3xl mx-auto mb-12">
             {Object.entries(timeLeft).map(([unit, value]) => (
               <div key={unit} className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl py-6 px-4 border border-blue-100">
                 <div className="text-4xl md:text-6xl font-bold text-blue-700">
@@ -90,7 +90,7 @@ export default function ComingSoon() {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Email Subscription */}
           <div className="max-w-md mx-auto">
