@@ -171,7 +171,7 @@ const router = useRouter()
                             href="#"
                           >
                             {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.title} /> : null}
-                            <span className="text-black text-base">{child?.title}</span>
+                            <span className="text-black text-base">{child?.item_title}</span>
                           </Link>
                         ))}
                       </div>
