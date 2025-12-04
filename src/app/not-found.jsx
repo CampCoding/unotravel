@@ -37,7 +37,7 @@ export default function ComingSoon() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Replace with your actual endpoint (Formspree, etc.)
     // Example: await fetch('https://formspree.io/f/your-id', { method: 'POST', body: JSON.stringify({ email }) })
