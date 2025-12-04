@@ -155,7 +155,7 @@ export default function CarReservationCard({ car, itemVariants, imageVariants })
                 focus:outline-none focus:ring-4 focus:ring-[#3b85c1]/50
                 text-sm sm:text-base
               "
-              onClick={() => router.push(`/car-reservation/${car?.id}`)}
+              onClick={() => router.push(`/our-services/car-reservation/${car?.id}`)}
             >
               <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
                 <span>Book Now</span>
