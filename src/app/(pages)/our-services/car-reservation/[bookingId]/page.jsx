@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import ReservationForm from "../../../../components/pages/CarReservation/ReservationForm";
+import ReservationForm from "../../../../../components/pages/CarReservation/ReservationForm";
 
 const fallbackCar = {
   id: 2,
