@@ -119,7 +119,7 @@ export default function HomeBanner({ hero_services = [] }) {
         >
           {selectedTab?.banners?.map((img, idx) =>
           {
-            console.log(img);
+     
           return(
             <SwiperSlide className="!h-screen" key={img?.banner_id}>
               <div className="relative home-banner-swiper sm:!min-h-screen flex flex-col justify-end">

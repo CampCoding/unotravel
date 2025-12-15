@@ -59,9 +59,9 @@ const childVariant = {
 
 export default function HomeChooseUs({ banner = true, data: chooseUSData }) {
 
-  useEffect(() => {
+/*   useEffect(() => {
     console.log(chooseUSData?.data?.items?.map(item => item?.title));
-  }, [chooseUSData]);
+  }, [chooseUSData]); */
 
   return (
     <motion.div

@@ -6,10 +6,8 @@ import { apiRoutes } from "../shared/routes";
 const initialState = {
   layout_data: [],
   layout_loading: false,
-
   home_data: [],
   home_loading: false,
-
   selectedLanguage:1
 };
 

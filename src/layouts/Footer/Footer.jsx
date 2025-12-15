@@ -102,12 +102,14 @@ export default function Footer() {
     useEffect(() => {
       setMainFooterData(layout_data?.data?.data?.footer?.settings)
     } , [layout_data])
+
+    
     
   return (
     <footer data-aos="zoom-in" className=" pt-[130px] mt-5">
       <div className=" main-content">
       <div className="grid container grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_2fr] gap-6 md:gap-20 lg:gap-[89px]">
-      {console.log("layout_data", layout_data?.data?.data?.logos?.find(item => item?.logo_key == "footer-logo")?.image_url)}
+{/*       {console.log("layout_data", layout_data?.data?.data?.logos?.find(item => item?.logo_key == "footer-logo")?.image_url)} */}
         <div className="flex flex-col">
           <Link href={`${layout_data?.data?.data?.logos?.find(item=>item?.logo_key=="footer-logo")?.logo_url || "/" }`}>
            <Image

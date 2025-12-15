@@ -104,7 +104,9 @@ const childVariant = {
   },
 };
 
-export default function HomeServices({data}) {
+export default function HomeServices({ data }) {
+  console.log(data);
+
   return (
     <motion.div
       variants={parentVariant}
@@ -113,9 +115,7 @@ export default function HomeServices({data}) {
       viewport={{ once: true }}
       className="container mt-[123px]"
     >
-      <div
-       dangerouslySetInnerHTML={{__html : data?.sectionName}}
-      ></div>
+      <div dangerouslySetInnerHTML={{ __html: data?.sectionName }}></div>
 
       {/* <CustomHeading first_title={data?.sectionName?.length > 0 &&  data?.sectionName?.split(" ")[0] || "Our"} second_title={data?.sectionName?.length > 0 &&  data?.sectionName?.split(" ")[1] || "Services"} /> */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-10 gap-3 items-center">
@@ -124,16 +124,21 @@ export default function HomeServices({data}) {
             <div
               className="bg-[#F5F6FA] relative cursor-pointer rounded-xl min-h-[126px]"
               onClick={() => {
-                if (typeof window !== 'undefined' && service?.service_origin_type == "internal") {
-                  window.location.href = "/our-services/" + service?.service_slug;
+                console.log(service.service_slug);
+                
+                if (
+                  typeof window !== "undefined" 
+                ) {
+                  window.location.href =
+                    "/our-services/" + service?.service_slug;
                 }
               }}
             >
               <div className="flex h-[81px] justify-center items-center">
-              {console.log("service", service)}
-                <ErrorImage 
-                 image={service?.service_image}
-                 FALLBACK_IMG={"/images/services icon  (2).svg"}
+                {/*   {console.log("service", service)} */}
+                <ErrorImage
+                  image={service?.service_image}
+                  FALLBACK_IMG={"/images/services icon  (2).svg"}
                   width={40}
                   alt="home service"
                   height={40}

@@ -1,15 +1,14 @@
 "use client";
+
 import CustomHeading from "@/components/shared/CustomHeading/CustomHeading";
 import { CircleChevronLeft, CircleChevronRight } from "lucide-react";
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import Image from "next/image";
 import ErrorImage from "../../../shared/ErrorImage";
-import { useDispatch, useSelector } from "react-redux";
-import { handleGetLayoutData } from "../../../../lib/features/layoutSlice";
 
 const offers = [
   "/images/Uno Offers (1).webp",
@@ -20,12 +19,7 @@ const offers = [
   "/images/Uno Offers (6).webp",
 ];
 
-export default function HomeOffers({data ,logo}) {
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
-  const swiperRef = useRef(null);
-
-
+export default function HomeOffers({ data, logo }) {
   return (
     <div
       data-aos="fade-up"
@@ -55,15 +49,18 @@ export default function HomeOffers({data ,logo}) {
       <div className="flex flex-col gap-4 md:gap-6 flex-1 min-w-0 w-full">
         {/* Header */}
         <div className="flex flex-row justify-between items-center gap-4 sm:gap-0">
-          <div dangerouslySetInnerHTML={{__html : data?.sectionName}}></div>
+          <div dangerouslySetInnerHTML={{ __html: data?.sectionName }}></div>
+
           <div className="flex items-center gap-3 sm:mr-8 md:mr-12 lg:mr-16 xl:mr-20">
             <p className="text-[#3B85C1] my-auto text-base md:text-lg font-medium">
               Browse All
             </p>
+
+            {/* ✅ Navigation Buttons (Selectors) */}
             <button
-              ref={prevRef}
-              className="cursor-pointer hover:opacity-70 transition-opacity"
+              className="offers-prev cursor-pointer hover:opacity-70 transition-opacity"
               aria-label="Previous offer"
+              type="button"
             >
               <CircleChevronLeft
                 size={28}
@@ -71,10 +68,11 @@ export default function HomeOffers({data ,logo}) {
                 className="sm:w-8 sm:h-8"
               />
             </button>
+
             <button
-              ref={nextRef}
-              className="cursor-pointer hover:opacity-70 transition-opacity"
+              className="offers-next cursor-pointer hover:opacity-70 transition-opacity"
               aria-label="Next offer"
+              type="button"
             >
               <CircleChevronRight
                 size={28}
@@ -86,66 +84,28 @@ export default function HomeOffers({data ,logo}) {
         </div>
 
         {/* Swiper Container */}
-        <div className="overflow-hidden  h-fit">
+        <div className="overflow-hidden h-fit">
           <Swiper
-            ref={swiperRef}
             spaceBetween={15}
             slidesPerView={1.5}
             modules={[Navigation, Autoplay]}
             navigation={{
-              prevEl: prevRef.current,
-              nextEl: nextRef.current,
+              prevEl: ".offers-prev",
+              nextEl: ".offers-next",
+            }}
+            autoplay={{
+              delay: 3000,
+              disableOnInteraction: false,
             }}
             breakpoints={{
-              // Mobile phones (320px - 639px)
-              320: {
-                slidesPerView: 1.5,
-                spaceBetween: 10,
-              },
-              // Small tablets (480px)
-              480: {
-                slidesPerView: 1.5,
-                spaceBetween: 12,
-              },
-              // Large tablets (640px - 767px)
-              640: {
-                slidesPerView: 2,
-                spaceBetween: 15,
-              },
-              // Small desktops (768px - 1023px)
-              768: {
-                slidesPerView: 2.5,
-                spaceBetween: 15,
-              },
-              // Medium desktops (1024px - 1219px)
-              1024: {
-                slidesPerView: 3,
-                spaceBetween: 18,
-              },
-              // Large desktops (1220px - 1379px)
-              1220: {
-                slidesPerView: 3,
-                spaceBetween: 20,
-              },
-              // Extra large desktops (1380px+)
-              1380: {
-                slidesPerView: 4,
-                spaceBetween: 20,
-              },
-              // Ultra wide screens (1600px+)
-              1600: {
-                slidesPerView: 4.5,
-                spaceBetween: 25,
-              },
-            }}
-            onSwiper={(swiper) => {
-              setTimeout(() => {
-                swiper.params.navigation.prevEl = prevRef.current;
-                swiper.params.navigation.nextEl = nextRef.current;
-                swiper.navigation.destroy();
-                swiper.navigation.init();
-                swiper.navigation.update();
-              });
+              320: { slidesPerView: 1.5, spaceBetween: 10 },
+              480: { slidesPerView: 1.5, spaceBetween: 12 },
+              640: { slidesPerView: 2, spaceBetween: 15 },
+              768: { slidesPerView: 2.5, spaceBetween: 15 },
+              1024: { slidesPerView: 3, spaceBetween: 18 },
+              1220: { slidesPerView: 3, spaceBetween: 20 },
+              1380: { slidesPerView: 4, spaceBetween: 20 },
+              1600: { slidesPerView: 4.5, spaceBetween: 25 },
             }}
           >
             {data?.data?.map((offer, index) => (

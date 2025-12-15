@@ -43,7 +43,7 @@ export default function HomeSubscribe({ data }) {
               placeholder={data?.data?.input_placeholder || "Enter Your Email"}
               className={`w-full border border-[${data?.data?.input_border_color}] sm:w-[315px] h-[50px] bg-[${data?.data?.input_bg_color}] !rounded-lg py-[15px] px-[20px] text-[${data?.data?.input_text_color}] placeholder:text-[${data?.data?.input_placeholder_color}] font-medium text-base outline-none`}
             />
-            {console.log("datadatadata", data)}
+          
             <button
               className={`w-full sm:w-[119px] h-[50px] flex justify-center hover:bg-[${
                 data?.data?.button_hover_color
