@@ -1,9 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { IoIosAirplane } from "react-icons/io";
 
 export default function FlightResultCard({
+  id,
+  selected = false,
+  onSelect,
   dateText = "Fri, 23 Aug, 2024",
   fromCity = "Stockholm",
   toCity = "Dubai",
@@ -32,9 +35,20 @@ export default function FlightResultCard({
   priceTitle = "Price for 1 Person(s)",
   price = "5.609,00 SEK",
   priceSub = "per Adult: 5.609,00",
+  setSelectedTours,
 }) {
+  const [selectedType, setSelectedType] = useState(null);
+  console.log(selected);
+
   return (
-    <div className="w-full max-w-[420px] rounded-md border border-[#9CB7D2] bg-white shadow-sm overflow-hidden">
+    <div
+      className={[
+        "w-full rounded-md border bg-white shadow-sm overflow-hidden cursor-pointer",
+        selected
+          ? "border-[#0B63B9] ring-2 ring-[#0B63B9]/20"
+          : "border-[#9CB7D2]",
+      ].join(" ")}
+    >
       {/* Top header */}
       <div className="border-b border-[#D6E4F2]">
         <div className="bg-[#7F98B4] text-white px-3 py-1.5 flex items-center gap-2">
@@ -63,22 +77,40 @@ export default function FlightResultCard({
       <div className="px-3 py-3">
         {/* Select row + airline blocks */}
         <div className="flex items-start gap-3">
-          <div className="pt-1">
-            <span className="inline-flex h-4 w-4 rounded-full border-2 border-slate-400 items-center justify-center">
-              <span className="h-2 w-2 rounded-full bg-slate-500" />
-            </span>
-          </div>
+          <div className="pt-1"></div>
 
           <div className="flex-1">
             {/* airline / flight codes row */}
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <AirlineMark />
-                <span className="text-xs text-slate-600">({flight1.code})</span>
+              <div
+                onClick={() => {
+                  setSelectedType(flight1.code);
+                }}
+                className={`${
+                  selectedType === flight1.code
+                    ? "bg-[#2F5F9A] text-white"
+                    : "text-slate-800"
+                }  p-1 !rounded-md cursor-pointer`}
+              >
+                <div className="flex items-center gap-2">
+                  <AirlineMark />
+                  <span className="text-xs">({flight1.code})</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <AirlineMark />
-                <span className="text-xs text-slate-600">({flight2.code})</span>
+              <div
+                onClick={() => {
+                  setSelectedType(flight2.code);
+                }}
+                className={`${
+                  selectedType === flight2.code
+                    ? "bg-[#2F5F9A] text-white"
+                    : "text-slate-800"
+                }  p-1 !rounded-md cursor-pointer`}
+              >
+                <div className="flex items-center gap-2">
+                  <AirlineMark />
+                  <span className="text-xs ">({flight2.code})</span>
+                </div>
               </div>
             </div>
 
@@ -200,9 +232,14 @@ export default function FlightResultCard({
 
         <button
           type="button"
-          className="mt-3 w-full bg-[#0B63B9] text-white font-semibold py-3 rounded-sm hover:opacity-95 active:scale-[0.99] transition"
+          onClick={() => {
+            onSelect?.();
+          }}
+          className={`mt-3 w-full ${
+            selected ? "bg-red-600" : "bg-[#2F5F9A]"
+          } text-white font-semibold py-3 rounded-sm hover:opacity-95 active:scale-[0.99] transition`}
         >
-          SELECT <span className="ml-1">✈</span>
+          {selected ? "Selected" : "Select"} <span className="ml-1">✈</span>
         </button>
       </div>
     </div>

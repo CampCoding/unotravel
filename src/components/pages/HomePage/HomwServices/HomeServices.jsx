@@ -19,6 +19,7 @@ import {
 import AOS from "aos";
 import Image from "next/image";
 import ErrorImage from "../../../shared/ErrorImage";
+import { useRouter } from "next/navigation";
 
 export const services = [
   {
@@ -105,7 +106,7 @@ const childVariant = {
 };
 
 export default function HomeServices({ data }) {
-  console.log(data);
+  const router = useRouter();
 
   return (
     <motion.div
@@ -125,12 +126,9 @@ export default function HomeServices({ data }) {
               className="bg-[#F5F6FA] relative cursor-pointer rounded-xl min-h-[126px]"
               onClick={() => {
                 console.log(service.service_slug);
-                
-                if (
-                  typeof window !== "undefined" 
-                ) {
-                  window.location.href =
-                    "/our-services/" + service?.service_slug;
+
+                if (typeof window !== "undefined") {
+                  router.push(`/our-services/${service?.service_slug}`);
                 }
               }}
             >

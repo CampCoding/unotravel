@@ -1,33 +1,39 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { Radio, Checkbox, Select, Input, Button, DatePicker } from "antd";
+import dayjs from "dayjs";
 import {
   MapPin,
+  PlaneTakeoff,
   CalendarDays,
   Users,
-  PlaneTakeoff,
   ChevronDown,
+  Search,
 } from "lucide-react";
 
-export default function FlightSearchHeader({
+const { RangePicker } = DatePicker;
+
+export default function FlightFiltersAntd({
+  setFilterOpen,
   defaultValues,
   onSearch,
   className = "",
-  sticky = true,
 }) {
   const initial = useMemo(
     () => ({
       tripType: "return",
       from: "Stockholm, Sweden",
       to: "Dubai International Airport (DXB)",
-      departDate: "2024-08-23",
-      returnDate: "2024-08-30",
-      passengers: 1,
+      departDate: dayjs("2024-08-23"),
+      returnDate: dayjs("2024-08-30"),
+      passengersLabel: "1 Passenger",
       cabin: "economy",
       airline: "",
       flex3days: false,
       directOnly: false,
-      _optsOpen: true, // ✅ خليها ظاهرة افتراضيًا زي الصورة
+      optsOpen: true,
+      loading: false,
       ...defaultValues,
     }),
     [defaultValues]
@@ -35,274 +41,283 @@ export default function FlightSearchHeader({
 
   const [v, setV] = useState(initial);
 
-  const submit = (e) => {
+  async function submit(e) {
     e.preventDefault();
-    onSearch?.(v);
-  };
-
-  const TripPill = ({ id, label }) => {
-    const active = v.tripType === id;
-    return (
-      <button
-        type="button"
-        onClick={() => setV((s) => ({ ...s, tripType: id }))}
-        className={[
-          "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition w-full justify-center",
-          active
-            ? "text-white bg-white/15 ring-1 ring-white/25"
-            : "text-white/80 hover:text-white hover:bg-white/10",
-        ].join(" ")}
-        aria-pressed={active}
-      >
-        <span
-          className={[
-            "h-4 w-4 rounded-full border grid place-items-center",
-            active ? "border-[#F4B400]" : "border-white/50",
-          ].join(" ")}
-        >
-          {active ? (
-            <span className="h-2.5 w-2.5 rounded-full bg-[#F4B400]" />
-          ) : null}
-        </span>
-        {label}
-      </button>
-    );
-  };
+    try {
+      setV((s) => ({ ...s, loading: true }));
+      await onSearch?.({
+        ...v,
+        departDate: v.departDate?.format?.("YYYY-MM-DD") ?? v.departDate,
+        returnDate: v.returnDate?.format?.("YYYY-MM-DD") ?? v.returnDate,
+      });
+    } finally {
+      setV((s) => ({ ...s, loading: false }));
+    }
+  }
 
   return (
-    <div
-      className={[sticky ? "sticky top-0 z-40" : "", "w-full", className].join(
-        " "
-      )}
+    <section
+      className={["relative w-full overflow-hidden !px-0", className].join(" ")}
+      style={{
+        backgroundImage:
+          "linear-gradient(180deg, rgba(10,18,40,.65), rgba(10,18,40,.82)), url('/images/10117.webp')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
-      <div className="w-full bg-[#3C4A63]">
-       {/*  <div className="text-center pt-3">
-          <p className="text-white text-3xl font-medium ">
-            <span className="">Flight </span>
-            <span className="">Search</span>
-          </p>
-        </div> */}
-        <form onSubmit={submit} className="mx-auto max-w-6xl px-4 md:px-6 py-5">
-          {/* Trip type */}
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            <TripPill id="oneway" label="One Way" />
-            <TripPill id="return" label="Return" />
-            <TripPill id="multitrip" label="Multi Trip" />
-          </div>
-
-          {/* Row 1 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3">
-            <Field
-              className="lg:col-span-3"
-              label="Leaving From"
-              icon={<MapPin className="h-4 w-4" />}
+      <header>
+        <div className=" container !px-0 py-6">
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              className="h-10 w-10 !rounded-full transition-all hover:bg-white/10 grid place-items-center text-white"
+              aria-label="Back"
             >
-              <input
-                value={v.from}
-                onChange={(e) => setV((s) => ({ ...s, from: e.target.value }))}
-                className={inputCls}
-                placeholder="City or airport"
-              />
-            </Field>
-
-            <Field
-              className="lg:col-span-3"
-              label="Leaving To"
-              icon={<MapPin className="h-4 w-4" />}
-            >
-              <input
-                value={v.to}
-                onChange={(e) => setV((s) => ({ ...s, to: e.target.value }))}
-                className={inputCls}
-                placeholder="City or airport"
-              />
-            </Field>
-
-            <Field
-              className="lg:col-span-3"
-              label="Departing on"
-              icon={<CalendarDays className="h-4 w-4" />}
-            >
-              {v.tripType === "oneway" ? (
-                <input
-                  type="date"
-                  value={v.departDate}
-                  onChange={(e) =>
-                    setV((s) => ({ ...s, departDate: e.target.value }))
-                  }
-                  className={inputCls}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M15 18l-6-6 6-6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="date"
-                    value={v.departDate}
-                    onChange={(e) =>
-                      setV((s) => ({ ...s, departDate: e.target.value }))
+              </svg>
+            </button>
+
+            {/* filter button mobile only */}
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              className="h-10 w-10 rounded-full hover:bg-white/10 grid place-items-center text-white lg:hidden"
+              aria-label="Filter"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 5h16l-6 7v6l-4 2v-8L4 5z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+
+            <div className="hidden lg:block w-10" />
+          </div>
+        </div>
+      </header>
+      <div className=" container !px-0  py-10">
+        {/* Title */}
+        <div className="inline-flex items-center rounded-xl bg-[#142b55]/90 px-6 py-2 shadow-lg ring-1 ring-white/10">
+          <h1
+            className="text-3xl sm:text-4xl font-extrabold text-white
+            drop-shadow-[0_0_8px_#22d3ee]
+            drop-shadow-[0_0_22px_#22d3ee]"
+          >
+            Flights Details
+          </h1>
+        </div>
+
+        <p className="mt-3 text-sm font-semibold text-white/90">
+          Find and book flights to your favourite destinations in seconds.
+        </p>
+
+        {/* Modern Card */}
+        <form
+          onSubmit={submit}
+          className="mt-6 rounded-2xl bg-white/20 backdrop-blur-xl shadow-2xl "
+        >
+          <div className="p-3 sm:p-5">
+            {/* Row 1 */}
+            <div className="flex flex-col  lg:flex-row lg:items-center lg:justify-between">
+              {/* Trip radios */}
+              <Radio.Group
+                value={v.tripType}
+                onChange={(e) =>
+                  setV((s) => ({ ...s, tripType: e.target.value }))
+                }
+                className="flight-antd-radio !text-white"
+              >
+                <Radio value="oneway">One Way</Radio>
+                <Radio value="return">Return</Radio>
+                <Radio value="multitrip">Multi Trip</Radio>
+              </Radio.Group>
+
+              {/* Advanced + checks + selects */}
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                <div className="flex ms-2 justify-between items-center">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-slate-900"
+                    onClick={() =>
+                      setV((s) => ({ ...s, optsOpen: !s.optsOpen }))
                     }
-                    className={inputCls}
-                    aria-label="Departure date"
+                  >
+                    Advanced
+                    <ChevronDown
+                      className={[
+                        "h-4 w-4 transition",
+                        v.optsOpen ? "rotate-180" : "",
+                      ].join(" ")}
+                    />
+                  </button>
+
+                  <div
+                    className={`flex ${
+                      v.optsOpen ? "opacity-100" : "opacity-0"
+                    } flex-col gap-3 sm:flex-row`}
+                  >
+                    <Checkbox
+                      checked={v.flex3days}
+                      className="text-white"
+                      onChange={(e) => {
+                        console.log(e);
+
+                        setV((s) => ({ ...s, flex3days: e.target.checked }));
+                      }}
+                    >
+                      +/- 3 days
+                    </Checkbox>
+                    <Checkbox
+                      checked={v.directOnly}
+                      className="text-white"
+                      onChange={(e) => {
+                        console.log(e);
+
+                        setV((s) => ({ ...s, directOnly: e.target.checked }));
+                      }}
+                    >
+                      Direct Flights
+                    </Checkbox>
+                  </div>
+                </div>
+                <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+                  <Select
+                    value={v.cabin}
+                    onChange={(val) => setV((s) => ({ ...s, cabin: val }))}
+                    className="flight-antd-select sm:w-52"
+                    options={[
+                      { value: "economy", label: "Economy" },
+                      { value: "premium", label: "Premium Economy" },
+                      { value: "business", label: "Business" },
+                      { value: "first", label: "First" },
+                    ]}
                   />
-                  <input
-                    type="date"
-                    value={v.returnDate}
-                    onChange={(e) =>
-                      setV((s) => ({ ...s, returnDate: e.target.value }))
-                    }
-                    className={inputCls}
-                    aria-label="Return date"
+
+                  <Select
+                    value={v.airline}
+                    onChange={(val) => setV((s) => ({ ...s, airline: val }))}
+                    className="flight-antd-select sm:w-52"
+                    placeholder="Select Airline"
+                    options={[
+                      { value: "", label: "Select Airline" },
+                      { value: "qatar", label: "Qatar" },
+                      { value: "emirates", label: "Emirates" },
+                      { value: "pegasus", label: "Pegasus" },
+                    ]}
                   />
                 </div>
-              )}
-            </Field>
+              </div>
+            </div>
 
-            <Field
-              className="lg:col-span-3"
-              label="Passenger"
-              icon={<Users className="h-4 w-4" />}
-            >
-              <select
-                value={v.passengers}
-                onChange={(e) =>
-                  setV((s) => ({ ...s, passengers: Number(e.target.value) }))
+            {/* Divider */}
+            <div className="my-4 h-px w-full bg-slate-200/70" />
+
+            {/* Row 2 */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
+              <Field
+                label="Leaving From"
+                icon={<MapPin className="h-4 w-4 " />}
+                className="lg:col-span-3"
+              >
+                <Input
+                  value={v.from}
+                  onChange={(e) =>
+                    setV((s) => ({ ...s, from: e.target.value }))
+                  }
+                  className="flight-antd-input"
+                  placeholder="City or airport"
+                />
+              </Field>
+
+              <Field
+                label="Leaving To"
+                icon={<MapPin className="h-4 w-4" />}
+                className="lg:col-span-3"
+              >
+                <Input
+                  value={v.to}
+                  onChange={(e) => setV((s) => ({ ...s, to: e.target.value }))}
+                  className="flight-antd-input"
+                  placeholder="City or airport"
+                />
+              </Field>
+
+              <Field
+                label={
+                  v.tripType === "oneway" ? "Departing on" : "Departing on"
                 }
-                className={inputCls}
+                icon={<CalendarDays className="h-4 w-4" />}
+                className="lg:col-span-3"
               >
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1} Passenger{i ? "s" : ""}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            {/* Less options */}
-            <div className="lg:col-span-12 flex flex-col md:flex-row md:items-center md:justify-between gap-3 mt-1">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 text-white/90 hover:text-white text-sm font-medium"
-                onClick={() => setV((s) => ({ ...s, _optsOpen: !s._optsOpen }))}
-              >
-                {v._optsOpen ? "Less options" : "More options"}
-                <ChevronDown
-                  className={[
-                    "h-4 w-4 transition",
-                    v._optsOpen ? "rotate-180" : "",
-                  ].join(" ")}
-                />
-              </button>
-
-              {/* ✅ على الموبايل بتتفتح/تقفل - وعلى md+ دايمًا ظاهرة */}
-              <div
-                className={[
-                  "flex flex-wrap items-center gap-5",
-                  v._optsOpen ? "flex" : "hidden md:flex",
-                ].join(" ")}
-              >
-                <Check
-                  checked={v.flex3days}
-                  onChange={() =>
-                    setV((s) => ({ ...s, flex3days: !s.flex3days }))
+                <RangePicker
+                  value={[v.departDate, v.returnDate]}
+                  onChange={(vals) =>
+                    setV((s) => ({
+                      ...s,
+                      departDate: vals?.[0] ?? s.departDate,
+                      returnDate: vals?.[1] ?? s.returnDate,
+                    }))
                   }
-                  label="+/- 3 Days"
+                  disabled={v.tripType === "oneway"}
+                  className="flight-antd-range"
+                  format="DD-MM-YYYY"
+                  allowClear={false}
                 />
-                <Check
-                  checked={v.directOnly}
-                  onChange={() =>
-                    setV((s) => ({ ...s, directOnly: !s.directOnly }))
-                  }
-                  label="Direct Flight"
-                />
-              </div>
-            </div>
-          </div>
+              </Field>
 
-          {/* Row 2: Cabin + Airline + Search (زي تظبيطتك) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-3">
-            <div>
-              <div className="relative">
-                <PlaneTakeoff className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                <select
-                  value={v.cabin}
+              <Field
+                label="Passenger"
+                icon={<Users className="h-4 w-4" />}
+                className="lg:col-span-3"
+              >
+                <Input
+                  value={v.passengersLabel}
                   onChange={(e) =>
-                    setV((s) => ({ ...s, cabin: e.target.value }))
+                    setV((s) => ({ ...s, passengersLabel: e.target.value }))
                   }
-                  className={[inputCls, "pl-9"].join(" ")}
-                >
-                  <option value="economy">Economy</option>
-                  <option value="premium">Premium Economy</option>
-                  <option value="business">Business</option>
-                  <option value="first">First</option>
-                </select>
-              </div>
-            </div>
+                  className="flight-antd-input"
+                  placeholder="e.g. 1 Adult"
+                />
+              </Field>
 
-            <div>
-              <div className="relative">
-                <PlaneTakeoff className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                <select
-                  value={v.airline}
-                  onChange={(e) =>
-                    setV((s) => ({ ...s, airline: e.target.value }))
-                  }
-                  className={[inputCls, "pl-9"].join(" ")}
+              {/* CTA */}
+              <div className="lg:col-span-12 pt-2">
+                <Button
+                  htmlType="submit"
+                  loading={v.loading}
+                  className="w-full !h-12 !rounded-full !bg-[#5B90C8] !border-none !text-white !font-extrabold hover:!opacity-95 !shadow-md"
+                  icon={<Search className="h-4 w-4" />}
                 >
-                  <option value="">Select Airline</option>
-                  <option value="qatar">Qatar</option>
-                  <option value="emirates">Emirates</option>
-                  <option value="pegasus">Pegasus</option>
-                </select>
+                  Search For Flight
+                </Button>
               </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="w-full rounded-full bg-[#5B90C8] hover:opacity-95 text-white font-semibold h-11 md:h-[52px] text-base md:text-lg shadow-sm"
-              >
-                Search For Flight
-              </button>
             </div>
           </div>
         </form>
       </div>
-    </div>
+    </section>
   );
 }
 
-/* ---------- Helpers ---------- */
-
-const inputCls =
-  "w-full h-11 md:h-[52px] rounded-md bg-white border border-white/60 px-3 text-slate-700 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#69A7E3]";
-
+/* wrappers */
 function Field({ label, icon, children, className = "" }) {
   return (
     <div className={className}>
-      <div className="text-white font-semibold text-sm mb-1">{label}</div>
-
-      {/* ✅ أيقونة + input بدون padding wrapper غريب */}
-      <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
-          {icon}
-        </div>
-
-        {/* هنا بندفع المحتوى يمين شوية */}
-        <div className="pl-9">{children}</div>
+      <div className="text-white/80  font-semibold text-sm mb-1">{label}</div>
+      <div className="flex items-center justify-start gap-2">
+        <div className="  text-white/80 pointer-events-none z-10">{icon}</div>
+        <div className="w-full">{children}</div>
       </div>
     </div>
-  );
-}
-
-function Check({ checked, onChange, label }) {
-  return (
-    <label className="inline-flex items-center gap-2 text-white/90 text-sm cursor-pointer select-none">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="h-4 w-4 accent-[#2F5F9A]"
-      />
-      {label}
-    </label>
   );
 }

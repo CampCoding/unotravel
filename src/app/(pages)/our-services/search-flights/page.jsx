@@ -1,10 +1,324 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import FlightResultCard from "./Components/FlightCard";
 import { CircleX } from "lucide-react";
 import FlightDetailsPage from "./Components/SearchHeader";
-import FlightSearchHeader from "./Components/SearchHeader";
+import { filterFlights } from "./Components/Filters";
+import LeafletMap from "../../../../components/Map/Map";
+export const flightResultsMock = [
+  {
+    id: 1,
+    dateText: "Fri, 23 Aug, 2024",
+    fromCity: "Stockholm",
+    toCity: "Dubai",
+    flight1: {
+      from: "ARN",
+      time: "12:05",
+      to: "SAW",
+      timeTo: "16:40",
+      code: "PC-1280",
+    },
+    flight2: {
+      from: "SAW",
+      time: "21:50",
+      to: "DXB",
+      timeTo: "03:15",
+      code: "PC-740",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 13h",
+    durationText2: "10m",
+    seatsText: "Only 2 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 20 kg",
+    refundable: true,
+    refundableType: "Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "5,609.00 SEK",
+    priceSub: "per Adult: 5,609.00",
+  },
+  {
+    id: 2,
+    dateText: "Sat, 24 Aug, 2024",
+    fromCity: "Cairo",
+    toCity: "Paris",
+    flight1: {
+      from: "CAI",
+      time: "09:30",
+      to: "IST",
+      timeTo: "12:45",
+      code: "TK-695",
+    },
+    flight2: {
+      from: "IST",
+      time: "14:10",
+      to: "CDG",
+      timeTo: "17:55",
+      code: "TK-1823",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 10h",
+    durationText2: "25m",
+    seatsText: "Only 5 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 23 kg",
+    refundable: false,
+    refundableType: "Non-Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "4,320.00 EGP",
+    priceSub: "per Adult: 4,320.00",
+  },
+  {
+    id: 3,
+    dateText: "Mon, 26 Aug, 2024",
+    fromCity: "Berlin",
+    toCity: "New York",
+    flight1: {
+      from: "BER",
+      time: "08:00",
+      to: "LHR",
+      timeTo: "09:10",
+      code: "BA-983",
+    },
+    flight2: {
+      from: "LHR",
+      time: "11:30",
+      to: "JFK",
+      timeTo: "14:20",
+      code: "BA-117",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 11h",
+    durationText2: "20m",
+    seatsText: "Only 3 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 23 kg",
+    refundable: true,
+    refundableType: "Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "720.00 USD",
+    priceSub: "per Adult: 720.00",
+  },
+  {
+    id: 4,
+    dateText: "Wed, 28 Aug, 2024",
+    fromCity: "Rome",
+    toCity: "Bangkok",
+    flight1: {
+      from: "FCO",
+      time: "13:40",
+      to: "DOH",
+      timeTo: "21:05",
+      code: "QR-116",
+    },
+    flight2: {
+      from: "DOH",
+      time: "22:30",
+      to: "BKK",
+      timeTo: "08:10",
+      code: "QR-836",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 15h",
+    durationText2: "30m",
+    seatsText: "Only 4 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 30 kg",
+    refundable: true,
+    refundableType: "Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "890.00 EUR",
+    priceSub: "per Adult: 890.00",
+  },
+  {
+    id: 5,
+    dateText: "Fri, 30 Aug, 2024",
+    fromCity: "Madrid",
+    toCity: "Toronto",
+    flight1: {
+      from: "MAD",
+      time: "10:15",
+      to: "LIS",
+      timeTo: "11:40",
+      code: "TP-1013",
+    },
+    flight2: {
+      from: "LIS",
+      time: "14:00",
+      to: "YYZ",
+      timeTo: "17:50",
+      code: "TP-259",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 12h",
+    durationText2: "35m",
+    seatsText: "Only 6 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 23 kg",
+    refundable: false,
+    refundableType: "Non-Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "680.00 EUR",
+    priceSub: "per Adult: 680.00",
+  },
+
+  {
+    id: 6,
+    dateText: "Sun, 01 Sep, 2024",
+    fromCity: "Alexandria",
+    toCity: "Jeddah",
+    flight1: {
+      from: "HBE",
+      time: "06:20",
+      to: "RUH",
+      timeTo: "09:10",
+      code: "SV-306",
+    },
+    flight2: {
+      from: "RUH",
+      time: "11:05",
+      to: "JED",
+      timeTo: "12:50",
+      code: "SV-1116",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 8h",
+    durationText2: "30m",
+    seatsText: "Only 1 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 25 kg",
+    refundable: true,
+    refundableType: "Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "3,950.00 EGP",
+    priceSub: "per Adult: 3,950.00",
+  },
+  {
+    id: 7,
+    dateText: "Tue, 03 Sep, 2024",
+    fromCity: "Athens",
+    toCity: "London",
+    flight1: {
+      from: "ATH",
+      time: "07:45",
+      to: "FCO",
+      timeTo: "09:10",
+      code: "AZ-719",
+    },
+    flight2: {
+      from: "FCO",
+      time: "10:35",
+      to: "LHR",
+      timeTo: "12:20",
+      code: "AZ-204",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 6h",
+    durationText2: "35m",
+    seatsText: "Only 7 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 23 kg",
+    refundable: false,
+    refundableType: "Non-Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "210.00 EUR",
+    priceSub: "per Adult: 210.00",
+  },
+  {
+    id: 8,
+    dateText: "Thu, 05 Sep, 2024",
+    fromCity: "Istanbul",
+    toCity: "Doha",
+    flight1: {
+      from: "IST",
+      time: "16:05",
+      to: "KWI",
+      timeTo: "18:35",
+      code: "KU-156",
+    },
+    flight2: {
+      from: "KWI",
+      time: "20:10",
+      to: "DOH",
+      timeTo: "21:35",
+      code: "KU-121",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 5h",
+    durationText2: "30m",
+    seatsText: "Only 8 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 20 kg",
+    refundable: true,
+    refundableType: "Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "150.00 USD",
+    priceSub: "per Adult: 150.00",
+  },
+  {
+    id: 9,
+    dateText: "Sat, 07 Sep, 2024",
+    fromCity: "Amsterdam",
+    toCity: "Singapore",
+    flight1: {
+      from: "AMS",
+      time: "11:10",
+      to: "DXB",
+      timeTo: "19:35",
+      code: "EK-148",
+    },
+    flight2: {
+      from: "DXB",
+      time: "21:05",
+      to: "SIN",
+      timeTo: "08:45",
+      code: "EK-354",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 18h",
+    durationText2: "35m",
+    seatsText: "Only 2 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 30 kg",
+    refundable: false,
+    refundableType: "Non-Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "1,120.00 EUR",
+    priceSub: "per Adult: 1,120.00",
+  },
+  {
+    id: 10,
+    dateText: "Mon, 09 Sep, 2024",
+    fromCity: "Casablanca",
+    toCity: "Milan",
+    flight1: {
+      from: "CMN",
+      time: "05:55",
+      to: "BCN",
+      timeTo: "09:10",
+      code: "AT-960",
+    },
+    flight2: {
+      from: "BCN",
+      time: "11:00",
+      to: "MXP",
+      timeTo: "12:40",
+      code: "VY-6332",
+    },
+    stopText: "1 stop",
+    durationText: "Duration 7h",
+    durationText2: "45m",
+    seatsText: "Only 9 Seat(s) Available",
+    baggageText: "Check in baggage incl.",
+    baggageIncluded: "per Adult: 20 kg",
+    refundable: true,
+    refundableType: "Refundable",
+    priceTitle: "Price for 1 Person(s)",
+    price: "260.00 EUR",
+    priceSub: "per Adult: 260.00",
+  },
+];
 
 const flights = [
   {
@@ -30,6 +344,13 @@ const flights = [
     from: "6,384,00",
   },
 ];
+
+const parsePrice = (p) => Number(String(p).replace(/[^\d.]/g, "")) || 0;
+
+const getPriceRange = (items) => {
+  const nums = items.map((x) => parsePrice(x.price)).filter((n) => n > 0);
+  return { min: Math.min(...nums), max: Math.max(...nums) };
+};
 
 const initialFilters = {
   stopsEnabled: true,
@@ -65,9 +386,21 @@ const initialFilters = {
 };
 
 export default function FlightDetailsWeb() {
+  const { min, max } = useMemo(() => getPriceRange(flightResultsMock), []);
+  const [selectedId, setSelectedId] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false); // mobile
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = useState(() => ({
+    ...initialFilters,
+    priceMin: min,
+    priceMax: max,
+    priceFrom: min,
+    priceTo: max,
+  }));
 
+  const withId = flightResultsMock.map((f, i) => ({
+    ...f,
+    id: `${f.flight1.code}_${f.flight2.code}_${i}`,
+  }));
   const resetAll = () => setFilters(initialFilters);
 
   const toggleStop = (section, key) => {
@@ -103,6 +436,7 @@ export default function FlightDetailsWeb() {
     const val = Number(v);
     setFilters((s) => ({ ...s, priceTo: Math.max(val, s.priceFrom + 1) }));
   };
+  const filtered = useMemo(() => filterFlights(withId, filters), [filters]);
 
   return (
     <div className="min-h-screen">
@@ -121,62 +455,13 @@ export default function FlightDetailsWeb() {
       />
 
       {/* Top Header */}
-      <header>
-        <div className="mx-auto max-w-6xl px-4 md:px-6 py-6">
-          <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              className="h-10 w-10 rounded-full hover:bg-white/10 grid place-items-center text-[#264787]"
-              aria-label="Back"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M15 18l-6-6 6-6"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-
-            <div className="text-center">
-              <h1 className="text-white text-2xl md:text-3xl font-semibold tracking-wide">
-                <span className="text-[#264787]">Flight </span>
-                <span className="text-[#5796CC]">
-                  <UnderlineTitle>Details</UnderlineTitle>
-                </span>
-              </h1>
-            </div>
-
-            {/* filter button mobile only */}
-            <button
-              type="button"
-              onClick={() => setFilterOpen(true)}
-              className="h-10 w-10 rounded-full hover:bg-white/10 grid place-items-center text-[#264787] lg:hidden"
-              aria-label="Filter"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M4 5h16l-6 7v6l-4 2v-8L4 5z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-
-            <div className="hidden lg:block w-10" />
-          </div>
-        </div>
-      </header>
 
       <div className="my-4">
-        <FlightDetailsPage />
+        <FlightDetailsPage setFilterOpen={setFilterOpen} />
       </div>
 
       {/* ✅ هنا الصفحة نفسها بتسكرول (no overflow-hidden / no left scroll) */}
-      <main className="mx-auto container px-3 md:px-6 pb-10">
+      <main className="!px-0 container  pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
           {/* LEFT content (normal page scroll) */}
           <section className="min-w-0">
@@ -184,9 +469,9 @@ export default function FlightDetailsWeb() {
               {flights.map((flight) => (
                 <div
                   key={flight.title}
-                  className="bg-white text-[#264787] border border-white/60 rounded-2xl px-4 pt-2 shadow-md hover:shadow-lg transform hover:-translate-y-1 transition"
+                  className="bg-white text-[#264787] border border-white/60 rounded-2xl  pt-2 shadow-md hover:shadow-lg transform hover:-translate-y-1 transition"
                 >
-                  <div className="flex flex-col items-end justify-center">
+                  <div className="flex flex-col items-start px-3 justify-center">
                     <div>
                       <img src={flight.image} className="w-full my-1" alt="" />
                     </div>
@@ -205,25 +490,20 @@ export default function FlightDetailsWeb() {
             </div>
 
             <div className="w-full relative mt-10 bg-[url(/images/Banner.webp)] bg-cover bg-center h-[200px] md:h-[350px] rounded-lg">
-              <div className="bg-black/50 absolute w-full h-full opacity-40 inset-0"></div>
+              <div className="bg-black/50 absolute w-full rounded-lg h-full opacity-40 inset-0"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-5 py-6">
-              <FlightResultCard />
-              <FlightResultCard
-                refundable={false}
-                refundableType="Non Refundable"
-              />
-              <FlightResultCard />
-              <FlightResultCard
-                refundable={false}
-                refundableType="Non Refundable"
-              />
-              <FlightResultCard />
-              <FlightResultCard
-                refundable={false}
-                refundableType="Non Refundable"
-              />
+            <div className="grid grid-cols-1 mx-auto md:grid-cols-2 gap-2 md:gap-5 py-6">
+              {filtered.map((item, idx) => (
+                <>
+                  <FlightResultCard
+                    key={idx}
+                    {...item}
+                    selected={selectedId === item.id}
+                    onSelect={() => setSelectedId(item.id)}
+                  />
+                </>
+              ))}
             </div>
           </section>
 
