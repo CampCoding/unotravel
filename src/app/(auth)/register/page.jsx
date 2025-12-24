@@ -2,13 +2,21 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, MapPin, X, Clock } from "lucide-react";
-import ServiceTime from "@/components/pages/auth/Register/ServiceTime";
-import ServiceLocation from "@/components/pages/auth/Register/ServiceLocation";
+import dynamic from "next/dynamic";
 
+const ServiceTime = dynamic(
+  () => import("@/components/pages/auth/Register/ServiceTime"),
+  { ssr: false }
+);
+
+const ServiceLocation = dynamic(
+  () => import("@/components/pages/auth/Register/ServiceLocation"),
+  { ssr: false }
+);
 export default function SignUpPage() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return null;
   }
   return (
@@ -43,7 +51,7 @@ export default function SignUpPage() {
         </div>
 
         {/* =================== MODAL =================== */}
-        {isOpen &&
+        {isOpen && (
           <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
             <div className="bg-white rounded-3xl w-[90%] max-w-[650px] relative max-h-[90vh] overflow-y-auto shadow-lg px-4 py-6 md:p-6">
               {/* Close Button */}
@@ -112,7 +120,8 @@ export default function SignUpPage() {
                 </div>
               </div>
             </div>
-          </div>}
+          </div>
+        )}
 
         {/* =================== MAIN SIGN-UP FORM =================== */}
         <div className="bg-white rounded-3xl shadow-2xl p-12">

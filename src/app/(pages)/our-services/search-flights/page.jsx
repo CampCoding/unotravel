@@ -1,11 +1,10 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import FlightResultCard from "./Components/FlightCard";
 import { CircleX } from "lucide-react";
 import FlightDetailsPage from "./Components/SearchHeader";
 import { filterFlights } from "./Components/Filters";
-import LeafletMap from "../../../../components/Map/Map";
+
 export const flightResultsMock = [
   {
     id: 1,
