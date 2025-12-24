@@ -6,7 +6,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com", 
         pathname: "/dbz6ebekj/**",
-      },
+      }, 
       {
         protocol: "http",
         hostname: "camp-coding.site",
