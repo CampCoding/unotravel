@@ -1,0 +1,36 @@
+@import 'swiper/css';
+@import 'swiper/css/effect-fade';
+@import 'swiper/css/effect-cube';
+@import 'swiper/css/effect-flip';
+@import 'swiper/css/effect-coverflow';
+@import 'swiper/css/pagination';
+@import 'swiper/css/navigation';
+@import 'aos/dist/aos.css';
+
+.passenger_modal::after{
+    content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  z-index: 999;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid white;
+}
+
+
+
+@media (max-width:735px) {
+  .home-banner-swiper {
+    min-height: 140vh !important;
+  }
+}
+
+@media (max-width:425px) {
+  .home-banner-swiper {
+    min-height: 155vh !important;
+  }
+}
+
