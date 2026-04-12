@@ -101,6 +101,45 @@ export default function HomeBanner({ hero_services = [] }) {
     }
   }, [hero_services]);
 
+  // Handle Booking Widget script and resizing
+  useEffect(() => {
+    const handleMessage = (e) => {
+      if (typeof e.data === "string" && e.data.indexOf("documentHeight") > -1) {
+        const height = e.data.split("documentHeight:")[1];
+        const newHeight = parseInt(height) + 75;
+        const widgets = document.querySelectorAll("#fb-widget");
+        widgets.forEach((widget) => {
+          widget.style.height = newHeight + "px";
+        });
+      }
+    };
+    // Remove background from the specified classes if they exist
+   
+    const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+    const eventer = window[eventMethod];
+    const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
+    
+    eventer(messageEvent, handleMessage, false);
+
+    // Dynamic src setting logic from the script
+    const baseUrl = window.location.origin;
+    let lang = document.documentElement.lang;
+    lang = lang.substr(0, 2).toLowerCase() || 'en';
+    
+    const widgets = document.querySelectorAll("#fb-widget");
+    widgets.forEach(widget => {
+      widget.src = "https://vtd.a2zfb.com/vtd/sv?client_base_url=https://unotravel.vercel.app&auth_key=8f6c5b6d72e480162a3ce7182bb97e40";
+    });
+
+    return () => {
+      const unEventMethod = window.removeEventListener ? "removeEventListener" : "detachEvent";
+      const unEventer = window[unEventMethod];
+      if (unEventer) {
+        unEventer(messageEvent, handleMessage);
+      }
+    };
+  }, [selectedTab]);
+
   // If no services, render nothing (or fallback)
   if (!hero_services || hero_services.length === 0 || !selectedTab) {
     return null;
@@ -207,7 +246,7 @@ export default function HomeBanner({ hero_services = [] }) {
                       ))}
                     </motion.div>
 
-                    {/* Booking Widget (kept as is) */}
+                    {/* Booking Widget */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -219,15 +258,15 @@ export default function HomeBanner({ hero_services = [] }) {
                         title="Booking Widget"
                         allowTransparency={true}
                         allowFullScreen
+                        scrolling="no"
                         style={{
                           position: "relative",
                           width: "100%",
                           border: "none",
-                          minHeight: "245px",
+                          minHeight: "200px",
                           marginTop: "20px",
                         }}
-                        src="https://booking.aerotravels.dk/da?client_base_url=https%3A%2F%2Fwww.aerotravels.dk&amp;auth_key=1a5bd74963123cfff4b9cbcc6fe7c426"
-                        height="200px"
+                        src="https://vtd.a2zfb.com/vtd/sv?client_base_url=https://unotravel.vercel.app&auth_key=8f6c5b6d72e480162a3ce7182bb97e40"
                       />
                     </motion.div>
 
