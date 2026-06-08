@@ -1,9 +1,10 @@
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
-import { Heart } from "lucide-react";
+import { Heart, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useUmrah } from "@/context/UmrahContext";
+import { useLockBodyScroll } from "../../../../../../../hooks/useLockBodyScroll";
 export default function UmraPackageModal({ open, setOpen, data }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const router = useRouter();
@@ -29,11 +30,13 @@ export default function UmraPackageModal({ open, setOpen, data }) {
     setSelectedPackage(packageData);
     router.push("/umrah-register");
   };
-  useEffect(() => {
-    open
-      ? (document.body.style.overflowY = "hidden")
-      : (document.body.style.overflowY = "auto");
-  }, [open]);
+  // useEffect(() => {
+  //  open
+  //    ? (document.body.style.overflowY = "hidden")
+  //    : (document.body.style.overflowY = "auto");
+  // }, [open]);
+
+  useLockBodyScroll(open);
 
   if (!open) {
     return null;
@@ -48,7 +51,7 @@ export default function UmraPackageModal({ open, setOpen, data }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           onClick={() => setOpen(false)}
-          className="fixed inset-0 z-50 bg-[#16294F]/50 backdrop-blur-md flex items-center justify-center overflow-x-hidden overflow-y-auto py-10"
+          className="fixed inset-0 z-50 bg-[#16294F]/50 backdrop-blur-md flex items-center justify-center overflow-hidden  py-10"
         >
           <motion.div
             key="modal"
@@ -57,8 +60,11 @@ export default function UmraPackageModal({ open, setOpen, data }) {
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative !w-[1000px] mx-2 md:mx-5 !my-auto gap-10 mt-60 !bg-[#F5F6FA] !rounded-xl flex flex-wrap md:!flex-nowrap justify-center  items-center  text-white px-6 py-10"
-          >
+            className="relative !w-[1000px] mx-2 md:mx-5 !my-auto gap-10 mt-40 max-h-[92vh] overflow-y-auto! !bg-[#F5F6FA] !rounded-xl flex flex-wrap md:!flex-nowrap justify-center  items-center  text-white px-6 py-10"
+          > 
+          <button onClick={()=> setOpen(false)} className="flex absolute p-2 top-3! left-3 justify-center items-center w-10 border border-(--main-dark-color) h-10 bg-(--main-dark-color) rounded-full!">
+            <X className="w-7! h-7!    rounded-full  text-white"/>
+          </button>
             <img
               src="/images/download (19).jfif"
               className=" object-cover w-full lg:w-[400px]  h-[400px] !rounded-xl"

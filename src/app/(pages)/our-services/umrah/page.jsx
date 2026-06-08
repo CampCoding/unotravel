@@ -6,6 +6,7 @@ import UmraContent from '@/components/pages/OurServices/Umra/UmraContent/UmraCon
 import UmraPackages from '@/components/pages/OurServices/Umra/UmraPackages/UmraPackages'
 import TourFaq from '@/components/pages/ToursDetails/TourFaq/TourFaq'
 import React from 'react'
+import FAQ from '../../../../components/shared/FAQ/FAQ'
 
 export default function Page() {
   return (
@@ -13,7 +14,8 @@ export default function Page() {
         <UmraBanner />
         <UmraContent/> 
         <UmraPackages />
-        <TourFaq />
+        <FAQ/>
+        {/* <TourFaq /> */}
         <AboutStatistics />
         <HomeSubscribe/>
         <HomePartners />

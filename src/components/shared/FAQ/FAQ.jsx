@@ -1,6 +1,6 @@
-"use client";
+import React from 'react'
+import CustomHeading from '../CustomHeading/CustomHeading'
 
-import React from "react";
 import {
   Accordion,
   AccordionItem,
@@ -8,35 +8,28 @@ import {
   AccordionContent,
 } from "@/components/shared/Accordian/Accordian";
 
-export default function TourFaq() {
+export default function FAQ() {
   return (
-    <div className="container mt-20">
-      <h2 className="!text-[#264787] italic !text-base 2xl:!text-xl mb-6">
-        FAQ
-      </h2>
+    <div className="mt-20 container">
+      <CustomHeading second_title_class={"text-[#264787]!"} second_title={"FAQ"} />
 
-      <Accordion type="single" collapsible className="flex flex-col mt-1 gap-2">
+      <Accordion type="single" collapsible className="flex flex-col mt-10 gap-2">
         <AccordionItem value="1">
-          <AccordionTrigger>What's include</AccordionTrigger>
-          <AccordionContent>
-            <ul className="list-none space-y-1.5 text-[14px] text-[#4B5563] pl-1">
-              <li>Snacks</li>
-              <li>Bottled water</li>
-              <li>Air-conditioned vehicle</li>
-              <li>Dinner</li>
-            </ul>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="2">
-          <AccordionTrigger>Departure Point</AccordionTrigger>
+          <AccordionTrigger>How early should I apply for a Saudi Umrah visa?</AccordionTrigger>
           <AccordionContent>
             <p className="text-[14px] leading-relaxed text-[#4B5563]">
-              The tour starts from downtown Taif at 9:00 AM.
+              We recommend submitting your application at least 15 days before your planned departure to allow sufficient time for processing and any unexpected delays.
             </p>
           </AccordionContent>
         </AccordionItem>
-
+        <AccordionItem value="2">
+          <AccordionTrigger>Which visa is best to visit Saudi Arabia and explore its major cities?</AccordionTrigger>
+          <AccordionContent>
+            <p className="text-[14px] leading-relaxed text-[#4B5563]">
+              A Tourist eVisa is the best and easiest option for visiting Saudi Arabia and exploring its major cities. It is valid for one year with multiple entries, allowing stays up to 90 days.
+            </p>
+          </AccordionContent>
+        </AccordionItem>
         <AccordionItem value="3">
           <AccordionTrigger>What to Expect</AccordionTrigger>
           <AccordionContent>
@@ -56,25 +49,23 @@ export default function TourFaq() {
             </div>
           </AccordionContent>
         </AccordionItem>
-
         <AccordionItem value="4">
           <AccordionTrigger>Additional info</AccordionTrigger>
           <AccordionContent>
             <p className="text-[14px] leading-relaxed text-[#4B5563]">
-              Confirmation will be received at time of booking. Moderate walking is involved. Not recommended for pregnant travelers or those with serious back conditions.
+              Please ensure your passport has at least 6 months validity from your travel date. Carrying printed copies of your visa confirmation is highly recommended.
             </p>
           </AccordionContent>
         </AccordionItem>
-
         <AccordionItem value="5">
           <AccordionTrigger>Cancellation Policy</AccordionTrigger>
           <AccordionContent>
             <p className="text-[14px] leading-relaxed text-[#4B5563]">
-              For a full refund, cancel at least 24 hours in advance of the start date of the experience.
+              Visa fees are non-refundable once the application has been submitted to the authorities. For details on related bookings, please refer to our general terms.
             </p>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
     </div>
-  );
+  )
 }

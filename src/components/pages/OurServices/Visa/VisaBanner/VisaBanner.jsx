@@ -10,24 +10,24 @@ import "swiper/css/pagination";
 const data = [
   {
     id: 1,
-    src: "/images/Asset 1-100.webp",
+    src: "/images/visa.webp",
     type: "image",
   },
-  {
-    id: 2,
-    src: "/images/NoPath - Copy (52).webp",
-    type: "image",
-  },
+  // {
+  //   id: 2,
+  //   src: "/images/NoPath - Copy (52).webp",
+  //   type: "image",
+  // },
 ];
 
-export default function UmraBanner() {
+export default function VisaBanner() {
   return (
     <div data-aos="zoom-in-right" className="overflow-hidden  h-[90vh]">
       <Swiper
         modules={[Pagination]}
         pagination={{ clickable: true }}
         slidesPerView={1}
-        className="w-full"
+        className="w-full overflow-hidden!"
       >
         {data.map((item) => (
           <SwiperSlide key={item.id}>
@@ -37,7 +37,7 @@ export default function UmraBanner() {
                   src={item.src}
                   alt={`slide-${item.id}`}
                   fill
-                  className="object-cover rounded-md"
+                  className="object-cover"
                   priority
                 />
               ) : (
