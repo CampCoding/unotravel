@@ -52,19 +52,7 @@ export default function OurOfferBanner() {
                   International Tours
                 </motion.h2>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.4 }}
-                  className="rounded-md mt-4 flex justify-between items-center px-3 sm:px-4 bg-[#F5F6FA] w-full max-w-[90%] sm:max-w-[400px] 2xl:max-w-[465px] h-[45px] sm:h-[55px]"
-                >
-                  <input
-                    placeholder="Search For Tours"
-                    className="border-0 bg-transparent text-[#3B85C1] text-sm sm:text-md placeholder:text-sm sm:placeholder:text-md outline-none w-full"
-                  />
-                  <Search size={18} color="#3B85C1" />
-                </motion.div>
+               
               </div>
             </div>
           </SwiperSlide>

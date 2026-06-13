@@ -15,7 +15,7 @@ export default function ContactUsForm() {
     >
       <div className="grid container items-center grid-cols-1 md:grid-cols-2 gap-10">
         <div data-aos="fade-down-right" className="flex flex-col gap-3">
-          <CustomHeading first_title={"LEAVE US"} second_title={"A MESSAGE"} />
+          <CustomHeading first_title={"LEAVE US"} first_title_class={"text-['#3b85c1']!"} second_title={"A MESSAGE"} />
           <div className="flex flex-col">
             <p className="font-bold my-0 py-0 !text-base 2xl:text-lg">
               Uno Travel Sweden AB

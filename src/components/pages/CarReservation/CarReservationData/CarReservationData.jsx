@@ -259,10 +259,10 @@ const FilterBar = ({ activeFilter, setActiveFilter }) => {
             {...buttonMotion}
             onClick={() => setActiveFilter(filter.name)}
             className={`
-              px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl! font-semibold
+              px-4  py-2 rounded-2xl! font-semibold
               transition-all duration-300
               flex items-center gap-2
-              text-xs sm:text-sm md:text-base whitespace-nowrap
+              text-xs sm:text-sm whitespace-nowrap
               ${
                 isActive
                   ? "bg-white text-[#264787] shadow-lg ring-4 ring-[#3b85c1]/20"
@@ -271,7 +271,7 @@ const FilterBar = ({ activeFilter, setActiveFilter }) => {
             `}
           >
             <filter.icon
-              className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-300 ${
+              className={`w-4 h-4 transition-colors duration-300 ${
                 isActive ? filter.color : "text-gray-500"
               }`}
             />
@@ -304,21 +304,21 @@ export default function CarReservationData() {
         <div className="absolute bottom-10 sm:bottom-20 left-0 sm:left-10 w-64 sm:w-80 md:w-96 h-64 sm:h-80 md:h-96 bg-[#264787]/5 rounded-full blur-3xl" />
       </div>
 
-      <div className=" md:max-w-7xl mx-auto  sm:px-6 lg:px-8">
+      <div className=" md:max-w-7xl mx-auto  sm:px-4">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="mb-10 sm:mb-12 lg:mb-16"
+          className="mb-10"
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-4 sm:mb-6 leading-tight">
+          <h1 className="text-3xl!  font-black text-gray-900 mb-4 leading-tight">
             <span className="block">Find Your Perfect</span>
             <span className="block bg-gradient-to-r from-[#264787] via-[#3b85c1] to-[#264787] bg-clip-text text-transparent mt-2">
               Ride Today
             </span>
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl md:max-w-3xl leading-relaxed">
+          <p className="text-sm   text-gray-600 max-w-2xl md:max-w-3xl leading-relaxed">
             Choose from our premium fleet of well-maintained vehicles for your
             perfect journey. Quality, comfort, and reliability are always
             guaranteed.
@@ -326,7 +326,7 @@ export default function CarReservationData() {
         </motion.div>
 
         {/* Filter Bar (wrapped for horizontal scroll on mobile) */}
-        <div className="w-full overflow-x-auto pb-3 mb-6 sm:mb-8">
+        <div className="w-full overflow-x-auto">
           <FilterBar
             activeFilter={activeFilter}
             setActiveFilter={setActiveFilter}
@@ -337,7 +337,7 @@ export default function CarReservationData() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-xs sm:text-sm md:text-lg text-gray-600 font-semibold mb-4 sm:mb-6"
+          className="text-xs sm:text-sm text-gray-600 font-semibold my-4 sm:my-6"
         >
           Showing{" "}
           <span className="text-[#264787] font-black">

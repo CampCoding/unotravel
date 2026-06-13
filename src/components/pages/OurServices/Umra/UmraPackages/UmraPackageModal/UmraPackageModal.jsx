@@ -70,7 +70,7 @@ export default function UmraPackageModal({ open, setOpen, data }) {
               className=" object-cover w-full lg:w-[400px]  h-[400px] !rounded-xl"
             />
             <div className="flex flex-col">
-              <div className="flex   flex-wrap lg:!flex-nowrap gap-2 lg:!gap-20 items-center">
+              <div className="flex mt-40! flex-wrap lg:!flex-nowrap gap-2 lg:!gap-20 items-center">
                 <h2 className="!text-[#264787] !font-bold !text-lg sm:!text-2xl">
                   Umrah Packages Name Sample
                 </h2>

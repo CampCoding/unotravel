@@ -89,7 +89,7 @@ export default function GetRideBanner() {
                           Safe & Convenient
                         </div>
 
-                        <h1 className="text-[34px] font-black leading-tight text-white md:text-[52px] lg:text-[64px]">
+                        <h1 className="text-[34px]! font-black leading-tight text-white!">
                           {item.title}
                         </h1>
 

@@ -6,7 +6,7 @@ import Image from "next/image";
 const data = [
   {
     id: 1,
-    src: "/images/2151747357.webp",
+    src: "/images/why-choose-us.webp",
     type: "image",
   },
 ];

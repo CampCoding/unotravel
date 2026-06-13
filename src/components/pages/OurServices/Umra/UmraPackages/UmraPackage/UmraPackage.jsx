@@ -30,7 +30,7 @@ export default function UmraPackage({ data }) {
           />
 
           {/* Content */}
-          <div className="flex flex-col w-full justify-between gap-4 sm:gap-0">
+          <div className="flex flex-col  w-full justify-between gap-4 sm:gap-0">
             <div>
               <h2 className="text-black text-[14px]! sm:text-[16px]! 2xl:text-[23px]! font-bold!">
                 {data?.title}

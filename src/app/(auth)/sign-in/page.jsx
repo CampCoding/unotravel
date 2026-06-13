@@ -60,9 +60,9 @@ export default function Page() {
             </label>
           </div>
 
-          <p className="text-center text-sm 2xl:!text-base flex justify-center items-center">
+          <p className="text-center text-sm 2xl:!text-base flex! gap-2! justify-center items-center">
             <span className="text-[#3B85C1]">Don't have account?</span>
-            <Link className="text-[#EB1C24]" href={"/"}>
+            <Link className="text-[#EB1C24]! " href={"/register"}>
               <span>Register Now</span>
             </Link>
           </p>

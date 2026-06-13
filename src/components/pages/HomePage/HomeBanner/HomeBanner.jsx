@@ -13,6 +13,7 @@ import "swiper/css/navigation";
 
 import "./style.css";
 import ErrorImage from "../../../shared/ErrorImage";
+import { useRouter } from "next/navigation";
 
 const data = [
   {
@@ -93,9 +94,10 @@ export default function HomeBanner({ hero_services = [] }) {
   const swiperRef = useRef(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [openAdultModal, setOpenAdultModal] = useState(false);
-
+  const router=  useRouter();
   // Set default selected tab when hero_services loads
   useEffect(() => {
+    console.log("hero_services", hero_services);
     if (hero_services && hero_services.length > 0) {
       setSelectedTab(hero_services[0]);
     }
@@ -223,7 +225,7 @@ export default function HomeBanner({ hero_services = [] }) {
                       {hero_services.map((service) => (
                         <div
                           key={service?.service_id}
-                          onClick={() => setSelectedTab(service)}
+                          onClick={() => service?.service_origin_type == "internal" ? router.push(service?.service_link) : setSelectedTab(service)}
                           className={`cursor-pointer p-2 xl:px-[14px] h-fit flex items-center rounded-[4px] gap-2 transition-all ${
                             selectedTab?.service_id === service?.service_id
                               ? "bg-[rgba(228,76,74,0.58)]"
