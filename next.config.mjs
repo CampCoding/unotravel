@@ -4,9 +4,19 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "res.cloudinary.com", 
+        hostname: "res.cloudinary.com",
         pathname: "/dbz6ebekj/**",
-      }, 
+      },
+      {
+        protocol: "https",
+        hostname: "uno-travel.camp-coding.site",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "uno-travel.camp-coding.site",
+        pathname: "/uploads/**",
+      },
       {
         protocol: "http",
         hostname: "camp-coding.site",

@@ -23,7 +23,7 @@ apiInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
      if (lang) {
-      config.headers["accept-language"] = lang;
+      config.headers["lang"] = lang;
     }
     return config;
   },

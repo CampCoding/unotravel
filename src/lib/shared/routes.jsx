@@ -1,4 +1,13 @@
 export const apiRoutes = {
-  get_layout :"layout",
-  home_page :"pages/home"
-}
+  get_layout: "layout",
+  home_page: "pages/home",
+  about_page: "pages/about",
+  fare_flight_page: "pages/fare-flight",
+  our_offers_page: "pages/our-offers",
+  contact_page: "pages/contact",
+  blogs_page: "pages/blogs",
+  blog_detail: (id) => `pages/blogs/${id}`,
+  services_page: "pages/services",
+  tours_by_destination: (slug) => `pages/tours/${slug}`,
+  tour_detail: (destSlug, tourSlug) => `pages/tours/${destSlug}/${tourSlug}`,
+};
