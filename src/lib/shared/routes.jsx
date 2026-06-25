@@ -10,4 +10,6 @@ export const apiRoutes = {
   services_page: "pages/services",
   tours_by_destination: (slug) => `pages/tours/${slug}`,
   tour_detail: (destSlug, tourSlug) => `pages/tours/${destSlug}/${tourSlug}`,
+  umrah_page: "pages/umrah",
+  umrah_register: "pages/umrah-register",
 };
