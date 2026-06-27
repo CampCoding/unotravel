@@ -9,6 +9,15 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
         hostname: "uno-travel.camp-coding.site",
         pathname: "/uploads/**",
       },

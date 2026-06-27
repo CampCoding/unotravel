@@ -10,8 +10,10 @@ import HomeSalesAgent from "@/components/pages/HomePage/HomeSalesAgent/HomeSales
 import HomeSubscribe from "@/components/pages/HomePage/HomeSubscribe/HomeSubscribe";
 import HomeTestimonial from "@/components/pages/HomePage/HomeTestimonial/HomeTestimonial";
 import HomeServices from "@/components/pages/HomePage/HomwServices/HomeServices";
-import { useEffect, useState } from "react";
+import DraftModal from "@/components/shared/DraftModal/DraftModal";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "next/navigation";
 import {
   handleGetHomeData,
   handleGetLayoutData,
@@ -27,10 +29,32 @@ export default function Page() {
     layout_data,
   } = useSelector((state) => state?.layout);
   const [offerLogo, setOfferLogo] = useState("");
+  const [forcedHeroServiceId, setForcedHeroServiceId] = useState(null);
+  const bannerRef = useRef(null);
+  const searchParams = useSearchParams();
+
+  const handleSelectHeroService = (service) => {
+    setForcedHeroServiceId(service?.service_id ?? null);
+    bannerRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
     dispatch(handleGetHomeData());
     dispatch(handleGetLayoutData());
   }, []);
+
+  // When navigated from header nav with ?service_id=X, select that service in the hero
+  useEffect(() => {
+    const sid = searchParams?.get("service_id");
+    if (!sid) return;
+    const heroServices = home_data?.data?.data?.heroServices ?? [];
+    if (!heroServices.length) return;
+    const match = heroServices.find((s) => String(s.service_id) === String(sid));
+    if (match) {
+      setForcedHeroServiceId(match.service_id);
+      setTimeout(() => bannerRef.current?.scrollIntoView({ behavior: "smooth" }), 300);
+    }
+  }, [searchParams, home_data]);
 
   console.log({
     home_loading,
@@ -48,21 +72,23 @@ export default function Page() {
   }, [layout_data]);
 
   if (home_loading || layout_loading) {
-    return (
-      <div className="h-screen flex justify-center items-center">
-        <img
-          src="/images/milkyway-studio-rocket.gif"
-          alt="loading gif"
-          className="w-52 h-52"
-        />
-      </div>
-    );
+    return null;
   }
 
   return (
     <div className="!overflow-x-hidden">
-      <HomeBanner hero_services={home_data?.data?.data?.heroServices} />
-      <HomeServices data={home_data?.data?.data?.services} />
+      <DraftModal />
+      <div ref={bannerRef}>
+        <HomeBanner
+          hero_services={home_data?.data?.data?.heroServices}
+          forcedServiceId={forcedHeroServiceId}
+        />
+      </div>
+      <HomeServices
+        data={home_data?.data?.data?.services}
+        heroServices={home_data?.data?.data?.heroServices}
+        onSelectHeroService={handleSelectHeroService}
+      />
       <HomeSalesAgent data={home_data?.data?.data?.agents} />
       <HomeOffers logo={offerLogo} data={home_data?.data?.data?.offers} />
       <HomeChooseUs data={home_data?.data?.data?.whyChooseUs} />

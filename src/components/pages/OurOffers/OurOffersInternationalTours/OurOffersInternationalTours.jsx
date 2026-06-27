@@ -68,13 +68,12 @@ export default function OurOffersInternationalTours({ data, sectionName, langId 
               key={item.id ?? item.city}
               onClick={() => setSelectedDestination(item)}
             >
-              {item.image && (
-                <Image
-                  src={item.image}
-                  className="rounded-[10px] w-[214px] h-[145px] object-cover shadow-[0px_0px_3px_#0000003B]"
-                  width={214} height={145} alt={item.city}
-                />
-              )}
+              <img
+                src={item.image || '/images/logo hover.svg'}
+                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/images/logo hover.svg'; }}
+                className="rounded-[10px] w-[214px] h-[145px] object-cover shadow-[0px_0px_3px_#0000003B]"
+                alt={item.city}
+              />
               <h2 className="!text-[15px] 2xl:!text-lg text-center !text-[#264787] font-bold uppercase">
                 {item.city}
               </h2>

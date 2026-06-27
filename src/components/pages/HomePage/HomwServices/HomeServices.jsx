@@ -105,8 +105,22 @@ const childVariant = {
   },
 };
 
-export default function HomeServices({ data }) {
+export default function HomeServices({ data, heroServices = [], onSelectHeroService }) {
   const router = useRouter();
+
+  const handleServiceClick = (service) => {
+    // Match this service against hero_services to check its origin type
+    const heroMatch = heroServices?.find(
+      (h) => h.service_id === service?.service_id || h.service_slug === service?.service_slug
+    );
+    if (heroMatch && heroMatch.service_origin_type !== "internal") {
+      // External — scroll to hero and activate its tab
+      onSelectHeroService?.(heroMatch);
+    } else {
+      // Internal — navigate to dedicated page
+      router.push(`/our-services/${service?.service_slug}`);
+    }
+  };
 
   return (
     <motion.div
@@ -118,19 +132,12 @@ export default function HomeServices({ data }) {
     >
       <div dangerouslySetInnerHTML={{ __html: data?.sectionName }}></div>
 
-      {/* <CustomHeading first_title={data?.sectionName?.length > 0 &&  data?.sectionName?.split(" ")[0] || "Our"} second_title={data?.sectionName?.length > 0 &&  data?.sectionName?.split(" ")[1] || "Services"} /> */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mt-10 gap-3 items-center">
         {data?.data?.map((service) => (
           <motion.div key={service?.service_id} variants={childVariant}>
             <div
               className="bg-[#F5F6FA] relative cursor-pointer rounded-xl min-h-[126px]"
-              onClick={() => {
-                console.log(service.service_slug);
-
-                if (typeof window !== "undefined") {
-                  router.push(`/our-services/${service?.service_slug}`);
-                }
-              }}
+              onClick={() => handleServiceClick(service)}
             >
               <div className="flex h-[81px] justify-center items-center">
                 {/*   {console.log("service", service)} */}

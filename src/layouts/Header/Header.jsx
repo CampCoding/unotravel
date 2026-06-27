@@ -164,15 +164,22 @@ const router = useRouter()
                     <div className="absolute top-10 left-0 mt-2 bg-white border border-[#3B85C1] rounded-[7px] p-6 w-[280px] shadow-md z-50">
                       <div className="grid grid-cols-1 gap-3">
                         {item?.routes?.map((child) => (
-                          <Link
-                            key={child?.parent_item_id}
-                           onClick={() => (typeof window !== 'undefined' ? window.location.href = `/our-services/${child?.url}` : null)}
-                            className= "flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition"
-                            href="#"
+                          <button
+                            key={child?.service_id ?? child?.parent_item_id ?? child?.item_label}
+                            onClick={() => {
+                              closeAllMenus();
+                              if (child?.service_origin_type && child.service_origin_type !== "internal") {
+                                router.push(`/?service_id=${child.service_id}`);
+                              } else {
+                                const url = child?.item_url?.startsWith("/") ? child.item_url : `/our-services/${child?.item_url || ""}`;
+                                router.push(url);
+                              }
+                            }}
+                            className="w-full flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition text-left"
                           >
                             {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.item_label} /> : null}
                             <span className="text-black text-base">{child?.item_label}</span>
-                          </Link>
+                          </button>
                         ))}
                       </div>
                     </div>

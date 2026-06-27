@@ -7,8 +7,8 @@ import HomeSubscribe from '@/components/pages/HomePage/HomeSubscribe/HomeSubscri
 import UmraBanner from '@/components/pages/OurServices/Umra/UmraBanner/UmraBanner'
 import UmraContent from '@/components/pages/OurServices/Umra/UmraContent/UmraContent'
 import UmraPackages from '@/components/pages/OurServices/Umra/UmraPackages/UmraPackages'
-import { _get } from '../../../../lib/shared/api';
-import { apiRoutes } from '../../../../lib/shared/routes';
+import { _get } from '@/lib/shared/api';
+import { apiRoutes } from '@/lib/shared/routes';
 import UmrahFAQ from '@/components/pages/OurServices/Umra/UmrahFAQ/UmrahFAQ';
 
 export default function Page() {

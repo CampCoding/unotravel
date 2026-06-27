@@ -90,60 +90,48 @@ const data = [
   },
 ];
 
-export default function HomeBanner({ hero_services = [] }) {
+export default function HomeBanner({ hero_services = [], forcedServiceId = null }) {
   const swiperRef = useRef(null);
   const [selectedTab, setSelectedTab] = useState(null);
   const [openAdultModal, setOpenAdultModal] = useState(false);
-  const router=  useRouter();
+  const router = useRouter();
+
+  // Only show external services in the hero tabs
+  const externalServices = hero_services.filter(
+    (s) => s?.service_origin_type !== "internal"
+  );
+
   // Set default selected tab when hero_services loads
   useEffect(() => {
-    console.log("hero_services", hero_services);
-    if (hero_services && hero_services.length > 0) {
-      setSelectedTab(hero_services[0]);
+    if (externalServices.length > 0 && !selectedTab) {
+      setSelectedTab(externalServices[0]);
     }
   }, [hero_services]);
 
-  // Handle Booking Widget script and resizing
+  // When parent forces a specific service to be selected (from HomeServices click or nav)
+  useEffect(() => {
+    if (!forcedServiceId) return;
+    const match = externalServices.find((s) => String(s.service_id) === String(forcedServiceId));
+    if (match) setSelectedTab(match);
+  }, [forcedServiceId, hero_services]);
+
+  // Handle iframe resize messages (A2Z widget protocol)
   useEffect(() => {
     const handleMessage = (e) => {
       if (typeof e.data === "string" && e.data.indexOf("documentHeight") > -1) {
         const height = e.data.split("documentHeight:")[1];
         const newHeight = parseInt(height) + 75;
-        const widgets = document.querySelectorAll("#fb-widget");
-        widgets.forEach((widget) => {
-          widget.style.height = newHeight + "px";
+        document.querySelectorAll("#fb-widget").forEach((w) => {
+          w.style.height = newHeight + "px";
         });
       }
     };
-    // Remove background from the specified classes if they exist
-   
-    const eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-    const eventer = window[eventMethod];
-    const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-    
-    eventer(messageEvent, handleMessage, false);
-
-    // Dynamic src setting logic from the script
-    const baseUrl = window.location.origin;
-    let lang = document.documentElement.lang;
-    lang = lang.substr(0, 2).toLowerCase() || 'en';
-    
-    const widgets = document.querySelectorAll("#fb-widget");
-    widgets.forEach(widget => {
-      widget.src = "https://vtd.a2zfb.com/vtd/sv?client_base_url=https://unotravel.vercel.app&auth_key=8f6c5b6d72e480162a3ce7182bb97e40";
-    });
-
-    return () => {
-      const unEventMethod = window.removeEventListener ? "removeEventListener" : "detachEvent";
-      const unEventer = window[unEventMethod];
-      if (unEventer) {
-        unEventer(messageEvent, handleMessage);
-      }
-    };
+    window.addEventListener("message", handleMessage, false);
+    return () => window.removeEventListener("message", handleMessage);
   }, [selectedTab]);
 
-  // If no services, render nothing (or fallback)
-  if (!hero_services || hero_services.length === 0 || !selectedTab) {
+  // If no external services, render nothing
+  if (!externalServices.length || !selectedTab) {
     return null;
   }
 
@@ -222,10 +210,10 @@ export default function HomeBanner({ hero_services = [] }) {
                       transition={{ delay: 0.4, duration: 0.6 }}
                       className="tabs bg-[#16294F] h-auto w-full rounded-md gap-2 mt-3 md:mt-6 p-2 sm:p-[6px_10px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
                     >
-                      {hero_services.map((service) => (
+                      {externalServices.map((service) => (
                         <div
                           key={service?.service_id}
-                          onClick={() => service?.service_origin_type == "internal" ? router.push(service?.service_link) : setSelectedTab(service)}
+                          onClick={() => setSelectedTab(service)}
                           className={`cursor-pointer p-2 xl:px-[14px] h-fit flex items-center rounded-[4px] gap-2 transition-all ${
                             selectedTab?.service_id === service?.service_id
                               ? "bg-[rgba(228,76,74,0.58)]"
@@ -255,21 +243,24 @@ export default function HomeBanner({ hero_services = [] }) {
                       transition={{ delay: 0.4, duration: 0.6 }}
                       style={{ width: "100%" }}
                     >
-                      <motion.iframe
-                        id="fb-widget"
-                        title="Booking Widget"
-                        allowTransparency={true}
-                        allowFullScreen
-                        scrolling="no"
-                        style={{
-                          position: "relative",
-                          width: "100%",
-                          border: "none",
-                          minHeight: "200px",
-                          marginTop: "20px",
-                        }}
-                        src="https://vtd.a2zfb.com/vtd/sv?client_base_url=https://unotravel.vercel.app&auth_key=8f6c5b6d72e480162a3ce7182bb97e40"
-                      />
+                      {selectedTab?.iframe_link && (
+                        <motion.iframe
+                          key={selectedTab?.service_id}
+                          id="fb-widget"
+                          title={selectedTab?.service_name || "Booking Widget"}
+                          allowTransparency={true}
+                          allowFullScreen
+                          scrolling="no"
+                          style={{
+                            position: "relative",
+                            width: "100%",
+                            border: "none",
+                            minHeight: "200px",
+                            marginTop: "20px",
+                          }}
+                          src={selectedTab?.iframe_link}
+                        />
+                      )}
                     </motion.div>
 
                     {/* Forms per tab (if you want to re-enable later)

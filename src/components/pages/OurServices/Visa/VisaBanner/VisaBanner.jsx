@@ -1,58 +1,45 @@
 "use client";
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
+import { Pagination, Autoplay, EffectFade } from "swiper/modules";
 import Image from "next/image";
 
 import "swiper/css";
 import "swiper/css/pagination";
+import "swiper/css/effect-fade";
 
-const data = [
-  {
-    id: 1,
-    src: "/images/visa.webp",
-    type: "image",
-  },
-  // {
-  //   id: 2,
-  //   src: "/images/NoPath - Copy (52).webp",
-  //   type: "image",
-  // },
-];
+const FALLBACK = [{ id: "fallback", image_url: "/images/visa.webp" }];
 
-export default function VisaBanner() {
+export default function VisaBanner({ banners = [] }) {
+  const slides = banners.length > 0 ? banners : FALLBACK;
+
   return (
-    <div data-aos="zoom-in-right" className="overflow-hidden  h-[90vh]">
+    <div data-aos="zoom-in-right" className="overflow-hidden h-[90vh]">
       <Swiper
-        modules={[Pagination]}
+        modules={[Pagination, Autoplay, EffectFade]}
+        effect="fade"
         pagination={{ clickable: true }}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
         slidesPerView={1}
-        className="w-full overflow-hidden!"
+        className="w-full h-full overflow-hidden!"
       >
-        {data.map((item) => (
+        {slides.map((item) => (
           <SwiperSlide key={item.id}>
             <div className="relative w-full h-[90vh]">
-              {item.type === "image" ? (
-                <Image
-                  src={item.src}
-                  alt={`slide-${item.id}`}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <video
-                  src={item.src}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover rounded-md"
-                />
+              <Image
+                src={item.image_url || "/images/visa.webp"}
+                alt={item.title || "Visa Banner"}
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute bottom-0 left-0 w-full h-2/5 bg-gradient-to-t from-black to-transparent z-10" />
+              {(item.title || item.subtitle) && (
+                <div className="absolute bottom-16 left-0 right-0 z-20 container text-white">
+                  {item.title    && <h2 className="text-4xl font-bold drop-shadow-lg">{item.title}</h2>}
+                  {item.subtitle && <p  className="text-lg mt-2 drop-shadow">{item.subtitle}</p>}
+                </div>
               )}
-
-              {/* Gradient Overlay */}
-              <div className="absolute bottom-0 left-0 w-full h-2/5 bg-gradient-to-t from-black to-transparent z-10"></div>
             </div>
           </SwiperSlide>
         ))}

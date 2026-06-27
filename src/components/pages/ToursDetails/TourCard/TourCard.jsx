@@ -20,7 +20,8 @@ export default function TourCard({ item }) {
       >
         {/* Image Section */}
         <img
-          src={item?.image}
+          src={item?.image || '/images/logo hover.svg'}
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/images/logo hover.svg'; }}
           className="w-full sm:w-[136px] h-[200px] sm:h-[177px] object-cover rounded-xl"
           alt={item?.title}
         />

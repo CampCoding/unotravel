@@ -6,6 +6,7 @@ import { store } from "../lib/store";
 import Header from "@/layouts/Header/Header";
 import Footer from "@/layouts/Footer/Footer";
 import AosAnimation from "@/components/shared/AosComponent/AosComponent";
+import SplashLoader from "@/components/shared/SplashLoader/SplashLoader";
 import { usePathname } from "next/navigation";
 import { UmrahProvider } from "@/context/UmrahContext";
 
@@ -16,6 +17,7 @@ export default function DefaultLayout({ children }) {
   return (
     <Provider store={store}>
       <UmrahProvider>
+        <SplashLoader />
         {!hideLayout && <Header />}
         <main style={{ overflowY: "auto", minHeight: "100vh" }}>
           {children}
