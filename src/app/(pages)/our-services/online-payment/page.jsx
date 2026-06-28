@@ -1,12 +1,17 @@
 "use client";
 import React, { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { base_url } from "@/lib/constants";
+import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
 
 export default function Page() {
+  const router = useRouter();
+  const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
   const [form, setForm]     = useState({ name: "", email: "", phone: "", notes: "", link: "" });
   const [files, setFiles]   = useState([]);
   const [loading, setLoading] = useState(false);
-  const [done, setDone]     = useState(false);
+  const [done, setDone]     = useState(null);
   const [error, setError]   = useState("");
   const fileRef = useRef();
 
@@ -38,25 +43,35 @@ export default function Page() {
 
       const res = await fetch(`${base_url}pages/online-payment`, { method: "POST", body: fd });
       if (!res.ok) throw new Error("Failed");
-      setDone(true);
+      let bookingId = null;
+      try { const json = await res.json(); bookingId = json?.data?.id ?? null; } catch {}
+      setDone({ bookingId, name: form.name, phone: form.phone, email: form.email, notes: form.notes });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally { setLoading(false); }
   };
 
-  if (done) return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="max-w-md w-full text-center bg-white rounded-3xl shadow-2xl p-10 border border-gray-100">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h2 className="text-2xl font-black text-gray-900 mb-2">Request Submitted!</h2>
-        <p className="text-gray-500 text-sm">Our team will review your request and get back to you shortly.</p>
-      </div>
-    </div>
-  );
+  if (done) {
+    const isRTL = (selectedLanguage || 1) === 2;
+    return (
+      <BookingConfirmUI
+        type="payment"
+        bookingId={done.bookingId}
+        title={isRTL ? "طلب دفع إلكتروني" : "Online Payment Request"}
+        details={[
+          { emoji: "👤", label: isRTL ? "الاسم"   : "Full Name", value: done.name },
+          { emoji: "📞", label: isRTL ? "الهاتف"  : "Phone",     value: done.phone },
+          { emoji: "✉️", label: isRTL ? "البريد"  : "Email",     value: done.email },
+          { emoji: "📝", label: isRTL ? "ملاحظات" : "Notes",     value: done.notes },
+        ]}
+        isRTL={isRTL}
+        accentColor="from-[#0f4c81] to-[#3b85c1]"
+        onBack={() => router.push("/our-services/online-payment")}
+        onHome={() => router.push("/")}
+        backLabel={isRTL ? "طلب آخر" : "← Submit Another"}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">

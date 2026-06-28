@@ -2,9 +2,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useUmrah } from "@/context/UmrahContext";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { _post } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
+import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
 
 function InfoRow({ icon, label, value }) {
   if (!value) return null;
@@ -29,6 +31,7 @@ const DRAFT_KEY = "umrah";
 export default function Page() {
   const { selectedPackage } = useUmrah();
   const router = useRouter();
+  const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
 
   const costs    = selectedPackage?.costs ?? [];
   const basePrice = Number(selectedPackage?.price ?? 0);
@@ -76,7 +79,7 @@ export default function Page() {
     setError("");
     setLoading(true);
     try {
-      await _post(apiRoutes.umrah_register, {
+      const res = await _post(apiRoutes.umrah_register, {
         package_id:      selectedPackage?.id    ?? null,
         package_title:   selectedPackage?.name  ?? null,
         full_name:       form.fullName,
@@ -95,6 +98,7 @@ export default function Page() {
       setSubmitted({
         ...form,
         phone:       `${form.countryCode}${form.phone}`,
+        bookingId:   res?.data?.data?.id ?? null,
         roomLabel:   costOptions[selectedCost]?.label ?? null,
         adults,
         totalPrice,
@@ -114,100 +118,30 @@ export default function Page() {
 
   /* ── Confirmation screen ── */
   if (submitted) {
+    const isRTL = (selectedLanguage || 1) === 2;
     return (
-      <div className="min-h-screen bg-gray-50 py-10">
-        <div className="container mx-auto px-4 max-w-2xl">
-
-          {/* Header banner */}
-          <div className="bg-gradient-to-r from-[#264787] to-[#3B85C1] rounded-3xl p-8 text-center mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10"
-              style={{ backgroundImage: "radial-gradient(circle at 70% 50%, white 0%, transparent 60%)" }} />
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-white text-2xl font-bold mb-1">Registration Submitted!</h2>
-            <p className="text-white/70 text-sm">We'll contact you shortly to confirm your Umrah package.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-            {/* Package details */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {submitted.packageImg && (
-                <img src={submitted.packageImg} alt={submitted.packageName} className="w-full h-[160px] object-cover" />
-              )}
-              <div className="p-5">
-                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">Package Details</p>
-                <h3 className="font-bold text-[#264787] text-base mb-4">{submitted.packageName}</h3>
-                {submitted.duration && (
-                  <InfoRow icon="⏱" label="Duration" value={submitted.duration} />
-                )}
-                {submitted.travelDates && (
-                  <InfoRow icon="📅" label="Travel Dates" value={submitted.travelDates} />
-                )}
-                <InfoRow icon="👥" label="Adults" value={`${submitted.adults} person${submitted.adults !== 1 ? "s" : ""}`} />
-                {submitted.roomLabel && (
-                  <InfoRow icon="🛏" label="Room Type" value={submitted.roomLabel} />
-                )}
-                <div className="mt-4 bg-[#3B85C1] rounded-xl px-4 py-3 flex items-center justify-between text-white">
-                  <div>
-                    <p className="text-xs opacity-70">Adults</p>
-                    <p className="text-sm font-semibold">{submitted.adults} person{submitted.adults !== 1 ? "s" : ""}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs opacity-70">Total Price</p>
-                    <p className="text-xl font-bold">${submitted.totalPrice.toLocaleString()}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Your info */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">Your Information</p>
-              <div className="w-12 h-12 bg-[#264787]/10 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-[#264787]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-              </div>
-              <InfoRow icon="👤" label="Full Name"      value={submitted.fullName} />
-              <InfoRow icon="📞" label="Phone"          value={submitted.phone} />
-              <InfoRow icon="✉️" label="Email"          value={submitted.email} />
-              <InfoRow icon="🪪" label="Passport"       value={submitted.passportNumber} />
-              <InfoRow icon="⚧" label="Gender"         value={submitted.gender} />
-              <InfoRow icon="📝" label="Notes"          value={submitted.details} />
-            </div>
-          </div>
-
-          {/* What's next */}
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mt-4 flex gap-3 items-start">
-            <span className="text-xl mt-0.5">💬</span>
-            <div>
-              <p className="text-sm font-semibold text-amber-800">What happens next?</p>
-              <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                Our team will reach out to you within 24 hours on your phone or email to finalize your Umrah package details and payment.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={() => router.push("/our-services/umrah")}
-              className="flex-1 bg-[#264787] hover:bg-[#3B85C1] text-white font-bold py-3.5 rounded-xl transition text-sm"
-            >
-              ← Back to Umrah
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              className="flex-1 border-2 border-gray-200 text-gray-600 hover:bg-gray-50 font-semibold py-3.5 rounded-xl transition text-sm"
-            >
-              Go to Home
-            </button>
-          </div>
-        </div>
-      </div>
+      <BookingConfirmUI
+        type="umrah"
+        bookingId={submitted.bookingId}
+        title={submitted.packageName}
+        image={submitted.packageImg ?? null}
+        details={[
+          { emoji: "⏱",  label: isRTL ? "المدة"       : "Duration",    value: submitted.duration },
+          { emoji: "📅",  label: isRTL ? "مواعيد السفر": "Travel Dates",value: submitted.travelDates },
+          { emoji: "👥",  label: isRTL ? "البالغون"    : "Adults",      value: `${submitted.adults}` },
+          { emoji: "🛏",  label: isRTL ? "نوع الغرفة"  : "Room Type",   value: submitted.roomLabel },
+          { emoji: "👤",  label: isRTL ? "الاسم"       : "Full Name",   value: submitted.fullName },
+          { emoji: "📞",  label: isRTL ? "الهاتف"      : "Phone",       value: submitted.phone },
+          { emoji: "🪪",  label: isRTL ? "جواز السفر"  : "Passport",    value: submitted.passportNumber },
+        ]}
+        price={submitted.totalPrice}
+        currency="USD"
+        accentColor="from-[#1a6645] to-[#2ea86e]"
+        isRTL={isRTL}
+        onBack={() => router.push("/our-services/umrah")}
+        onHome={() => router.push("/")}
+        backLabel={isRTL ? "العودة للعمرة" : "← Back to Umrah"}
+      />
     );
   }
 

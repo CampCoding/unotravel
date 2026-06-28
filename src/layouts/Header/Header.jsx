@@ -177,7 +177,7 @@ const router = useRouter()
                             }}
                             className="w-full flex gap-[13px] items-center hover:bg-[#F5F5F5] p-2 rounded-[5px] transition text-left"
                           >
-                            {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.item_label} /> : null}
+                            {/* {child?.item_image ? <img src={child?.item_image} className="w-6 h-5 object-cover" alt={child?.item_label} /> : null} */}
                             <span className="text-black text-base">{child?.item_label}</span>
                           </button>
                         ))}

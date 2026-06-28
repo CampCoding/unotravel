@@ -21,4 +21,9 @@ export const apiRoutes = {
   car_reservation_page:     "pages/car-reservation",
   car_reservation_book:     "pages/car-reservation/book",
   car_reservation_tracking: (id) => `pages/car-reservation/booking/${id}`,
+  tour_booking_tracking:    (id) => `pages/tour-booking/${id}`,
+  umrah_booking_tracking:   (id) => `pages/umrah-booking/${id}`,
+  offer_booking_tracking:   (id) => `pages/offer-booking/${id}`,
+  visa_app_tracking:        (id) => `pages/visa-application/${id}`,
+  payment_tracking:         (id) => `pages/payment-tracking/${id}`,
 };

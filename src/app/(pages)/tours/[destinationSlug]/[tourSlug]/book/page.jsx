@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { handleGetTourDetail } from "../../../../../../lib/features/layoutSlice";
 import { _post } from "../../../../../../lib/shared/api";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
+import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
 
 const PickupMapPicker = dynamic(
   () => import("@/components/shared/PickupMapPicker/PickupMapPicker"),
@@ -107,7 +108,7 @@ export default function TourBookPage() {
         setLoading(false);
         return;
       }
-      await _post("pages/tour-book", {
+      const res = await _post("pages/tour-book", {
         tour_id:          tour?.tour_id ?? null,
         tour_title:       title,
         tour_slug:        tourSlug,
@@ -124,7 +125,11 @@ export default function TourBookPage() {
         total_price:      totalPrice,
       });
       deleteDraft("tour");
-      setSubmitted({ ...form, phone: `${form.countryCode}${form.phone}` });
+      setSubmitted({
+        ...form,
+        phone:      `${form.countryCode}${form.phone}`,
+        bookingId:  res?.data?.data?.booking_id ?? null,
+      });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -134,92 +139,28 @@ export default function TourBookPage() {
 
   /* ── Success / Confirmation screen ── */
   if (submitted) {
+    const isRTL = (selectedLanguage || 1) === 2;
     return (
-      <div className="min-h-screen bg-gray-50 py-10">
-        <div className="container mx-auto px-4 max-w-2xl">
-
-          {/* Green success banner */}
-          <div className="bg-gradient-to-r from-[#264787] to-[#3B85C1] rounded-3xl p-8 text-center mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10"
-              style={{ backgroundImage: "radial-gradient(circle at 70% 50%, white 0%, transparent 60%)" }} />
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-white text-2xl font-bold mb-1">Booking Confirmed!</h2>
-            <p className="text-white/70 text-sm">We'll contact you shortly to confirm your reservation.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-            {/* Tour details card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {mainImg && (
-                <img src={mainImg.media_url} alt={title} className="w-full h-[160px] object-cover" />
-              )}
-              <div className="p-5">
-                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">Tour Details</p>
-                <h3 className="font-bold text-[#264787] text-base mb-4">{title}</h3>
-                <InfoRow icon="📅" label="Booking Date"   value={selectedDate} />
-                <InfoRow icon="👥" label="Travelers"      value={`${travelers} person${travelers !== 1 ? "s" : ""}`} />
-                <InfoRow icon="📍" label="Meeting Option" value={meetingOption === "pickup" ? "Pickup Point" : "Meeting Point (Free)"} />
-                <div className="mt-4 bg-[#3B85C1] rounded-xl px-4 py-3 flex items-center justify-between text-white">
-                  <div>
-                    <p className="text-xs opacity-70">Price per person</p>
-                    <p className="text-sm font-semibold">${pricePerPerson.toLocaleString()}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs opacity-70">Total Price</p>
-                    <p className="text-xl font-bold">${totalPrice.toLocaleString()}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Traveler info card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">Your Information</p>
-              <div className="w-12 h-12 bg-[#264787]/10 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-[#264787]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-              </div>
-              <InfoRow icon="👤" label="Full Name"       value={submitted.fullName} />
-              <InfoRow icon="📞" label="Phone"           value={submitted.phone} />
-              <InfoRow icon="✉️" label="Email"           value={submitted.email} />
-              <InfoRow icon="🪪" label="Passport"        value={submitted.passportNumber} />
-              <InfoRow icon="📝" label="Notes"           value={submitted.notes} />
-            </div>
-          </div>
-
-          {/* What's next */}
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mt-4 flex gap-3 items-start">
-            <span className="text-xl mt-0.5">💬</span>
-            <div>
-              <p className="text-sm font-semibold text-amber-800">What happens next?</p>
-              <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                Our team will reach out to you within 24 hours on your provided phone or email to finalize your booking details.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={() => router.push(`/tours/${destSlug}`)}
-              className="flex-1 bg-[#264787] hover:bg-[#3B85C1] text-white font-bold py-3.5 rounded-xl transition text-sm"
-            >
-              ← Back to Tours
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              className="flex-1 border-2 border-gray-200 text-gray-600 hover:bg-gray-50 font-semibold py-3.5 rounded-xl transition text-sm"
-            >
-              Go to Home
-            </button>
-          </div>
-        </div>
-      </div>
+      <BookingConfirmUI
+        type="tour"
+        bookingId={submitted.bookingId}
+        title={title}
+        image={mainImg?.media_url ?? null}
+        details={[
+          { emoji: "📅", label: isRTL ? "تاريخ الحجز"    : "Booking Date",    value: selectedDate },
+          { emoji: "👥", label: isRTL ? "المسافرون"       : "Travelers",       value: `${travelers} ${travelers !== 1 ? (isRTL ? "أشخاص" : "persons") : (isRTL ? "شخص" : "person")}` },
+          { emoji: "📍", label: isRTL ? "خيار اللقاء"     : "Meeting Option",  value: meetingOption === "pickup" ? (isRTL ? "نقطة استلام" : "Pickup Point") : (isRTL ? "نقطة لقاء (مجانًا)" : "Meeting Point (Free)") },
+          { emoji: "👤", label: isRTL ? "الاسم الكامل"    : "Full Name",       value: submitted.fullName },
+          { emoji: "📞", label: isRTL ? "الهاتف"          : "Phone",           value: submitted.phone },
+          { emoji: "✉️", label: isRTL ? "البريد"          : "Email",           value: submitted.email },
+        ]}
+        price={totalPrice}
+        currency="USD"
+        isRTL={isRTL}
+        onBack={() => router.push(`/tours/${destSlug}`)}
+        onHome={() => router.push("/")}
+        backLabel={isRTL ? "العودة للجولات" : "← Back to Tours"}
+      />
     );
   }
 

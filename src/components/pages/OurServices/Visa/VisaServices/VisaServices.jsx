@@ -7,6 +7,9 @@ import { RadioGroup } from "../../../../ui/radio-group";
 import CustomRadio from "../../../../shared/CustomRadio/CustomRadio";
 import { _get, _post } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
 
 function LegalModal({ slug, title, onClose }) {
   const [content, setContent] = useState(null);
@@ -81,8 +84,10 @@ function LegalModal({ slug, title, onClose }) {
 }
 
 export default function VisaServices({ countries: rawCountries = [], visaTypes: rawVisaTypes = [], passportTypes: rawPassportTypes = [] }) {
+  const router = useRouter();
+  const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted]   = useState(false);
+  const [submitted, setSubmitted]   = useState(null);
   const [modal, setModal]           = useState(null);
 
   const [form, setForm] = useState({
@@ -112,8 +117,21 @@ export default function VisaServices({ countries: rawCountries = [], visaTypes: 
     if (!form.gdpr_accepted)  { alert("Please accept the GDPR policy"); return; }
     setSubmitting(true);
     try {
-      await _post(apiRoutes.visa_apply, form);
-      setSubmitted(true);
+      const res = await _post(apiRoutes.visa_apply, form);
+      const visaLabel     = rawVisaTypes.find(v => v.id === form.visa_type_id)?.name ?? null;
+      const natLabel      = rawCountries.find(c => c.id === form.nationality_id)?.name ?? null;
+      const passportLabel = rawPassportTypes.find(p => p.id === form.passport_type_id)?.name ?? null;
+      setSubmitted({
+        bookingId:      res?.data?.data?.id ?? null,
+        firstName:      form.first_name,
+        surname:        form.surname,
+        gender:         form.gender,
+        age:            form.age,
+        visaType:       visaLabel,
+        nationality:    natLabel,
+        passportType:   passportLabel,
+        passportExpiry: form.passport_expiry,
+      });
     } catch {
       alert("Submission failed. Please try again.");
     } finally {
@@ -127,22 +145,26 @@ export default function VisaServices({ countries: rawCountries = [], visaTypes: 
     "mb-[9px] flex items-center text-left text-base font-normal leading-none text-(--main-light-color)!";
   const requiredClass = "ml-[4px] text-[14px] font-bold text-[#FF4B5C]";
   if (submitted) {
+    const isRTL = (selectedLanguage || 1) === 2;
     return (
-      <section data-aos="fade-up" className="mt-20 w-full bg-white">
-        <div className="container flex flex-col items-center py-20 text-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
-            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-[#16294F]">Application Submitted!</h2>
-          <p className="text-[#6B7280] max-w-md">Your visa application has been received. Our team will review it and get back to you shortly.</p>
-          <button onClick={() => { setSubmitted(false); setForm({ gender:"male", first_name:"", surname:"", age:"", nationality_id:"", visa_type_id:"", passport_type_id:"", passport_expiry:"", passport_issuing_country_id:"", residence_country_id:"", terms_accepted:false, gdpr_accepted:false }); }}
-            className="mt-4 px-6 py-2.5 rounded-full bg-[#264787] text-white font-semibold hover:bg-[#1d3a6b] transition">
-            Submit Another
-          </button>
-        </div>
-      </section>
+      <BookingConfirmUI
+        type="visa"
+        bookingId={submitted.bookingId}
+        title={submitted.visaType ?? (isRTL ? "طلب تأشيرة" : "Visa Application")}
+        details={[
+          { emoji: "🌍", label: isRTL ? "الجنسية"        : "Nationality",    value: submitted.nationality },
+          { emoji: "🪪", label: isRTL ? "نوع الجواز"      : "Passport Type",  value: submitted.passportType },
+          { emoji: "📅", label: isRTL ? "انتهاء الجواز"   : "Passport Expiry",value: submitted.passportExpiry },
+          { emoji: "👤", label: isRTL ? "الاسم"           : "Full Name",      value: `${submitted.firstName} ${submitted.surname}`.trim() },
+          { emoji: "🎂", label: isRTL ? "العمر"           : "Age",            value: submitted.age ? `${submitted.age}` : null },
+          { emoji: "⚧", label: isRTL ? "الجنس"           : "Gender",         value: submitted.gender },
+        ]}
+        isRTL={isRTL}
+        accentColor="from-[#16294F] to-[#264787]"
+        onBack={() => router.push("/our-services/visa")}
+        onHome={() => router.push("/")}
+        backLabel={isRTL ? "العودة للتأشيرات" : "← Back to Visa"}
+      />
     );
   }
 

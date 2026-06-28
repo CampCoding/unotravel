@@ -1,26 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { _post } from "@/lib/shared/api";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
+import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
 
 const inp = "w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 transition placeholder-gray-400 text-base text-gray-800";
 
-function InfoRow({ icon, label, value }) {
-  if (!value) return null;
-  return (
-    <div className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0">
-      <span className="text-base mt-0.5">{icon}</span>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-gray-400 font-medium mb-0.5">{label}</p>
-        <p className="text-sm font-semibold text-gray-800 break-words">{value}</p>
-      </div>
-    </div>
-  );
-}
-
 export default function OfferRegisterPage() {
   const router = useRouter();
+  const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
   const [offer, setOffer] = useState(null);
 
   const [travelers, setTravelers] = useState(1);
@@ -63,7 +53,7 @@ export default function OfferRegisterPage() {
     setError("");
     setLoading(true);
     try {
-      await _post("pages/offer-register", {
+      const res = await _post("pages/offer-register", {
         offer_id:   offer?.offer_id   ?? null,
         offer_name: offer?.offer_name ?? null,
         full_name:  form.fullName,
@@ -78,12 +68,13 @@ export default function OfferRegisterPage() {
       sessionStorage.removeItem("uno_selected_offer");
       setSubmitted({
         ...form,
-        phone:     `${form.countryCode}${form.phone}`,
+        phone:      `${form.countryCode}${form.phone}`,
+        bookingId:  res?.data?.data?.id ?? null,
         travelers,
-        offerName: offer?.offer_name,
-        offerImg:  offer?.image_url,
+        offerName:  offer?.offer_name,
+        offerImg:   offer?.image_url,
         offerValue: offer?.offer_value,
-        offerDesc: offer?.offer_description,
+        offerDesc:  offer?.offer_description,
       });
     } catch {
       setError("Something went wrong. Please try again.");
@@ -93,87 +84,27 @@ export default function OfferRegisterPage() {
   };
 
   if (submitted) {
+    const isRTL = (selectedLanguage || 1) === 2;
     return (
-      <div className="min-h-screen bg-gray-50 py-10">
-        <div className="container mx-auto px-4 max-w-2xl">
-
-          {/* Header banner */}
-          <div className="bg-gradient-to-r from-[#C1823B] to-[#E6A855] rounded-3xl p-8 text-center mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10"
-              style={{ backgroundImage: "radial-gradient(circle at 70% 50%, white 0%, transparent 60%)" }} />
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-white text-2xl font-bold mb-1">Registration Submitted!</h2>
-            <p className="text-white/70 text-sm">We'll contact you shortly to confirm your offer.</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-            {/* Offer details */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {submitted.offerImg && (
-                <img src={submitted.offerImg} alt={submitted.offerName} className="w-full h-[160px] object-contain bg-gray-50" />
-              )}
-              <div className="p-5">
-                <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">Offer Details</p>
-                <h3 className="font-bold text-[#264787] text-base mb-3">{submitted.offerName || "Offer Registration"}</h3>
-                {submitted.offerDesc && (
-                  <p className="text-gray-500 text-xs leading-relaxed mb-3 line-clamp-3">{submitted.offerDesc}</p>
-                )}
-                {submitted.offerValue && (
-                  <span className="inline-flex items-center gap-1 bg-[#3B85C1]/10 text-[#3B85C1] text-sm font-bold px-3 py-1 rounded-full mb-3">
-                    🏷 {submitted.offerValue}
-                  </span>
-                )}
-                <InfoRow icon="👥" label="Travelers" value={`${submitted.travelers} person${submitted.travelers !== 1 ? "s" : ""}`} />
-              </div>
-            </div>
-
-            {/* Your info */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">Your Information</p>
-              <div className="w-12 h-12 bg-[#264787]/10 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-[#264787]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-              </div>
-              <InfoRow icon="👤" label="Full Name" value={submitted.fullName} />
-              <InfoRow icon="📞" label="Phone"     value={submitted.phone} />
-              <InfoRow icon="✉️" label="Email"     value={submitted.email} />
-              <InfoRow icon="📝" label="Notes"     value={submitted.notes} />
-            </div>
-          </div>
-
-          {/* What's next */}
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mt-4 flex gap-3 items-start">
-            <span className="text-xl mt-0.5">💬</span>
-            <div>
-              <p className="text-sm font-semibold text-amber-800">What happens next?</p>
-              <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                Our team will reach out to you within 24 hours on your phone or email to confirm your registration details.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={() => router.push("/our-offers")}
-              className="flex-1 bg-[#264787] hover:bg-[#3B85C1] text-white font-bold py-3.5 rounded-xl transition text-sm"
-            >
-              Browse More Offers
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              className="flex-1 border-2 border-gray-200 text-gray-600 hover:bg-gray-50 font-semibold py-3.5 rounded-xl transition text-sm"
-            >
-              Go to Home
-            </button>
-          </div>
-        </div>
-      </div>
+      <BookingConfirmUI
+        type="offer"
+        bookingId={submitted.bookingId}
+        title={submitted.offerName ?? (isRTL ? "تسجيل العرض" : "Offer Registration")}
+        image={submitted.offerImg ?? null}
+        details={[
+          { emoji: "🏷",  label: isRTL ? "قيمة العرض"  : "Offer Value", value: submitted.offerValue },
+          { emoji: "👥",  label: isRTL ? "المسافرون"   : "Travelers",   value: `${submitted.travelers} ${submitted.travelers !== 1 ? (isRTL ? "أشخاص" : "persons") : (isRTL ? "شخص" : "person")}` },
+          { emoji: "👤",  label: isRTL ? "الاسم"       : "Full Name",   value: submitted.fullName },
+          { emoji: "📞",  label: isRTL ? "الهاتف"      : "Phone",       value: submitted.phone },
+          { emoji: "✉️",  label: isRTL ? "البريد"      : "Email",       value: submitted.email },
+          { emoji: "📝",  label: isRTL ? "ملاحظات"     : "Notes",       value: submitted.notes },
+        ]}
+        isRTL={isRTL}
+        accentColor="from-[#C1823B] to-[#E6A855]"
+        onBack={() => router.push("/our-offers")}
+        onHome={() => router.push("/")}
+        backLabel={isRTL ? "العودة للعروض" : "← Back to Offers"}
+      />
     );
   }
 
