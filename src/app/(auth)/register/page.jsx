@@ -1,232 +1,156 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, MapPin, X, Clock } from "lucide-react";
-import dynamic from "next/dynamic";
+import { useDispatch, useSelector } from "react-redux";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { handleRegister, clearError } from "@/lib/features/authSlice";
 
-const ServiceTime = dynamic(
-  () => import("@/components/pages/auth/Register/ServiceTime"),
-  { ssr: false }
-);
+const COUNTRY_CODES = [
+  { code: "+966", flag: "🇸🇦" }, { code: "+20",  flag: "🇪🇬" },
+  { code: "+971", flag: "🇦🇪" }, { code: "+965", flag: "🇰🇼" },
+  { code: "+974", flag: "🇶🇦" }, { code: "+968", flag: "🇴🇲" },
+  { code: "+962", flag: "🇯🇴" }, { code: "+90",  flag: "🇹🇷" },
+  { code: "+46",  flag: "🇸🇪" }, { code: "+44",  flag: "🇬🇧" },
+  { code: "+1",   flag: "🇺🇸" },
+];
 
-const ServiceLocation = dynamic(
-  () => import("@/components/pages/auth/Register/ServiceLocation"),
-  { ssr: false }
-);
-export default function SignUpPage() {
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  if (typeof window === "undefined") {
-    return null;
-  }
+export default function RegisterPage() {
+  const router   = useRouter();
+  const dispatch = useDispatch();
+  const { loading, error, user } = useSelector((s) => s.auth ?? {});
+
+  const [form, setForm] = useState({
+    first_name: "", last_name: "", email: "",
+    countryCode: "+966", phone: "", password: "", confirmPassword: "",
+  });
+  const [showPw, setShowPw] = useState(false);
+  const [localError, setLocalError] = useState("");
+
+  const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
+
+  useEffect(() => { if (user?.id) router.replace("/profile"); }, [user]);
+  useEffect(() => { dispatch(clearError()); }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLocalError("");
+    if (form.password && form.password !== form.confirmPassword) {
+      setLocalError("Passwords do not match");
+      return;
+    }
+    const payload = {
+      first_name: form.first_name,
+      last_name:  form.last_name  || undefined,
+      email:      form.email      || undefined,
+      phone:      form.phone ? `${form.countryCode}${form.phone}` : undefined,
+      password:   form.password   || undefined,
+    };
+    const result = await dispatch(handleRegister(payload));
+    if (result.meta.requestStatus === "fulfilled") router.replace("/profile");
+  };
+
+  const inp = "w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 transition placeholder-gray-400 text-base text-gray-800";
+  const displayError = localError || error;
+
   return (
-    <div className="min-h-screen bg-gray-50 p-3">
-      {/* Header */}
-      <div className="p-5 max-w-5xl mx-auto">
-        <div className="flex items-center p-5 mx-auto mb-5">
-          <div className="flex flex-col items-center flex-grow">
-            <h1 className="text-3xl font-[filson-bold] text-[var(--main-dark-color)] relative text-center leading-tight">
-              Lead{" "}
-              <span className="text-[var(--main-light-color)]">
-                Uno{" "}
-                <span className="relative inline-block">
-                  Travel
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 100 10"
-                    className="absolute left-1/2 -translate-x-1/2 -rotate-6 bottom-[-8px] w-18 h-3 text-[var(--main-light-color)]"
-                  >
-                    <path
-                      d="M0,5 Q50,-4 100,5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </span>
-              </span>
-            </h1>
-          </div>
+    <div className="min-h-screen bg-[#F5F6FA] flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+
+        {/* Left */}
+        <div className="flex flex-col items-center gap-4 text-center pt-8">
+          <Image src="/images/BusinessCardLogo-removebg-preview.png" alt="Uno Travel" width={240} height={140} className="object-contain" />
+          <h2 className="text-3xl font-black text-[#264787]">Join Uno Travel</h2>
+          <p className="text-[#0F3F62] font-medium text-base max-w-xs">
+            Create your account to track bookings, save your details, and get personalized service.
+          </p>
+          <p className="text-sm text-gray-500">
+            Already have an account?{" "}
+            <Link href="/sign-in" className="text-[#3B85C1] font-bold hover:underline">Sign in</Link>
+          </p>
         </div>
 
-        {/* =================== MODAL =================== */}
-        {isOpen && (
-          <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-            <div className="bg-white rounded-3xl w-[90%] max-w-[650px] relative max-h-[90vh] overflow-y-auto shadow-lg px-4 py-6 md:p-6">
-              {/* Close Button */}
-              <button
-                onClick={() => setIsOpen(false)}
-                className="absolute top-6 right-6 text-gray-500 hover:text-gray-700 cursor-pointer"
-              >
-                <X />
-              </button>
+        {/* Right — form */}
+        <div className="bg-white rounded-3xl shadow-2xl p-8 flex flex-col gap-5">
+          <div>
+            <h3 className="text-2xl font-black text-[#264787]">Create Account</h3>
+            <p className="text-sm text-gray-400 mt-1">Fill in your details to get started</p>
+          </div>
 
-              {/* Modal Content */}
-              <div className="flex flex-col items-center w-full gap-8">
-                {/* Header */}
-                <div className="flex flex-col items-center">
-                  <h1 className="text-3xl font-[filson-bold] text-[var(--main-dark-color)] relative text-center">
-                    Pickup{" "}
-                    <span className="text-[var(--main-light-color)] relative inline-block">
-                      Point
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 100 10"
-                        className="absolute left-1/2 -translate-x-1/2 -rotate-6 bottom-[-8px] w-18 h-3 text-[var(--main-light-color)]"
-                      >
-                        <path
-                          d="M0,5 Q50,-4 100,5"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </span>
-                  </h1>
-                </div>
-
-                {/* Card Container */}
-                <div className="bg-white rounded-3xl flex flex-col justify-center items-center w-full px-4 lg:px-6 py-10">
-                  {/* TIME Section */}
-                  <div className="w-full flex flex-col gap-5">
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex ml-5 items-center gap-2">
-                        <Clock
-                          size={17}
-                          className="text-[var(--main-light-color)]"
-                        />
-                        <p className="text-[var(--main-light-color)] font-[filson-medium] tracking-wide">
-                          TIME
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="w-full">
-                      <ServiceTime />
-                    </div>
-                  </div>
-
-                  {/* LOCATION Section */}
-                  <div className="w-full mt-6">
-                    <ServiceLocation />
-                  </div>
-
-                  {/* Confirm Button */}
-                  <button className="bg-[var(--main-dark-color)] text-white text-sm font-[filson-medium] px-6 py-2 rounded-full mt-8 cursor-pointer">
-                    Confirm time & location
-                  </button>
-                </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1.5">First Name <span className="text-red-400">*</span></label>
+                <input type="text" value={form.first_name} onChange={e => set("first_name", e.target.value)}
+                  placeholder="Mohammed" className={inp} required />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1.5">Last Name</label>
+                <input type="text" value={form.last_name} onChange={e => set("last_name", e.target.value)}
+                  placeholder="Reda" className={inp} />
               </div>
             </div>
-          </div>
-        )}
 
-        {/* =================== MAIN SIGN-UP FORM =================== */}
-        <div className="bg-white rounded-3xl shadow-2xl p-12">
-          <p className="text-gray-400 text-sm font-[filson-light] my-3">
-            We'll use your information to send confirmations and updates about
-            your booking.
-          </p>
-
-          {/* Log In */}
-          <div className="flex justify-between items-center mb-10">
-            <p className="underline text-red-400 font-[filson-light] cursor-pointer">
-              Already have an account?
-            </p>
-            <button
-              onClick={() => router.push(`/sign-in`)}
-              className="bg-[var(--main-dark-color)] hover:bg-[#1f3a6d] text-white font-[filson-thin] !rounded-xl px-4 py-1 transition"
-            >
-              Log In
-            </button>
-          </div>
-
-          {/* Form Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-9">
-            {/* Full Name */}
             <div>
-              <label className="block text-[var(--main-dark-color)] font-[filson-regular-italic] mb-3">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                placeholder="Enter your full name"
-                className="w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 text-base"
-              />
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">Email Address</label>
+              <input type="email" value={form.email} onChange={e => set("email", e.target.value)}
+                placeholder="your@email.com" className={inp} />
             </div>
 
-            {/* Email */}
             <div>
-              <label className="block text-[var(--main-dark-color)] font-[filson-regular-italic] mb-3">
-                Email Address
-              </label>
-              <input
-                type="email"
-                name="email"
-                placeholder="your@email.com"
-                className="w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 text-base"
-              />
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">Phone Number</label>
+              <div className="flex gap-2">
+                <select value={form.countryCode} onChange={e => set("countryCode", e.target.value)}
+                  className="bg-gray-100 rounded-2xl px-3 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 text-sm text-gray-700 min-w-[100px]">
+                  {COUNTRY_CODES.map(c => (
+                    <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                  ))}
+                </select>
+                <input type="tel" value={form.phone} onChange={e => set("phone", e.target.value)}
+                  placeholder="5xx xxx xxxx"
+                  className="flex-1 bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 transition placeholder-gray-400 text-base" />
+              </div>
+              <p className="text-xs text-gray-400 mt-1">At least email or phone is required</p>
             </div>
 
-            {/* Phone */}
             <div>
-              <label className="block text-[var(--main-dark-color)] font-[filson-regular-italic] mb-3">
-                Phone Number *
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                placeholder="+1 (555) 000-0000"
-                className="w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 text-base"
-              />
-            </div>
-
-            {/* Meeting / Pickup */}
-            <div>
-              <label className="block text-[var(--main-dark-color)] font-[filson-regular-italic] mb-3">
-                Meeting Address or Pickup Point
-              </label>
-              <div className="relative flex gap-3">
-                <input
-                  type="text"
-                  name="pickupPoint"
-                  placeholder="Location..."
-                  className="flex-1 bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 text-base"
-                />
-                <button
-                  onClick={() => setIsOpen(!isOpen)}
-                  type="button"
-                  className="bg-[var(--main-light-color)] hover:bg-[#3173aa] text-white p-4 !rounded-2xl flex-shrink-0"
-                >
-                  <MapPin size={24} />
+              <label className="block text-sm font-bold text-gray-700 mb-1.5">Password <span className="font-normal text-gray-400">(optional)</span></label>
+              <div className="relative">
+                <input type={showPw ? "text" : "password"} value={form.password} onChange={e => set("password", e.target.value)}
+                  placeholder="Set a password to log in later" className={inp + " pr-12"} />
+                <button type="button" onClick={() => setShowPw(p => !p)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
-          </div>
 
-          {/* Notes */}
-          <div className="mt-8">
-            <label className="block text-[var(--main-dark-color)] font-[filson-regular-italic] mb-3">
-              Notes
-            </label>
-            <textarea
-              name="notes"
-              placeholder="Any additional notes..."
-              className="w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 resize-none h-32 text-base"
-            />
-          </div>
+            {form.password && (
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1.5">Confirm Password</label>
+                <input type="password" value={form.confirmPassword} onChange={e => set("confirmPassword", e.target.value)}
+                  placeholder="Re-enter password" className={inp} />
+              </div>
+            )}
 
-          {/* Continue */}
-          <button
-            onClick={() => router.push(`/sign-in`)}
-            type="button"
-            className="w-full !mt-4 bg-[var(--main-dark-color)] hover:bg-[#1f3a6d] text-white py-4 font-[filson-regular] !rounded-full cursor-pointer transition-all"
-          >
-            Continue
-          </button>
+            {displayError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3">
+                {displayError}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading}
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#264787] to-[#3b85c1] text-white font-black py-4 rounded-2xl shadow-lg hover:brightness-110 transition-all disabled:opacity-60 text-base mt-2">
+              {loading ? (
+                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                </svg>
+              ) : <UserPlus size={18} />}
+              {loading ? "Creating account…" : "Create Account"}
+            </button>
+          </form>
         </div>
       </div>
     </div>

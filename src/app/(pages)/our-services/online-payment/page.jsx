@@ -1,19 +1,30 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { base_url } from "@/lib/constants";
 import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
+import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
+import { useUserForm } from "@/hooks/useUserForm";
+import { useServiceTracker } from "@/hooks/useServiceTracker";
 
 export default function Page() {
   const router = useRouter();
   const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
+  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  useServiceTracker("payment");
   const [form, setForm]     = useState({ name: "", email: "", phone: "", notes: "", link: "" });
   const [files, setFiles]   = useState([]);
   const [loading, setLoading] = useState(false);
   const [done, setDone]     = useState(null);
   const [error, setError]   = useState("");
   const fileRef = useRef();
+
+  useEffect(() => {
+    if (prefill.fullName) set("name",  prefill.fullName);
+    if (prefill.email)    set("email", prefill.email);
+    if (prefill.phone)    set("phone", prefill.phone);
+  }, [prefill.fullName]);
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
@@ -44,7 +55,9 @@ export default function Page() {
       const res = await fetch(`${base_url}pages/online-payment`, { method: "POST", body: fd });
       if (!res.ok) throw new Error("Failed");
       let bookingId = null;
-      try { const json = await res.json(); bookingId = json?.data?.id ?? null; } catch {}
+      let resData = null;
+      try { const json = await res.json(); bookingId = json?.data?.id ?? null; resData = json?.data ?? null; } catch {}
+      handleBookingResponse(resData);
       setDone({ bookingId, name: form.name, phone: form.phone, email: form.email, notes: form.notes });
     } catch {
       setError("Something went wrong. Please try again.");
@@ -99,20 +112,23 @@ export default function Page() {
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1.5">Full Name <span className="text-red-400">*</span></label>
-              <input type="text" value={form.name} onChange={e => set("name", e.target.value)} placeholder="John Doe"
-                className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-[#3b85c1] focus:ring-4 focus:ring-[#3b85c1]/20 text-sm font-semibold" />
+              <SuggestionInput type="text" value={form.name} onChange={e => set("name", e.target.value)}
+                suggestions={suggestions.fullName} placeholder="John Doe" disabled={locked}
+                className={"w-full px-3 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-[#3b85c1] focus:ring-4 focus:ring-[#3b85c1]/20 text-sm font-semibold" + (locked ? " opacity-70 cursor-not-allowed" : "")} />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1.5">Email Address <span className="text-red-400">*</span></label>
-              <input type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="john@example.com"
-                className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-[#3b85c1] focus:ring-4 focus:ring-[#3b85c1]/20 text-sm font-semibold" />
+              <SuggestionInput type="email" value={form.email} onChange={e => set("email", e.target.value)}
+                suggestions={suggestions.email} placeholder="john@example.com" disabled={locked}
+                className={"w-full px-3 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-[#3b85c1] focus:ring-4 focus:ring-[#3b85c1]/20 text-sm font-semibold" + (locked ? " opacity-70 cursor-not-allowed" : "")} />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1.5">Phone Number <span className="text-red-400">*</span></label>
-              <input type="tel" value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="+1 234 567 8900"
-                className="w-full px-3 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-[#3b85c1] focus:ring-4 focus:ring-[#3b85c1]/20 text-sm font-semibold" />
+              <SuggestionInput type="tel" value={form.phone} onChange={e => set("phone", e.target.value)}
+                suggestions={suggestions.phone} placeholder="+1 234 567 8900" disabled={locked}
+                className={"w-full px-3 py-3 border-2 border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:border-[#3b85c1] focus:ring-4 focus:ring-[#3b85c1]/20 text-sm font-semibold" + (locked ? " opacity-70 cursor-not-allowed" : "")} />
             </div>
 
             <div>

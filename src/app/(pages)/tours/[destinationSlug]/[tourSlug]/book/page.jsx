@@ -7,6 +7,9 @@ import { handleGetTourDetail } from "../../../../../../lib/features/layoutSlice"
 import { _post } from "../../../../../../lib/shared/api";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
 import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
+import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
+import { useUserForm } from "@/hooks/useUserForm";
+import { useServiceTracker } from "@/hooks/useServiceTracker";
 
 const PickupMapPicker = dynamic(
   () => import("@/components/shared/PickupMapPicker/PickupMapPicker"),
@@ -42,6 +45,8 @@ export default function TourBookPage() {
   const searchParams = useSearchParams();
   const dispatch     = useDispatch();
   const { tour_detail_data, selectedLanguage } = useSelector((s) => s.layout);
+  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  useServiceTracker("tour");
 
   const destSlug = params?.destinationSlug;
   const tourSlug = params?.tourSlug;
@@ -70,6 +75,13 @@ export default function TourBookPage() {
     fullName: "", countryCode: "+966", phone: "", email: "",
     passportNumber: "", notes: "",
   });
+
+  // Pre-fill from logged-in user profile
+  useEffect(() => {
+    if (prefill.fullName) set("fullName", prefill.fullName);
+    if (prefill.email)    set("email",    prefill.email);
+    if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d+/, "").trim());
+  }, [prefill.fullName]);
   const [pickupLocation, setPickupLocation] = useState({ lat: null, lng: null });
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState("");
@@ -125,6 +137,7 @@ export default function TourBookPage() {
         total_price:      totalPrice,
       });
       deleteDraft("tour");
+      handleBookingResponse(res?.data?.data);
       setSubmitted({
         ...form,
         phone:      `${form.countryCode}${form.phone}`,
@@ -199,13 +212,16 @@ export default function TourBookPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2">
               <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name <span className="text-red-500">*</span></label>
-              <input type="text" value={form.fullName} onChange={e => set("fullName", e.target.value)} placeholder="Enter your full name" className={inp} />
+              <SuggestionInput value={form.fullName} onChange={e => set("fullName", e.target.value)}
+                suggestions={suggestions.fullName} placeholder="Enter your full name"
+                className={inp + (locked ? " opacity-70 cursor-not-allowed" : "")} disabled={locked} />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number <span className="text-red-500">*</span></label>
               <div className="flex gap-2">
                 <select value={form.countryCode} onChange={e => set("countryCode", e.target.value)}
-                  className="min-w-[110px] bg-gray-100 rounded-2xl px-3 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 text-sm text-gray-700">
+                  disabled={locked}
+                  className="min-w-[110px] bg-gray-100 rounded-2xl px-3 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 text-sm text-gray-700 disabled:opacity-70">
                   <option value="+966">🇸🇦 +966</option>
                   <option value="+20">🇪🇬 +20</option>
                   <option value="+971">🇦🇪 +971</option>
@@ -217,13 +233,17 @@ export default function TourBookPage() {
                   <option value="+44">🇬🇧 +44</option>
                   <option value="+1">🇺🇸 +1</option>
                 </select>
-                <input type="tel" value={form.phone} onChange={e => set("phone", e.target.value)} placeholder="555 000 0000"
-                  className="flex-1 bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 transition placeholder-gray-400 text-base" />
+                <SuggestionInput type="tel" value={form.phone} onChange={e => set("phone", e.target.value)}
+                  suggestions={suggestions.phone} placeholder="555 000 0000"
+                  className={"flex-1 bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 transition placeholder-gray-400 text-base" + (locked ? " opacity-70 cursor-not-allowed" : "")}
+                  disabled={locked} />
               </div>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-              <input type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" className={inp} />
+              <SuggestionInput type="email" value={form.email} onChange={e => set("email", e.target.value)}
+                suggestions={suggestions.email} placeholder="your@email.com"
+                className={inp + (locked ? " opacity-70 cursor-not-allowed" : "")} disabled={locked} />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Passport Number</label>

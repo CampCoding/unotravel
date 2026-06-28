@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { _get, _post } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
+import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
+import { useUserForm } from "@/hooks/useUserForm";
+import { useServiceTracker } from "@/hooks/useServiceTracker";
 
 const fieldCls =
   "w-full px-4 py-3 text-sm text-gray-800 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#3b85c1]/25 focus:border-[#3b85c1] transition-all placeholder:text-gray-400";
@@ -198,6 +201,8 @@ function CountrySelect({ countries, value, onChange, isRTL, placeholder }) {
 export default function PaymentPage() {
   const router = useRouter();
   const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
+  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  useServiceTracker("car");
   const langId = selectedLanguage || 1;
   const isRTL  = langId === 2;
   const t      = T[isRTL ? "ar" : "en"];
@@ -215,6 +220,12 @@ export default function PaymentPage() {
       if (raw) setBooking(JSON.parse(raw));
     } catch {}
   }, []);
+
+  useEffect(() => {
+    if (prefill.fullName) set("fullName", prefill.fullName);
+    if (prefill.email)    set("email",    prefill.email);
+    if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d+/, "").trim());
+  }, [prefill.fullName]);
 
   useEffect(() => {
     _get(apiRoutes.visa_page)
@@ -263,6 +274,7 @@ export default function PaymentPage() {
       });
       bookingId     = res?.data?.data?.id ?? null;
       bookingStatus = res?.data?.data?.status ?? "pending";
+      handleBookingResponse(res?.data?.data);
     } catch { /* proceed to success regardless */ }
     try {
       localStorage.setItem("car_booking_confirm", JSON.stringify({
@@ -302,7 +314,7 @@ export default function PaymentPage() {
     <div className="min-h-screen bg-gray-50" dir={isRTL ? "rtl" : "ltr"}>
       {/* Top bar */}
       <div className="border-b border-gray-200 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <Link
             href={booking?.car?.id ? `/our-services/car-reservation/${booking.car.id}` : "/our-services/car-reservation"}
             className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-[#264787] transition-colors"
@@ -315,7 +327,7 @@ export default function PaymentPage() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+      <div className="container mx-auto px-4 sm:px-6 py-10">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -431,25 +443,17 @@ export default function PaymentPage() {
 
                 <div>
                   <label className={labelCls}>{t.fullName} <span className="text-red-400">{t.required}</span></label>
-                  <input
-                    type="text" required
-                    value={form.fullName}
-                    onChange={e => set("fullName", e.target.value)}
-                    placeholder={t.fullNamePh}
-                    className={fieldCls}
-                  />
+                  <SuggestionInput type="text" value={form.fullName} onChange={e => set("fullName", e.target.value)}
+                    suggestions={suggestions.fullName} placeholder={t.fullNamePh} disabled={locked}
+                    className={fieldCls + (locked ? " opacity-70 cursor-not-allowed" : "")} />
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>{t.email} <span className="text-red-400">{t.required}</span></label>
-                    <input
-                      type="email" required
-                      value={form.email}
-                      onChange={e => set("email", e.target.value)}
-                      placeholder={t.emailPh}
-                      className={fieldCls}
-                    />
+                    <SuggestionInput type="email" value={form.email} onChange={e => set("email", e.target.value)}
+                      suggestions={suggestions.email} placeholder={t.emailPh} disabled={locked}
+                      className={fieldCls + (locked ? " opacity-70 cursor-not-allowed" : "")} />
                   </div>
                   <div>
                     <label className={labelCls}>{t.phone} <span className="text-red-400">{t.required}</span></label>
@@ -457,17 +461,13 @@ export default function PaymentPage() {
                       <CountrySelect
                         countries={countries}
                         value={dialCountry}
-                        onChange={setDialCountry}
+                        onChange={locked ? () => {} : setDialCountry}
                         isRTL={isRTL}
                         placeholder={t.searchCountry}
                       />
-                      <input
-                        type="tel" required
-                        value={form.phone}
-                        onChange={e => set("phone", e.target.value)}
-                        placeholder={t.phonePh}
-                        className={`${fieldCls} flex-1`}
-                      />
+                      <SuggestionInput type="tel" value={form.phone} onChange={e => set("phone", e.target.value)}
+                        suggestions={suggestions.phone} placeholder={t.phonePh} disabled={locked}
+                        className={`${fieldCls} flex-1${locked ? " opacity-70 cursor-not-allowed" : ""}`} />
                     </div>
                   </div>
                 </div>

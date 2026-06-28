@@ -7,6 +7,9 @@ import { _post } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
 import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
+import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
+import { useUserForm } from "@/hooks/useUserForm";
+import { useServiceTracker } from "@/hooks/useServiceTracker";
 
 function InfoRow({ icon, label, value }) {
   if (!value) return null;
@@ -32,6 +35,8 @@ export default function Page() {
   const { selectedPackage } = useUmrah();
   const router = useRouter();
   const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
+  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  useServiceTracker("umrah");
 
   const costs    = selectedPackage?.costs ?? [];
   const basePrice = Number(selectedPackage?.price ?? 0);
@@ -51,6 +56,12 @@ export default function Page() {
     fullName: "", countryCode: "+966", phone: "", email: "",
     passportNumber: "", gender: "", details: "",
   });
+
+  useEffect(() => {
+    if (prefill.fullName) set("fullName", prefill.fullName);
+    if (prefill.email)    set("email",    prefill.email);
+    if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d+/, "").trim());
+  }, [prefill.fullName]);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState("");
   const [submitted, setSubmitted] = useState(null);
@@ -95,6 +106,7 @@ export default function Page() {
         total_price: totalPrice,
       });
       deleteDraft(DRAFT_KEY);
+      handleBookingResponse(res?.data?.data);
       setSubmitted({
         ...form,
         phone:       `${form.countryCode}${form.phone}`,
@@ -258,8 +270,9 @@ export default function Page() {
               <label className="block text-[var(--main-dark-color)] font-[filson-medium-italic] mb-2">
                 Full Name <span className="text-red-500">*</span>
               </label>
-              <input type="text" value={form.fullName} onChange={e => set("fullName", e.target.value)}
-                placeholder="Enter your full name" className={inp} />
+              <SuggestionInput value={form.fullName} onChange={e => set("fullName", e.target.value)}
+                suggestions={suggestions.fullName} placeholder="Enter your full name"
+                className={inp + (locked ? " opacity-70 cursor-not-allowed" : "")} disabled={locked} />
             </div>
 
             {/* Phone */}
@@ -269,7 +282,8 @@ export default function Page() {
               </label>
               <div className="flex gap-2">
                 <select value={form.countryCode} onChange={e => set("countryCode", e.target.value)}
-                  className="min-w-[110px] md:min-w-[130px] bg-gray-100 rounded-2xl px-3 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] text-sm text-gray-700">
+                  disabled={locked}
+                  className="min-w-[110px] md:min-w-[130px] bg-gray-100 rounded-2xl px-3 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] text-sm text-gray-700 disabled:opacity-70">
                   <option value="+966">🇸🇦 +966</option>
                   <option value="+20">🇪🇬 +20</option>
                   <option value="+971">🇦🇪 +971</option>
@@ -282,17 +296,19 @@ export default function Page() {
                   <option value="+44">🇬🇧 +44</option>
                   <option value="+1">🇺🇸 +1</option>
                 </select>
-                <input type="tel" value={form.phone} onChange={e => set("phone", e.target.value)}
-                  placeholder="555 000 0000"
-                  className="flex-1 bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 text-base" />
+                <SuggestionInput type="tel" value={form.phone} onChange={e => set("phone", e.target.value)}
+                  suggestions={suggestions.phone} placeholder="555 000 0000"
+                  className={"flex-1 bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 text-base" + (locked ? " opacity-70 cursor-not-allowed" : "")}
+                  disabled={locked} />
               </div>
             </div>
 
             {/* Email */}
             <div>
               <label className="block text-[var(--main-dark-color)] font-[filson-medium-italic] mb-2">Email Address</label>
-              <input type="email" value={form.email} onChange={e => set("email", e.target.value)}
-                placeholder="your@email.com" className={inp} />
+              <SuggestionInput type="email" value={form.email} onChange={e => set("email", e.target.value)}
+                suggestions={suggestions.email} placeholder="your@email.com"
+                className={inp + (locked ? " opacity-70 cursor-not-allowed" : "")} disabled={locked} />
             </div>
 
             {/* Passport */}

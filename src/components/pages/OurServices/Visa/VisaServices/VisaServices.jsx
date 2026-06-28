@@ -10,6 +10,9 @@ import { apiRoutes } from "@/lib/shared/routes";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
+import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
+import { useUserForm } from "@/hooks/useUserForm";
+import { useServiceTracker } from "@/hooks/useServiceTracker";
 
 function LegalModal({ slug, title, onClose }) {
   const [content, setContent] = useState(null);
@@ -86,6 +89,8 @@ function LegalModal({ slug, title, onClose }) {
 export default function VisaServices({ countries: rawCountries = [], visaTypes: rawVisaTypes = [], passportTypes: rawPassportTypes = [] }) {
   const router = useRouter();
   const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
+  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  useServiceTracker("visa");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted]   = useState(null);
   const [modal, setModal]           = useState(null);
@@ -109,6 +114,11 @@ export default function VisaServices({ countries: rawCountries = [], visaTypes: 
   const visaTypes     = rawVisaTypes.map(v     => ({ value: v.id, label: v.name }));
   const passportTypes = rawPassportTypes.map(p => ({ value: p.id, label: p.name }));
 
+  useEffect(() => {
+    if (prefill.firstName) set("first_name", prefill.firstName);
+    if (prefill.lastName)  set("surname",    prefill.lastName);
+  }, [prefill.firstName]);
+
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const handleSubmit = async (e) => {
@@ -121,6 +131,7 @@ export default function VisaServices({ countries: rawCountries = [], visaTypes: 
       const visaLabel     = rawVisaTypes.find(v => v.id === form.visa_type_id)?.name ?? null;
       const natLabel      = rawCountries.find(c => c.id === form.nationality_id)?.name ?? null;
       const passportLabel = rawPassportTypes.find(p => p.id === form.passport_type_id)?.name ?? null;
+      handleBookingResponse(res?.data?.data);
       setSubmitted({
         bookingId:      res?.data?.data?.id ?? null,
         firstName:      form.first_name,
@@ -190,14 +201,18 @@ export default function VisaServices({ countries: rawCountries = [], visaTypes: 
               <label htmlFor="first_name" className={labelClass}>
                 <span>First Name:</span><span className={requiredClass}>*</span>
               </label>
-              <input id="first_name" type="text" required value={form.first_name} onChange={e => set("first_name", e.target.value)} className={inputClass} />
+              <SuggestionInput id="first_name" type="text" value={form.first_name} onChange={e => set("first_name", e.target.value)}
+                suggestions={suggestions.fullName?.map(n => n.split(" ")[0]).filter(Boolean)}
+                className={inputClass + (locked ? " opacity-70 cursor-not-allowed" : "")} disabled={locked} />
             </div>
 
             <div>
               <label htmlFor="surname" className={labelClass}>
                 <span>Surname:</span><span className={requiredClass}>*</span>
               </label>
-              <input id="surname" type="text" required value={form.surname} onChange={e => set("surname", e.target.value)} className={inputClass} />
+              <SuggestionInput id="surname" type="text" value={form.surname} onChange={e => set("surname", e.target.value)}
+                suggestions={suggestions.fullName?.map(n => n.split(" ").slice(1).join(" ")).filter(Boolean)}
+                className={inputClass + (locked ? " opacity-70 cursor-not-allowed" : "")} disabled={locked} />
             </div>
 
             <div>

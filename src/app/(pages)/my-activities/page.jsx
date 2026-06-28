@@ -1,300 +1,162 @@
 "use client";
-import React, { useState } from "react";
-import { MessageCircleMore } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { Modal } from "antd";
+import { Activity, Loader2, RefreshCw, ChevronRight, MapPin, Star, FileText, CreditCard, Car } from "lucide-react";
+import { _get } from "@/lib/shared/api";
+import { apiRoutes } from "@/lib/shared/routes";
 import MainBanner from "../../../components/shared/MainBanner/MainBanner";
 
-export default function ActivityPage() {
-  const [activeTabs, setActiveTabs] = useState("trips");
-  const [openDetails, setOpenDetails] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState(null);
+const TYPE_META = {
+  tour:    { label: "Tour",    color: "bg-blue-100 text-blue-700",     dot: "bg-blue-500",     icon: <MapPin size={13}/> },
+  umrah:   { label: "Umrah",   color: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500", icon: <Star size={13}/> },
+  offer:   { label: "Offer",   color: "bg-amber-100 text-amber-700",   dot: "bg-amber-500",    icon: <Star size={13}/> },
+  visa:    { label: "Visa",    color: "bg-purple-100 text-purple-700", dot: "bg-purple-500",   icon: <FileText size={13}/> },
+  payment: { label: "Payment", color: "bg-pink-100 text-pink-700",     dot: "bg-pink-500",     icon: <CreditCard size={13}/> },
+  car:     { label: "Car",     color: "bg-orange-100 text-orange-700", dot: "bg-orange-500",   icon: <Car size={13}/> },
+};
 
-  const tabs = [
-    { id: "trips", label: "Trips", bgColor: "bg-amber-500" },
-    { id: "rides", label: "Rides", bgColor: "bg-[#264787]" },
-    { id: "pastBooking", label: "Past Bookings", bgColor: "bg-gray-400" },
-  ];
+const STATUS_STYLE = {
+  pending:       "text-amber-600 bg-amber-50 border-amber-200",
+  confirmed:     "text-emerald-600 bg-emerald-50 border-emerald-200",
+  completed:     "text-blue-600 bg-blue-50 border-blue-200",
+  cancelled:     "text-red-600 bg-red-50 border-red-200",
+  "in progress": "text-violet-600 bg-violet-50 border-violet-200",
+};
 
-  const data = {
-    trips: [
-      {
-        id: 1,
-        img: "/images/Flights slider (1).webp",
-        code: "DF8T-HG8T-TG8E",
-        value: 250,
-        status: "Completed",
-        color: "text-teal-500",
-      },
-      {
-        id: 2,
-        img: "/images/Flights slider (2).webp",
-        code: "XK9J-RT7U-WQ8Z",
-        value: 150,
-        status: "Pending",
-        color: "text-amber-500",
-      },
-      {
-        id: 3,
-        img: "/images/Flights slider (3).webp",
-        code: "LY7D-KH3M-VT9B",
-        value: 200,
-        status: "Canceled",
-        color: "text-red-600",
-      },
-    ],
-    rides: [
-      {
-        id: 4,
-        img: "/images/download (18).jfif",
-        code: "PT5Q-RN9X-ZY4F",
-        value: 75,
-        status: "Refused",
-        color: "text-red-600",
-      },
-      {
-        id: 5,
-        img: "/images/download (6).jfif",
-        code: "WU3V-TG1L-RF6B",
-        value: 220,
-        status: "Completed",
-        color: "text-teal-500",
-      },
-    ],
-    pastBooking: [
-      {
-        id: 6,
-        img: "/images/download (8).jfif",
-        code: "PT5Q-RN9X-ZY4F",
-        value: 75,
-        status: "Completed",
-        color: "text-teal-600",
-      },
-      {
-        id: 7,
-        img: "/images/download (18).jfif",
-        code: "WU3V-TG1L-RF6B",
-        value: 220,
-        status: "Completed",
-        color: "text-teal-600",
-      },
-    ],
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { day:"numeric", month:"short", year:"numeric" }) : null;
+
+const FILTERS = [
+  ["all","All Bookings"],
+  ...Object.entries(TYPE_META).map(([k,v]) => [k, v.label]),
+];
+
+export default function MyActivitiesPage() {
+  const router = useRouter();
+  const { token } = useSelector((s) => s.auth ?? {});
+  const [items,   setItems]   = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter,  setFilter]  = useState("all");
+  const [page,    setPage]    = useState(1);
+  const [meta,    setMeta]    = useState(null);
+
+  const load = (f = filter, p = page) => {
+    if (!token) { setLoading(false); return; }
+    setLoading(true);
+    const params = new URLSearchParams({ limit: "12", page: String(p) });
+    if (f !== "all") params.set("type", f);
+    _get(`${apiRoutes.user_my_activity}?${params}`)
+      .then(res => { setItems(res?.data?.data ?? []); setMeta(res?.data?.meta ?? null); })
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
   };
 
-  const handleOpenDetails = (item) => {
-    setSelectedBooking(item);
-    setOpenDetails(true);
-  };
+  useEffect(() => { load("all", 1); }, [token]);
+
+  const changeFilter = (f) => { setFilter(f); setPage(1); load(f, 1); };
+  const changePage   = (p) => { setPage(p); load(filter, p); };
+
+  if (!token) return (
+    <div className="min-h-screen">
+      <MainBanner title="My Activity" subtitle="Track all your bookings in one place." />
+      <div className="max-w-2xl mx-auto px-6 py-20 text-center">
+        <Activity size={48} className="mx-auto text-gray-300 mb-4" />
+        <p className="text-gray-500 mb-6">Sign in to view your booking history.</p>
+        <button onClick={() => router.push("/sign-in")}
+          className="px-8 py-3 bg-[#264787] text-white font-bold rounded-xl hover:bg-[#3b85c1] transition">
+          Sign In
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <MainBanner
-        title="My Activity"
-        subtitle="Track all your recent trips, rides, and past bookings in one place."
-      />
+    <div className="min-h-screen bg-gray-50">
+      <MainBanner title="My Activity" subtitle="Track all your bookings in one place." />
 
-      {/* Filter & Tabs */}
-      <div className="max-w-7xl mx-auto mt-12 px-6 select-none">
-        <p className="text-xl text-[var(--main-dark-color)] mb-4">
-          Filter For The Service
-        </p>
-
-        <div className="flex justify-start items-center w-full my-6 gap-3">
-          {tabs.map((tab) => (
-            <motion.button
-              key={tab.id}
-              onClick={() => setActiveTabs(tab.id)}
-              animate={activeTabs === tab.id ? "click" : "inactive"}
-              variants={{
-                click: {
-                  x: [100, 0],
-                  opacity: [0, 1],
-                  transition: { duration: 0.5 },
-                },
-                inactive: { x: 0, opacity: 1 },
-              }}
-              className={`text-base cursor-pointer px-8 py-1 rounded-full transition-all duration-300 ${
-                activeTabs === tab.id
-                  ? `${tab.bgColor} text-white`
-                  : "text-gray-400"
-              }`}
-            >
-              {tab.label}
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        {/* Filter pills */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {FILTERS.map(([k, label]) => (
+            <motion.button key={k} whileTap={{ scale: 0.95 }}
+              onClick={() => changeFilter(k)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                filter === k
+                  ? "bg-[#264787] text-white border-[#264787]"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-[#264787] hover:text-[#264787]"
+              }`}>
+              {label}
             </motion.button>
           ))}
+          <button onClick={() => load(filter, page)}
+            className="ml-auto p-2 bg-white border border-gray-200 rounded-full text-gray-400 hover:text-[#264787] transition">
+            <RefreshCw size={13} />
+          </button>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-8">
-          {data[activeTabs].map((item, index) => (
-            <div
-              key={item.id}
-              data-aos="fade-up"
-              data-aos-delay={index * 150} // 👈 each card delayed 150ms more than previous
-              data-aos-duration="800"
-              className={`flex items-center justify-between ${
-                activeTabs === "rides"
-                  ? "bg-[var(--main-dark-color)] text-white"
-                  : "bg-gray-100"
-              } rounded-3xl p-5 lg:p-6 shadow-md hover:shadow-lg transition-all cursor-pointer`}
-              onClick={() => handleOpenDetails(item)}
-            >
-              <div className="flex gap-3">
-                <img
-                  className="rounded-2xl w-28 h-32 object-cover"
-                  src={item.img}
-                  alt=""
-                />
-                <div className="flex flex-col justify-between">
-                  <h4 className="text-lg font-[filson-medium] text-[var(--main-dark-color)]">
-                    {item.code}
-                  </h4>
-                  <p className="text-sm text-gray-500">15 Travelers</p>
-                  <p className="text-sm text-[var(--main-dark-color)] font-[filson-medium]">
-                    Value: {item.value} SAR
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`w-3 h-3 rounded-full ${item.color} bg-current`}
-                  ></span>
-                  <p className={`${item.color} text-sm`}>{item.status}</p>
-                </div>
-                <MessageCircleMore className="text-[var(--main-dark-color)] w-6 h-6 cursor-pointer" />
-                <p className="text-xs text-gray-500">05:19 PM</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ============ BOOKING DETAILS MODAL ============ */}
-      <Modal
-        open={openDetails}
-        onCancel={() => setOpenDetails(false)}
-        footer={null}
-        width={950}
-        centered
-        title={
-          <h3 className="text-lg font-semibold text-[var(--main-dark-color)]">
-            Booking Details
-          </h3>
-        }
-      >
-        {selectedBooking && (
-          <div className="rounded-2xl grid grid-cols-1 lg:grid-cols-2 gap-8 text-[0.9rem]">
-            {/* LEFT */}
-            <div className="space-y-8 mt-3">
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <h3 className="text-[var(--main-dark-color)] font-medium !text-sm md:!text-base">
-                    Order ID
-                  </h3>
-                  <p className="text-gray-400 !text-sm">
-                    {selectedBooking.code}
-                  </p>
-                </div>
-
-                <div className="flex justify-between">
-                  <h3 className="text-[var(--main-dark-color)] font-medium !text-sm md:!text-base">
-                    Booking Status
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--main-light-color)]"></span>
-                    <p className="text-[var(--main-light-color)] my-auto !text-sm">
-                      {selectedBooking.status}
-                    </p>
+        {loading ? (
+          <div className="flex justify-center py-20 gap-2 text-gray-400">
+            <Loader2 size={22} className="animate-spin" /> Loading bookings…
+          </div>
+        ) : items.length === 0 ? (
+          <div className="flex flex-col items-center py-20 gap-3 text-gray-400">
+            <Activity size={44} className="opacity-20" />
+            <p className="text-sm">No bookings found</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {items.map((item, i) => {
+              const meta   = TYPE_META[item.type] ?? TYPE_META.tour;
+              const status = (item.status ?? "pending").toLowerCase();
+              return (
+                <motion.div key={`${item.type}-${item.id}`}
+                  initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+                  transition={{ delay: i * 0.04 }}
+                  onClick={() => router.push(`/track/${item.type}/${item.id}`)}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer p-4 flex items-center justify-between gap-3"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.color}`}>
+                      {meta.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-gray-800 truncate">{item.title || `Booking #${item.id}`}</p>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.color}`}>{meta.label}</span>
+                        {item.date && <span className="text-[10px] text-gray-400">{fmtDate(item.date)}</span>}
+                        {item.travelers && <span className="text-[10px] text-gray-400">👥 {item.travelers}</span>}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Payment Method */}
-              <div className="space-y-2">
-                <h3 className="text-[var(--main-dark-color)] font-medium !text-sm md:!text-base">
-                  Payment Method
-                </h3>
-                <div className="flex gap-3">
-                  <img
-                    className="w-14 h-9 border object-cover rounded-md"
-                    src="/images/-60bb8QP_400x400.jpg"
-                    alt="Visa"
-                  />
-                  <img
-                    className="w-12 h-9 border object-cover rounded-md"
-                    src="/images/Mastercard-Simbolo.jpg"
-                    alt="MasterCard"
-                  />
-                </div>
-              </div>
-
-              {/* Note */}
-
-              {/* Bill Details */}
-              <div>
-                <h3 className="text-[var(--main-dark-color)] mb-2 !text-sm md:!text-base">
-                  Bill Details
-                </h3>
-                <div className="bg-gray-100 p-3 rounded-2xl space-y-3 !text-sm">
-                  <div className="flex justify-between">
-                    <p>Pickup Point Fee</p>
-                    <p>50</p>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    {item.total_price > 0 && (
+                      <span className="text-sm font-black text-[#264787]">${Number(item.total_price).toLocaleString()}</span>
+                    )}
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${STATUS_STYLE[status] ?? STATUS_STYLE.pending}`}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <p>Tax</p>
-                    <p>15%</p>
-                  </div>
-                  <div className="bg-[var(--main-dark-color)] text-white px-3 py-2 rounded-full flex justify-between items-center !text-sm mt-3">
-                    <p className="my-auto">Total (Include Tax)</p>
-                    <p className="my-auto">
-                      {Number(selectedBooking.value) + 50} $
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT */}
-            <div>
-              <h3 className="text-[var(--main-dark-color)] mb-2 !text-sm md:!text-base">
-                My Tour
-              </h3>
-              <div className="bg-gray-100 flex items-stretch gap-4 p-3 rounded-2xl shadow-sm w-full">
-                <img
-                  width={100}
-                  height={100}
-                  className="rounded-2xl w-28 h-28 object-cover"
-                  src={selectedBooking.img}
-                  alt="Tour"
-                />
-                <div className="flex flex-col justify-between w-full !text-sm">
-                  <p className="text-[var(--main-dark-color)] !text-base font-medium">
-                    Taif City Tour
-                  </p>
-                  <p className="text-amber-500 !text-xs md:!text-sm">
-                    15 Travelers
-                  </p>
-                  <h3 className="text-[var(--main-dark-color)] !text-lg font-semibold">
-                    {selectedBooking.value} SAR
-                  </h3>
-                </div>
-              </div>
-
-              <div className="mt-3">
-                <h3 className="text-[var(--main-dark-color)] mb-1 !text-sm md:!text-base">
-                  Note
-                </h3>
-                <div className="bg-gray-100 p-3 rounded-2xl text-gray-400 !text-xs md:!text-sm">
-                  “On the other hand, we denounce who the charms of pleasure…”
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
-      </Modal>
+
+        {/* Pagination */}
+        {meta && meta.pages > 1 && (
+          <div className="flex justify-center gap-2 pt-6">
+            {Array.from({ length: meta.pages }, (_, i) => i+1).map(p => (
+              <button key={p} onClick={() => changePage(p)}
+                className={`w-9 h-9 rounded-full text-sm font-bold transition ${
+                  page === p ? "bg-[#264787] text-white" : "bg-white text-gray-500 border border-gray-200 hover:border-[#264787]"
+                }`}>
+                {p}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,16 @@
 export const apiRoutes = {
+  // ── Auth ──────────────────────────────────────────────────
+  auth_register:   "auth/register",
+  auth_login:      "auth/login",
+  auth_me:         "auth/me",
+
+  // ── User ──────────────────────────────────────────────────
+  user_my_activity:      "user/my-activity",
+  user_suggestions:      "user/suggestions",
+  user_track_service:    "user/track-service",
+  user_popular_services: "user/popular-services",
+
+  // ── Pages (existing) ──────────────────────────────────────
   get_layout: "layout",
   home_page: "pages/home",
   about_page: "pages/about",

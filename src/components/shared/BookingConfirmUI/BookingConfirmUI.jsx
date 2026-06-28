@@ -98,7 +98,7 @@ export default function BookingConfirmUI({
       className="min-h-screen bg-gray-50 py-10 px-4"
       dir={isRTL ? "rtl" : "ltr"}
     >
-      <div className="max-w-2xl mx-auto space-y-4">
+      <div className="container mx-auto space-y-4">
 
         {/* ── Status Card ── */}
         <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
