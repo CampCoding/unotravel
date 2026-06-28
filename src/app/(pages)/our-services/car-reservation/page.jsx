@@ -18,7 +18,7 @@ export default function Page() {
 
   return (
     <div className="bg-gray-50">
-      <CarHero     banners={pageData?.banners} />
+      <CarHero     banners={pageData?.banners} hero={pageData?.hero} stats={pageData?.stats} />
       <CarFeatures features={pageData?.features} />
       <CarFleet    cars={pageData?.cars} />
       <CarHowItWorks howItWorks={pageData?.howItWorks} />

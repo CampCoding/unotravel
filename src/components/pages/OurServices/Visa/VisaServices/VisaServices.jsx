@@ -5,7 +5,7 @@ import CustomHeading from "../../../../shared/CustomHeading/CustomHeading";
 import CustomSelect from "../../../../shared/CustomSelect/CustomSelect";
 import { RadioGroup } from "../../../../ui/radio-group";
 import CustomRadio from "../../../../shared/CustomRadio/CustomRadio";
-import { _post } from "@/lib/shared/api";
+import { _get, _post } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
 
 function LegalModal({ slug, title, onClose }) {
