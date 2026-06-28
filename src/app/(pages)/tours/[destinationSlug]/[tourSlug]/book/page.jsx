@@ -80,7 +80,7 @@ export default function TourBookPage() {
   useEffect(() => {
     if (prefill.fullName) set("fullName", prefill.fullName);
     if (prefill.email)    set("email",    prefill.email);
-    if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d+/, "").trim());
+    if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d{1,4}\s?/, "").trim());
   }, [prefill.fullName]);
   const [pickupLocation, setPickupLocation] = useState({ lat: null, lng: null });
   const [loading,   setLoading]   = useState(false);

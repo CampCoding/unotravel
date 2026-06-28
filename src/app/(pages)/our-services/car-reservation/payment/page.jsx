@@ -224,7 +224,7 @@ export default function PaymentPage() {
   useEffect(() => {
     if (prefill.fullName) set("fullName", prefill.fullName);
     if (prefill.email)    set("email",    prefill.email);
-    if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d+/, "").trim());
+    if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d{1,4}\s?/, "").trim());
   }, [prefill.fullName]);
 
   useEffect(() => {
