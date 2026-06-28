@@ -38,4 +38,5 @@ export const apiRoutes = {
   offer_booking_tracking:   (id) => `pages/offer-booking/${id}`,
   visa_app_tracking:        (id) => `pages/visa-application/${id}`,
   payment_tracking:         (id) => `pages/payment-tracking/${id}`,
+  ride_book:               "pages/ride-book",
 };

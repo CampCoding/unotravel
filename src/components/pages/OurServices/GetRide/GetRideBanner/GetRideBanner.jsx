@@ -24,7 +24,7 @@ const data = [
     title: "Ensuring Your Journey is Secure & Convenient",
     subtitle: "Book your ride easily with safe drivers, comfortable cars, and smooth pickup service.",
   },
-  {
+  { 
     id: 2,
     src: "/images/Get a Ride (2).webp",
     title: "Travel Smart With Uno Travel",
