@@ -251,6 +251,25 @@ export default function TourBookPage() {
             </div>
           </div>
 
+          {/* Pickup map — shown only when pickup option is selected */}
+          {meetingOption === "pickup" && (
+            <div className="mt-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📍 Pickup Location <span className="text-red-500">*</span>
+              </label>
+              <p className="text-xs text-gray-400 mb-3">Click on the map to set your exact pickup point.</p>
+              <PickupMapPicker
+                defaultCenter={mapCenter ?? undefined}
+                onChange={({ lat, lng }) => setPickupLocation({ lat, lng })}
+              />
+              {pickupLocation.lat && (
+                <p className="mt-2 text-xs text-emerald-600 font-semibold">
+                  ✓ Pickup point selected ({pickupLocation.lat.toFixed(5)}, {pickupLocation.lng.toFixed(5)})
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="mt-6">
             <label className="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
             <textarea value={form.notes} onChange={e => set("notes", e.target.value)}
