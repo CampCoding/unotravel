@@ -2,8 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { motion } from "framer-motion";
-import { Activity, Loader2, RefreshCw, ChevronRight, MapPin, Star, FileText, CreditCard, Car } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Activity, Loader2, RefreshCw, ChevronRight, MapPin, Star,
+  FileText, CreditCard, Car, ChevronDown, Phone, Mail, User,
+  Calendar, Hash, ExternalLink,
+} from "lucide-react";
 import { _get } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
 import MainBanner from "../../../components/shared/MainBanner/MainBanner";
@@ -26,11 +30,128 @@ const STATUS_STYLE = {
 };
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-US", { day:"numeric", month:"short", year:"numeric" }) : null;
+const fmtDateTime = (d) => d ? new Date(d).toLocaleString("en-US", { day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" }) : null;
 
 const FILTERS = [
   ["all","All Bookings"],
   ...Object.entries(TYPE_META).map(([k,v]) => [k, v.label]),
 ];
+
+function DetailRow({ icon: Icon, label, value }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-2 text-xs">
+      <Icon size={12} className="text-gray-400 shrink-0 mt-0.5" />
+      <span className="text-gray-500 shrink-0">{label}:</span>
+      <span className="text-gray-800 font-semibold break-all">{value}</span>
+    </div>
+  );
+}
+
+function ActivityCard({ item, index }) {
+  const [expanded, setExpanded] = useState(false);
+  const router = useRouter();
+  const meta   = TYPE_META[item.type] ?? TYPE_META.tour;
+  const status = (item.status ?? "pending").toLowerCase();
+
+  const extraFields = [
+    item.full_name && { icon: User,     label: "Name",       value: item.full_name },
+    item.phone     && { icon: Phone,    label: "Phone",      value: item.phone },
+    item.email     && { icon: Mail,     label: "Email",      value: item.email },
+    item.date      && { icon: Calendar, label: "Date",       value: fmtDate(item.date) },
+    item.end_date  && { icon: Calendar, label: "Return",     value: fmtDate(item.end_date) },
+    item.total_days && { icon: Calendar, label: "Days",      value: `${item.total_days} day${item.total_days !== 1 ? "s" : ""}` },
+    item.meeting_option && { icon: MapPin, label: "Meeting", value: item.meeting_option },
+    item.pickup_location && { icon: MapPin, label: "Pickup", value: item.pickup_location },
+    item.dropoff_location && { icon: MapPin, label: "Drop-off", value: item.dropoff_location },
+    item.gender    && { icon: User,     label: "Gender",     value: item.gender },
+    item.age       && { icon: User,     label: "Age",        value: `${item.age}` },
+    item.car_category && { icon: Car,  label: "Category",   value: item.car_category },
+    item.currency  && item.total_price > 0 && { icon: Hash, label: "Currency",  value: item.currency },
+    item.passport_expiry && { icon: Calendar, label: "Passport Exp.", value: fmtDate(item.passport_expiry) },
+    item.notes     && { icon: FileText, label: "Notes",      value: item.notes },
+    item.link      && { icon: ExternalLink, label: "Link",   value: item.link },
+  ].filter(Boolean);
+
+  return (
+    <motion.div
+      initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+      transition={{ delay: index * 0.04 }}
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
+    >
+      {/* Header row */}
+      <div className="p-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.color}`}>
+            {meta.icon}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-gray-800 truncate">{item.title || `Booking #${item.id}`}</p>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.color}`}>{meta.label}</span>
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${STATUS_STYLE[status] ?? STATUS_STYLE.pending}`}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </span>
+              {item.date && <span className="text-[10px] text-gray-400">{fmtDate(item.date)}</span>}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
+          {item.total_price > 0 && (
+            <span className="text-sm font-black text-[#264787]">
+              {Number(item.total_price).toLocaleString()} {item.currency ?? "USD"}
+            </span>
+          )}
+          {item.travelers > 0 && (
+            <span className="text-[10px] text-gray-400">👥 {item.travelers}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Expandable details */}
+      <div className="px-4 pb-3 flex items-center justify-between gap-2 border-t border-gray-50 pt-2">
+        <div className="flex gap-2">
+          <button
+            onClick={() => router.push(`/track/${item.type}/${item.id}`)}
+            className="flex items-center gap-1 text-[10px] font-bold text-[#264787] hover:text-[#3b85c1] transition"
+          >
+            <ExternalLink size={11} /> Track
+          </button>
+        </div>
+        {extraFields.length > 0 && (
+          <button
+            onClick={() => setExpanded(v => !v)}
+            className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-gray-600 transition font-semibold"
+          >
+            {expanded ? "Less" : "Details"}
+            <ChevronDown size={12} className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
+          </button>
+        )}
+      </div>
+
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2 border-t border-gray-50">
+              <DetailRow icon={Hash}     label="Ref #"    value={`#${String(item.id).padStart(6,"0")}`} />
+              {extraFields.map((f, i) => (
+                <DetailRow key={i} icon={f.icon} label={f.label} value={f.value} />
+              ))}
+              <DetailRow icon={Calendar} label="Booked"   value={fmtDateTime(item.created_at)} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
 
 export default function MyActivitiesPage() {
   const router = useRouter();
@@ -106,40 +227,9 @@ export default function MyActivitiesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {items.map((item, i) => {
-              const meta   = TYPE_META[item.type] ?? TYPE_META.tour;
-              const status = (item.status ?? "pending").toLowerCase();
-              return (
-                <motion.div key={`${item.type}-${item.id}`}
-                  initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
-                  transition={{ delay: i * 0.04 }}
-                  onClick={() => router.push(`/track/${item.type}/${item.id}`)}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer p-4 flex items-center justify-between gap-3"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.color}`}>
-                      {meta.icon}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-gray-800 truncate">{item.title || `Booking #${item.id}`}</p>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.color}`}>{meta.label}</span>
-                        {item.date && <span className="text-[10px] text-gray-400">{fmtDate(item.date)}</span>}
-                        {item.travelers && <span className="text-[10px] text-gray-400">👥 {item.travelers}</span>}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    {item.total_price > 0 && (
-                      <span className="text-sm font-black text-[#264787]">${Number(item.total_price).toLocaleString()}</span>
-                    )}
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${STATUS_STYLE[status] ?? STATUS_STYLE.pending}`}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </span>
-                  </div>
-                </motion.div>
-              );
-            })}
+            {items.map((item, i) => (
+              <ActivityCard key={`${item.type}-${item.id}`} item={item} index={i} />
+            ))}
           </div>
         )}
 
