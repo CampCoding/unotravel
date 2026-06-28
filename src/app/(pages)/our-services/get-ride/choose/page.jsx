@@ -171,19 +171,7 @@ export default function ChoosePage() {
             <textarea value={comment} onChange={e => setComment(e.target.value)} rows={3}
               placeholder="Flight number, special requests, notes…" className={fieldCls + " resize-none"} />
           </div>
-          <div>
-            <label className="block text-xs font-bold text-gray-500 mb-1.5">Coupon Code</label>
-            <div className="flex gap-2">
-              <input value={coupon} onChange={e => { setCoupon(e.target.value); setCouponApplied(false); }}
-                placeholder="Enter code" className={fieldCls} />
-              <button type="button"
-                onClick={() => { if (coupon.trim()) { setCouponApplied(true); setDiscount(0); } }}
-                className="px-5 text-xs font-black rounded-xl border border-gray-200 hover:border-[#264787] hover:text-[#264787] transition whitespace-nowrap">
-                Apply
-              </button>
-            </div>
-            {couponApplied && <p className="text-xs text-amber-600 mt-1">Coupon applied (discount managed by admin).</p>}
-          </div>
+        
         </div>
 
         {/* Price summary */}
