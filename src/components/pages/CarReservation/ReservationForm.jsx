@@ -29,6 +29,56 @@ const dropoffIcon = new L.Icon({
   iconSize: [20, 32], iconAnchor: [10, 32], popupAnchor: [1, -30], shadowSize: [32, 32],
 });
 
+// ── Bilingual strings ─────────────────────────────
+const T = {
+  en: {
+    header:          "Complete Your Booking",
+    headerSub:       "Fill in the details below to reserve your vehicle.",
+    step1:           "Select Rental Dates",
+    step1Label:      "Pickup & return date / time",
+    step1Dates:      (d, r, c) => `${d} day${d !== 1 ? "s" : ""} × ${r.toLocaleString()} ${c} = `,
+    step2:           "Passengers & Luggage",
+    adults:          "Adults",
+    children:        "Children",
+    bags:            "Bags",
+    step3:           "Pickup & Drop-off Locations",
+    pickupLabel:     "Pickup location",
+    pickupPh:        "Enter pickup address",
+    dropoffLabel:    "Drop-off location",
+    dropoffPh:       "Enter drop-off address",
+    mapBtn:          "📍 Map",
+    datesRequired:   "Please select pickup and return date & time.",
+    proceedBtn:      (total, cur) => total > 0 ? `Proceed to Payment · ${total.toLocaleString()} ${cur}` : "Proceed to Payment",
+    distanceLabel:   (km) => `${km} km`,
+    durationLabel:   (min) => `~${min} min drive`,
+    pickupFeeLabel:  (fee, cur) => `Pickup fee: ${fee.toLocaleString()} ${cur}`,
+    pickupFeeNote:   (cur) => `(0.5 ${cur}/km, min 2)`,
+  },
+  ar: {
+    header:          "أكمل حجزك",
+    headerSub:       "أدخل التفاصيل أدناه لحجز سيارتك.",
+    step1:           "اختر تواريخ الإيجار",
+    step1Label:      "تاريخ ووقت الاستلام والإعادة",
+    step1Dates:      (d, r, c) => `${d} ${d === 1 ? "يوم" : "أيام"} × ${r.toLocaleString()} ${c} = `,
+    step2:           "الركاب والأمتعة",
+    adults:          "بالغون",
+    children:        "أطفال",
+    bags:            "حقائب",
+    step3:           "مواقع الاستلام والتسليم",
+    pickupLabel:     "موقع الاستلام",
+    pickupPh:        "أدخل عنوان الاستلام",
+    dropoffLabel:    "موقع التسليم",
+    dropoffPh:       "أدخل عنوان التسليم",
+    mapBtn:          "📍 خريطة",
+    datesRequired:   "الرجاء اختيار تاريخ ووقت الاستلام والإعادة.",
+    proceedBtn:      (total, cur) => total > 0 ? `المتابعة للدفع · ${total.toLocaleString()} ${cur}` : "المتابعة للدفع",
+    distanceLabel:   (km) => `${km} كم`,
+    durationLabel:   (min) => `~${min} دقيقة`,
+    pickupFeeLabel:  (fee, cur) => `رسوم الاستلام: ${fee.toLocaleString()} ${cur}`,
+    pickupFeeNote:   (cur) => `(0.5 ${cur}/كم، الحد الأدنى 2)`,
+  },
+};
+
 // ── Map helpers ──────────────────────────────────
 const MapUpdater = ({ center }) => {
   const map = useMap();
@@ -40,20 +90,15 @@ const MapClick = ({ onMapClick }) => {
   return null;
 };
 
-// Auto-fit bounds when both markers are set
 const MapFitBounds = ({ pickup, dropoff }) => {
   const map = useMap();
   useEffect(() => {
-    const same =
-      pickup[0] === dropoff[0] && pickup[1] === dropoff[1];
-    if (!same) {
-      map.fitBounds([pickup, dropoff], { padding: [40, 40] });
-    }
+    const same = pickup[0] === dropoff[0] && pickup[1] === dropoff[1];
+    if (!same) map.fitBounds([pickup, dropoff], { padding: [40, 40] });
   }, [pickup, dropoff, map]);
   return null;
 };
 
-// OSRM route + polyline
 const RouteLayer = ({ pickup, dropoff, onRouteInfo }) => {
   const [routePoints, setRoutePoints] = useState([]);
 
@@ -79,15 +124,7 @@ const RouteLayer = ({ pickup, dropoff, onRouteInfo }) => {
   }, [pickup, dropoff]);
 
   if (!routePoints.length) return null;
-  return (
-    <Polyline
-      positions={routePoints}
-      color="#264787"
-      weight={4}
-      opacity={0.75}
-      dashArray={null}
-    />
-  );
+  return <Polyline positions={routePoints} color="#264787" weight={4} opacity={0.75} />;
 };
 
 // ── Utilities ────────────────────────────────────
@@ -114,68 +151,62 @@ const StepBadge = ({ n, label }) => (
 const DRAFT_KEY = "car_booking_draft";
 
 // ── Component ────────────────────────────────────
-export default function ReservationForm({ selectedCar, onPriceChange }) {
-  const DEFAULT_PICKUP = [30.7865, 30.9975];
+export default function ReservationForm({ selectedCar, onPriceChange, isRTL = false }) {
+  const t = T[isRTL ? "ar" : "en"];
+  const DEFAULT_PICKUP  = [30.7865, 30.9975];
   const DEFAULT_DROPOFF = [30.8025, 31.0125];
 
   const [bookingData, setBookingData] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "{}");
       return {
-        passengers: saved.passengers ?? 1,
-        bags: saved.bags ?? 1,
-        children: saved.children ?? 0,
-        pickupLocation: saved.pickupLocation ?? "",
+        passengers:      saved.passengers      ?? 1,
+        bags:            saved.bags            ?? 1,
+        children:        saved.children        ?? 0,
+        pickupLocation:  saved.pickupLocation  ?? "",
         dropoffLocation: saved.dropoffLocation ?? "",
-        pickupCoords: saved.pickupCoords ?? DEFAULT_PICKUP,
-        dropoffCoords: saved.dropoffCoords ?? DEFAULT_DROPOFF,
+        pickupCoords:    saved.pickupCoords    ?? DEFAULT_PICKUP,
+        dropoffCoords:   saved.dropoffCoords   ?? DEFAULT_DROPOFF,
       };
-    } catch { return { passengers: 1, bags: 1, children: 0, pickupLocation: "", dropoffLocation: "", pickupCoords: DEFAULT_PICKUP, dropoffCoords: DEFAULT_DROPOFF }; }
+    } catch {
+      return { passengers: 1, bags: 1, children: 0, pickupLocation: "", dropoffLocation: "", pickupCoords: DEFAULT_PICKUP, dropoffCoords: DEFAULT_DROPOFF };
+    }
   });
 
   const [dateRange, setDateRange] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "{}");
-      if (saved.startDate && saved.endDate) {
-        return [dayjs(saved.startDate), dayjs(saved.endDate)];
-      }
+      if (saved.startDate && saved.endDate) return [dayjs(saved.startDate), dayjs(saved.endDate)];
     } catch { }
     return [null, null];
   });
 
-  const [mapCenter, setMapCenter] = useState(() => bookingData.pickupCoords);
+  const [mapCenter, setMapCenter]       = useState(() => bookingData.pickupCoords);
   const [selectingLocation, setSelectingLoc] = useState(null);
-  const [routeInfo, setRouteInfo] = useState(null);
-  const [bothSet, setBothSet] = useState(() => {
+  const [routeInfo, setRouteInfo]       = useState(null);
+  const [bothSet, setBothSet]           = useState(() => {
     const pc = bookingData.pickupCoords;
     const dc = bookingData.dropoffCoords;
     return !(pc[0] === dc[0] && pc[1] === dc[1]);
   });
   const router = useRouter();
 
-  // ── Derived price ──
-  const PICKUP_RATE = 0.5; // USD per km, minimum $2
-  const dailyRate = parseFloat(selectedCar?.price ?? 0);
-  const totalDays = dateRange[0] && dateRange[1]
-    ? dateRange[1].diff(dateRange[0], "day") || 1
-    : 0;
-  const totalPrice = totalDays > 0 && !isNaN(dailyRate) ? totalDays * dailyRate : 0;
-  const pickupFee = routeInfo
+  const PICKUP_RATE = 0.5;
+  const dailyRate   = parseFloat(selectedCar?.price ?? 0);
+  const totalDays   = dateRange[0] && dateRange[1] ? dateRange[1].diff(dateRange[0], "day") || 1 : 0;
+  const totalPrice  = totalDays > 0 && !isNaN(dailyRate) ? totalDays * dailyRate : 0;
+  const pickupFee   = routeInfo
     ? Math.max(2, parseFloat((parseFloat(routeInfo.distanceKm) * PICKUP_RATE).toFixed(1)))
     : 0;
 
-  // Notify parent when price changes (for sidebar)
-  useEffect(() => {
-    onPriceChange?.(totalDays, totalPrice, pickupFee);
-  }, [totalDays, totalPrice, pickupFee]);
+  useEffect(() => { onPriceChange?.(totalDays, totalPrice, pickupFee); }, [totalDays, totalPrice, pickupFee]);
 
-  // Persist draft to localStorage on any change
   useEffect(() => {
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({
         ...bookingData,
         startDate: dateRange[0]?.toISOString() ?? null,
-        endDate: dateRange[1]?.toISOString() ?? null,
+        endDate:   dateRange[1]?.toISOString() ?? null,
       }));
     } catch { }
   }, [bookingData, dateRange]);
@@ -184,7 +215,7 @@ export default function ReservationForm({ selectedCar, onPriceChange }) {
 
   const handleMapClick = useCallback(async (e) => {
     if (!selectingLocation) return;
-    const coords = [e.latlng.lat, e.latlng.lng];
+    const coords  = [e.latlng.lat, e.latlng.lng];
     const address = await getAddressFromCoords(e.latlng.lat, e.latlng.lng);
     setMapCenter(coords);
     setBookingData(p => {
@@ -194,54 +225,47 @@ export default function ReservationForm({ selectedCar, onPriceChange }) {
           ? { pickupCoords: coords, pickupLocation: address }
           : { dropoffCoords: coords, dropoffLocation: address }),
       };
-      setBothSet(
-        !(next.pickupCoords[0] === next.dropoffCoords[0] &&
-          next.pickupCoords[1] === next.dropoffCoords[1])
-      );
+      setBothSet(!(next.pickupCoords[0] === next.dropoffCoords[0] && next.pickupCoords[1] === next.dropoffCoords[1]));
       return next;
     });
   }, [selectingLocation]);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (!dateRange[0] || !dateRange[1]) {
-      alert("Please select pickup and return date & time.");
-      return;
-    }
+    if (!dateRange[0] || !dateRange[1]) { alert(t.datesRequired); return; }
     try {
       localStorage.setItem("car_booking", JSON.stringify({
         car: selectedCar,
         totalDays,
         totalPrice,
         pickupFee,
-        pickupLocation: bookingData.pickupLocation,
+        pickupLocation:  bookingData.pickupLocation,
         dropoffLocation: bookingData.dropoffLocation,
-        passengers: bookingData.passengers,
-        children: bookingData.children,
-        bags: bookingData.bags,
-        startDate: dateRange[0].toISOString(),
-        endDate: dateRange[1].toISOString(),
+        passengers:      bookingData.passengers,
+        children:        bookingData.children,
+        bags:            bookingData.bags,
+        startDate:       dateRange[0].toISOString(),
+        endDate:         dateRange[1].toISOString(),
         routeInfo,
       }));
-      // Draft intentionally kept so Back→Booking restores form state
     } catch { }
     router.push("/our-services/car-reservation/payment");
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <form onSubmit={handleFormSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
       {/* Header */}
       <div className="px-6 pt-6 pb-5 border-b border-gray-100">
-        <h2 className="text-xl font-black text-gray-900">Complete Your Booking</h2>
-        <p className="text-gray-400 text-sm mt-1">Fill in the details below to reserve your vehicle.</p>
+        <h2 className="text-xl font-black text-gray-900">{t.header}</h2>
+        <p className="text-gray-400 text-sm mt-1">{t.headerSub}</p>
       </div>
 
       <div className="p-6 space-y-8">
 
         {/* Step 1: Dates */}
         <section>
-          <StepBadge n="1" label="Select Rental Dates" />
-          <label className={labelCls}>Pickup &amp; return date / time</label>
+          <StepBadge n="1" label={t.step1} />
+          <label className={labelCls}>{t.step1Label}</label>
           <RangePicker
             showTime
             format="YYYY-MM-DD HH:mm"
@@ -251,11 +275,9 @@ export default function ReservationForm({ selectedCar, onPriceChange }) {
             style={{ height: 44 }}
             disabledDate={c => c && c < dayjs().startOf("day")}
           />
-          {/* Inline price preview */}
           {totalDays > 0 && (
             <p className="mt-2 text-xs text-[#264787] font-bold">
-              {totalDays} day{totalDays !== 1 ? "s" : ""} ×{" "}
-              {dailyRate.toLocaleString()} {selectedCar?.currency} ={" "}
+              {t.step1Dates(totalDays, dailyRate, selectedCar?.currency)}
               <span className="text-base">{totalPrice.toLocaleString()}</span>{" "}
               {selectedCar?.currency}
             </p>
@@ -264,22 +286,22 @@ export default function ReservationForm({ selectedCar, onPriceChange }) {
 
         {/* Step 2: Passengers */}
         <section>
-          <StepBadge n="2" label="Passengers &amp; Luggage" />
+          <StepBadge n="2" label={t.step2} />
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className={labelCls}>Adults</label>
+              <label className={labelCls}>{t.adults}</label>
               <input type="number" min={1} value={bookingData.passengers}
                 onChange={e => set("passengers", parseInt(e.target.value) || 1)}
                 className={fieldCls} />
             </div>
             <div>
-              <label className={labelCls}>Children</label>
+              <label className={labelCls}>{t.children}</label>
               <input type="number" min={0} value={bookingData.children}
                 onChange={e => set("children", parseInt(e.target.value) || 0)}
                 className={fieldCls} />
             </div>
             <div>
-              <label className={labelCls}>Bags</label>
+              <label className={labelCls}>{t.bags}</label>
               <input type="number" min={0} value={bookingData.bags}
                 onChange={e => set("bags", parseInt(e.target.value) || 0)}
                 className={fieldCls} />
@@ -289,79 +311,67 @@ export default function ReservationForm({ selectedCar, onPriceChange }) {
 
         {/* Step 3: Locations + Map */}
         <section>
-          <StepBadge n="3" label="Pickup &amp; Drop-off Locations" />
+          <StepBadge n="3" label={t.step3} />
           <div className="space-y-4">
             {/* Pickup */}
             <div>
-              <label className={labelCls}>Pickup location</label>
+              <label className={labelCls}>{t.pickupLabel}</label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-500 shrink-0" />
+                  <MapPin size={15} className={`absolute ${isRTL ? "right-3.5" : "left-3.5"} top-1/2 -translate-y-1/2 text-emerald-500 shrink-0`} />
                   <input
                     type="text" required
-                    placeholder="Enter pickup address"
+                    placeholder={t.pickupPh}
                     value={bookingData.pickupLocation}
                     onChange={e => set("pickupLocation", e.target.value)}
-                    className={`${fieldCls} pl-9`}
+                    className={`${fieldCls} ${isRTL ? "pr-9" : "pl-9"}`}
                   />
                 </div>
                 <button type="button"
                   onClick={() => setSelectingLoc(selectingLocation === "pickup" ? null : "pickup")}
                   className={`px-4 text-xs font-bold rounded-xl shrink-0 transition-all border ${selectingLocation === "pickup"
-                      ? "bg-emerald-500 text-white border-emerald-500"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
-                    }`}
+                    ? "bg-emerald-500 text-white border-emerald-500"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                  }`}
                 >
-                  📍 Map
+                  {t.mapBtn}
                 </button>
               </div>
             </div>
 
             {/* Drop-off */}
             <div>
-              <label className={labelCls}>Drop-off location</label>
+              <label className={labelCls}>{t.dropoffLabel}</label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-red-500 shrink-0" />
+                  <MapPin size={15} className={`absolute ${isRTL ? "right-3.5" : "left-3.5"} top-1/2 -translate-y-1/2 text-red-500 shrink-0`} />
                   <input
                     type="text" required
-                    placeholder="Enter drop-off address"
+                    placeholder={t.dropoffPh}
                     value={bookingData.dropoffLocation}
                     onChange={e => set("dropoffLocation", e.target.value)}
-                    className={`${fieldCls} pl-9`}
+                    className={`${fieldCls} ${isRTL ? "pr-9" : "pl-9"}`}
                   />
                 </div>
                 <button type="button"
                   onClick={() => setSelectingLoc(selectingLocation === "dropoff" ? null : "dropoff")}
                   className={`px-4 text-xs font-bold rounded-xl shrink-0 transition-all border ${selectingLocation === "dropoff"
-                      ? "bg-red-500 text-white border-red-500"
-                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
-                    }`}
+                    ? "bg-red-500 text-white border-red-500"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                  }`}
                 >
-                  📍 Map
+                  {t.mapBtn}
                 </button>
               </div>
             </div>
 
             {/* Map */}
             <div className="rounded-xl overflow-hidden border border-gray-200" style={{ height: 220 }}>
-              <MapContainer
-                center={mapCenter}
-                zoom={13}
-                style={{ height: "100%", width: "100%" }}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution="&copy; OpenStreetMap"
-                />
+              <MapContainer center={mapCenter} zoom={13} style={{ height: "100%", width: "100%" }}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap" />
                 <MapUpdater center={mapCenter} />
                 <MapClick onMapClick={handleMapClick} />
-                {bothSet && (
-                  <MapFitBounds
-                    pickup={bookingData.pickupCoords}
-                    dropoff={bookingData.dropoffCoords}
-                  />
-                )}
+                {bothSet && <MapFitBounds pickup={bookingData.pickupCoords} dropoff={bookingData.dropoffCoords} />}
                 <Marker position={bookingData.pickupCoords} icon={pickupIcon} />
                 <Marker position={bookingData.dropoffCoords} icon={dropoffIcon} />
                 {bothSet && (
@@ -374,22 +384,22 @@ export default function ReservationForm({ selectedCar, onPriceChange }) {
               </MapContainer>
             </div>
 
-            {/* Route info strip */}
+            {/* Route info */}
             {routeInfo && (
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 bg-[#264787]/5 border border-[#264787]/15 rounded-xl">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[#264787]">
                   <Navigation size={13} />
-                  {routeInfo.distanceKm} km
+                  {t.distanceLabel(routeInfo.distanceKm)}
                 </div>
                 <div className="w-px h-4 bg-[#264787]/20" />
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[#264787]">
                   <Clock size={13} />
-                  ~{routeInfo.durationMin} min drive
+                  {t.durationLabel(routeInfo.durationMin)}
                 </div>
                 <div className="w-px h-4 bg-[#264787]/20" />
                 <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-                  Pickup fee: {pickupFee.toLocaleString()} {selectedCar?.currency}
-                  <span className="font-normal text-gray-400">(0.5 {selectedCar?.currency}/km, min 2)</span>
+                  {t.pickupFeeLabel(pickupFee, selectedCar?.currency)}
+                  <span className="font-normal text-gray-400">{t.pickupFeeNote(selectedCar?.currency)}</span>
                 </div>
               </div>
             )}
@@ -405,12 +415,7 @@ export default function ReservationForm({ selectedCar, onPriceChange }) {
           className="w-full flex items-center justify-center gap-2.5 py-4 bg-gradient-to-r from-[#264787] to-[#3b85c1] text-white text-sm font-black rounded-xl shadow-lg shadow-[#264787]/25 hover:brightness-110 transition-all"
         >
           <Lock size={15} />
-          Proceed to Payment
-          {totalPrice > 0 && (
-            <span className="opacity-70 font-semibold">
-              · {(totalPrice + pickupFee).toLocaleString()} {selectedCar?.currency}
-            </span>
-          )}
+          {t.proceedBtn(totalPrice + pickupFee, selectedCar?.currency)}
         </button>
       </div>
     </form>

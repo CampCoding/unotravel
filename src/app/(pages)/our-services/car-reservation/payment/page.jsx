@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, ChevronLeft, Calendar, Users, CheckCircle2, ChevronDown, Search } from "lucide-react";
+import { Lock, ChevronLeft, ChevronRight, Calendar, Users, CheckCircle2, ChevronDown, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { _get, _post } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
 
@@ -11,7 +12,78 @@ const fieldCls =
   "w-full px-4 py-3 text-sm text-gray-800 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#3b85c1]/25 focus:border-[#3b85c1] transition-all placeholder:text-gray-400";
 const labelCls = "block text-xs font-bold text-gray-500 mb-1.5";
 
-const BASE_PICKUP_FEE = 2; // fallback USD when no route selected
+const BASE_PICKUP_FEE = 2;
+
+const T = {
+  en: {
+    back:            "Back to Booking",
+    secure:          "Secure & encrypted payment",
+    title:           "Confirm Your Booking",
+    subtitle:        "Enter your contact info to complete the reservation.",
+    contactInfo:     "Contact Information",
+    fullName:        "Full Name",
+    fullNamePh:      "Enter your full name",
+    email:           "Email Address",
+    emailPh:         "name@example.com",
+    phone:           "Phone Number",
+    phonePh:         "123 456 7890",
+    required:        "*",
+    tripDetails:     "Trip Details",
+    dates:           "Dates",
+    billDetails:     "Bill Details",
+    rental:          (d) => `Rental (${d} day${d !== 1 ? "s" : ""})`,
+    pickupFee:       "Pickup fee",
+    tax:             "Tax (15%)",
+    total:           "Total",
+    included:        [
+      "Comprehensive insurance included",
+      "Free cancellation up to 24 hours before pickup",
+      "24/7 roadside support",
+    ],
+    alreadyAccount:  "Already have an account?",
+    signIn:          "Sign In",
+    confirmBtn:      "Confirm Booking",
+    processing:      "Processing…",
+    policy:          "Free cancellation up to 24 hours before pickup.",
+    seePolicy:       "See Policy",
+    searchCountry:   "Search country or code…",
+    noResults:       "No results",
+  },
+  ar: {
+    back:            "العودة للحجز",
+    secure:          "دفع آمن ومشفر",
+    title:           "تأكيد الحجز",
+    subtitle:        "أدخل بيانات الاتصال لإتمام الحجز.",
+    contactInfo:     "معلومات الاتصال",
+    fullName:        "الاسم الكامل",
+    fullNamePh:      "أدخل اسمك الكامل",
+    email:           "البريد الإلكتروني",
+    emailPh:         "example@email.com",
+    phone:           "رقم الهاتف",
+    phonePh:         "123 456 7890",
+    required:        "*",
+    tripDetails:     "تفاصيل الرحلة",
+    dates:           "التواريخ",
+    billDetails:     "تفاصيل الفاتورة",
+    rental:          (d) => `إيجار (${d} ${d === 1 ? "يوم" : "أيام"})`,
+    pickupFee:       "رسوم الاستلام",
+    tax:             "ضريبة (15%)",
+    total:           "الإجمالي",
+    included:        [
+      "تأمين شامل مدرج",
+      "إلغاء مجاني حتى 24 ساعة قبل الاستلام",
+      "دعم على الطريق 24/7",
+    ],
+    alreadyAccount:  "هل لديك حساب بالفعل؟",
+    signIn:          "تسجيل الدخول",
+    confirmBtn:      "تأكيد الحجز",
+    processing:      "جارٍ المعالجة…",
+    policy:          "إلغاء مجاني حتى 24 ساعة قبل الاستلام.",
+    seePolicy:       "اقرأ السياسة",
+    searchCountry:   "ابحث بالدولة أو الرمز…",
+    noResults:       "لا توجد نتائج",
+  },
+};
 
 // ISO 3166-1 alpha-2 → international dial code
 const DIAL = {
@@ -43,14 +115,12 @@ const DIAL = {
   KY:"+1345",GU:"+1671",CW:"+599",CK:"+682",AI:"+1264",
 };
 
-// ── Country dial-code dropdown ───────────────────
-function CountrySelect({ countries, value, onChange }) {
-  const [open, setOpen]       = useState(false);
-  const [query, setQuery]     = useState("");
-  const ref                   = useRef(null);
+function CountrySelect({ countries, value, onChange, isRTL, placeholder }) {
+  const [open, setOpen]   = useState(false);
+  const [query, setQuery] = useState("");
+  const ref               = useRef(null);
 
   const selected = countries.find(c => c.code === value) ?? countries.find(c => c.code === "EG");
-
   const filtered = query
     ? countries.filter(c =>
         c.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -83,26 +153,24 @@ function CountrySelect({ countries, value, onChange }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 top-full mt-1 left-0 w-64 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden"
+            className={`absolute z-50 top-full mt-1 ${isRTL ? "right-0" : "left-0"} w-64 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden`}
           >
-            {/* Search */}
             <div className="p-2 border-b border-gray-100">
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
                 <Search size={13} className="text-gray-400 shrink-0" />
                 <input
                   autoFocus
                   type="text"
-                  placeholder="Search country or code…"
+                  placeholder={placeholder}
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                   className="bg-transparent text-xs outline-none flex-1 text-gray-700 placeholder:text-gray-400"
                 />
               </div>
             </div>
-            {/* List */}
             <div className="overflow-y-auto max-h-56">
               {filtered.length === 0 ? (
-                <p className="text-center text-xs text-gray-400 py-4">No results</p>
+                <p className="text-center text-xs text-gray-400 py-4">{T[isRTL ? "ar" : "en"].noResults}</p>
               ) : filtered.map(c => {
                 const dial = DIAL[c.code];
                 if (!dial) return null;
@@ -127,9 +195,14 @@ function CountrySelect({ countries, value, onChange }) {
   );
 }
 
-// ── Main page ────────────────────────────────────
 export default function PaymentPage() {
   const router = useRouter();
+  const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
+  const langId = selectedLanguage || 1;
+  const isRTL  = langId === 2;
+  const t      = T[isRTL ? "ar" : "en"];
+  const BackIcon = isRTL ? ChevronRight : ChevronLeft;
+
   const [booking, setBooking]         = useState(null);
   const [countries, setCountries]     = useState([]);
   const [dialCountry, setDialCountry] = useState("EG");
@@ -143,13 +216,9 @@ export default function PaymentPage() {
     } catch {}
   }, []);
 
-  // Fetch countries from the same visa-page API
   useEffect(() => {
     _get(apiRoutes.visa_page)
-      .then(res => {
-        const list = res.data?.data?.countries ?? [];
-        setCountries(list);
-      })
+      .then(res => setCountries(res.data?.data?.countries ?? []))
       .catch(() => {});
   }, []);
 
@@ -163,35 +232,60 @@ export default function PaymentPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    const car = booking?.car ?? {};
+    let bookingId = null;
+    let bookingStatus = "pending";
     try {
-      const car = booking?.car ?? {};
-      await _post(apiRoutes.car_reservation_book, {
-        car_id:            car.id ?? null,
-        car_model:         car.model ?? null,
-        car_category:      car.category ?? null,
-        car_image_url:     car.imgUrl ?? car.image_url ?? null,
-        full_name:         form.fullName,
-        email:             form.email,
-        phone:             form.phone,
-        dial_code:         DIAL[dialCountry] ?? null,
-        start_date:        booking?.startDate ?? null,
-        end_date:          booking?.endDate ?? null,
-        total_days:        booking?.totalDays ?? 1,
-        passengers:        booking?.passengers ?? 1,
-        children:          booking?.children ?? 0,
-        bags:              booking?.bags ?? 0,
-        pickup_location:   booking?.pickupLocation ?? null,
-        dropoff_location:  booking?.dropoffLocation ?? null,
-        route_distance_km: booking?.routeInfo?.distanceKm ?? null,
-        route_duration_min:booking?.routeInfo?.durationMin ?? null,
-        rental_price:      totalPrice,
-        pickup_fee:        pickupFee,
-        tax:               parseFloat(tax.toFixed(2)),
-        total_price:       parseFloat(grandTotal.toFixed(2)),
-        currency:          car.currency ?? "USD",
+      const res = await _post(apiRoutes.car_reservation_book, {
+        car_id:             car.id ?? null,
+        car_model:          car.model ?? null,
+        car_category:       car.category ?? null,
+        car_image_url:      car.imgUrl ?? car.image_url ?? null,
+        full_name:          form.fullName,
+        email:              form.email,
+        phone:              form.phone,
+        dial_code:          DIAL[dialCountry] ?? null,
+        start_date:         booking?.startDate ?? null,
+        end_date:           booking?.endDate ?? null,
+        total_days:         booking?.totalDays ?? 1,
+        passengers:         booking?.passengers ?? 1,
+        children:           booking?.children ?? 0,
+        bags:               booking?.bags ?? 0,
+        pickup_location:    booking?.pickupLocation ?? null,
+        dropoff_location:   booking?.dropoffLocation ?? null,
+        route_distance_km:  booking?.routeInfo?.distanceKm ?? null,
+        route_duration_min: booking?.routeInfo?.durationMin ?? null,
+        rental_price:       totalPrice,
+        pickup_fee:         pickupFee,
+        tax:                parseFloat(tax.toFixed(2)),
+        total_price:        parseFloat(grandTotal.toFixed(2)),
+        currency:           car.currency ?? "USD",
       });
-    } catch { /* submit best-effort; proceed to success regardless */ }
+      bookingId     = res?.data?.data?.id ?? null;
+      bookingStatus = res?.data?.data?.status ?? "pending";
+    } catch { /* proceed to success regardless */ }
     try {
+      localStorage.setItem("car_booking_confirm", JSON.stringify({
+        bookingId,
+        status: bookingStatus,
+        car,
+        fullName:        form.fullName,
+        email:           form.email,
+        totalDays:       booking?.totalDays ?? 1,
+        totalPrice,
+        pickupFee,
+        tax:             parseFloat(tax.toFixed(2)),
+        grandTotal:      parseFloat(grandTotal.toFixed(2)),
+        currency:        car.currency ?? "USD",
+        startDate:       booking?.startDate ?? null,
+        endDate:         booking?.endDate ?? null,
+        pickupLocation:  booking?.pickupLocation ?? null,
+        dropoffLocation: booking?.dropoffLocation ?? null,
+        routeInfo:       booking?.routeInfo ?? null,
+        passengers:      booking?.passengers ?? 1,
+        children:        booking?.children ?? 0,
+        bags:            booking?.bags ?? 0,
+      }));
       localStorage.removeItem("car_booking");
       localStorage.removeItem("car_booking_draft");
     } catch {}
@@ -205,18 +299,18 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ── Top bar ── */}
+    <div className="min-h-screen bg-gray-50" dir={isRTL ? "rtl" : "ltr"}>
+      {/* Top bar */}
       <div className="border-b border-gray-200 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <Link
             href={booking?.car?.id ? `/our-services/car-reservation/${booking.car.id}` : "/our-services/car-reservation"}
             className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-[#264787] transition-colors"
           >
-            <ChevronLeft size={15} /> Back to Booking
+            <BackIcon size={15} /> {t.back}
           </Link>
           <p className="text-xs text-gray-400 flex items-center gap-1.5">
-            <Lock size={12} className="text-[#3b85c1]" /> Secure &amp; encrypted payment
+            <Lock size={12} className="text-[#3b85c1]" /> {t.secure}
           </p>
         </div>
       </div>
@@ -228,11 +322,8 @@ export default function PaymentPage() {
           transition={{ duration: 0.4 }}
           className="grid lg:grid-cols-5 gap-6 items-start"
         >
-
-          {/* ─── Left: Order Summary ─── */}
+          {/* Order Summary */}
           <aside className="lg:col-span-2 space-y-4">
-
-            {/* Car card */}
             {booking?.car && (
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                 <div className="relative h-44 bg-gradient-to-br from-slate-100 to-blue-50">
@@ -243,7 +334,7 @@ export default function PaymentPage() {
                     onError={e => { e.target.src = "/images/2.png"; }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                  <div className="absolute bottom-3 left-3">
+                  <div className={`absolute bottom-3 ${isRTL ? "right-3" : "left-3"}`}>
                     <p className="text-white font-black text-base leading-snug drop-shadow">{booking.car.model}</p>
                     <span className="text-[10px] text-white/70 font-bold uppercase tracking-wider">{booking.car.category}</span>
                   </div>
@@ -251,63 +342,56 @@ export default function PaymentPage() {
               </div>
             )}
 
-            {/* Trip details */}
             {booking && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Trip Details</p>
-
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t.tripDetails}</p>
                 {booking.startDate && (
                   <div className="flex items-start gap-3 text-sm">
                     <Calendar size={15} className="text-[#3b85c1] mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-xs text-gray-400 font-medium">Dates</p>
+                      <p className="text-xs text-gray-400 font-medium">{t.dates}</p>
                       <p className="text-gray-700 font-semibold text-xs">
                         {formatDate(booking.startDate)} → {formatDate(booking.endDate)}
-                        <span className="text-gray-400 ml-1">({booking.totalDays} day{booking.totalDays !== 1 ? "s" : ""})</span>
+                        <span className="text-gray-400 ml-1">({booking.totalDays} {booking.totalDays !== 1 ? (isRTL ? "أيام" : "days") : (isRTL ? "يوم" : "day")})</span>
                       </p>
                     </div>
                   </div>
                 )}
-
                 {booking.pickupLocation && (
                   <div className="flex items-start gap-3">
                     <span className="w-3 h-3 rounded-full bg-emerald-500 mt-1 shrink-0" />
                     <p className="text-xs text-gray-600 leading-relaxed">{booking.pickupLocation}</p>
                   </div>
                 )}
-
                 {booking.dropoffLocation && (
                   <div className="flex items-start gap-3">
                     <span className="w-3 h-3 rounded-full bg-red-500 mt-1 shrink-0" />
                     <p className="text-xs text-gray-600 leading-relaxed">{booking.dropoffLocation}</p>
                   </div>
                 )}
-
                 {(booking.passengers || booking.bags) && (
                   <div className="flex items-center gap-3 pt-1 border-t border-gray-100">
                     <Users size={14} className="text-gray-400 shrink-0" />
                     <p className="text-xs text-gray-500">
-                      {booking.passengers} adult{booking.passengers !== 1 ? "s" : ""}
-                      {booking.children > 0 && `, ${booking.children} child${booking.children !== 1 ? "ren" : ""}`}
-                      {booking.bags > 0 && ` · ${booking.bags} bag${booking.bags !== 1 ? "s" : ""}`}
+                      {booking.passengers} {isRTL ? "بالغ" : `adult${booking.passengers !== 1 ? "s" : ""}`}
+                      {booking.children > 0 && `, ${booking.children} ${isRTL ? "طفل" : `child${booking.children !== 1 ? "ren" : ""}`}`}
+                      {booking.bags > 0 && ` · ${booking.bags} ${isRTL ? "حقيبة" : `bag${booking.bags !== 1 ? "s" : ""}`}`}
                     </p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Bill breakdown */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Bill Details</p>
-
+              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t.billDetails}</p>
               <div className="space-y-2.5">
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Rental ({booking?.totalDays ?? 0} days)</span>
+                  <span>{t.rental(booking?.totalDays ?? 0)}</span>
                   <span className="font-semibold">{totalPrice > 0 ? totalPrice.toLocaleString() : "0"} {booking?.car?.currency}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>
-                    Pickup fee
+                    {t.pickupFee}
                     {booking?.routeInfo?.distanceKm && (
                       <span className="text-xs text-gray-400 ml-1">({booking.routeInfo.distanceKm} km × 0.5)</span>
                     )}
@@ -315,15 +399,13 @@ export default function PaymentPage() {
                   <span className="font-semibold">{pickupFee.toLocaleString()} {booking?.car?.currency}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Tax (15%)</span>
+                  <span>{t.tax}</span>
                   <span className="font-semibold">{totalPrice > 0 ? tax.toFixed(1) : "0"} {booking?.car?.currency}</span>
                 </div>
               </div>
-
               <div className="h-px bg-gray-100" />
-
               <div className="flex justify-between items-center">
-                <span className="font-black text-gray-900">Total</span>
+                <span className="font-black text-gray-900">{t.total}</span>
                 <span className="text-xl font-black text-[#264787]">
                   {totalPrice > 0 ? grandTotal.toFixed(1) : "—"} {booking?.car?.currency}
                 </span>
@@ -331,66 +413,67 @@ export default function PaymentPage() {
             </div>
 
             <p className="text-[11px] text-gray-400 text-center leading-relaxed px-2">
-              Free cancellation up to 24 hours before pickup.{" "}
-              <Link href="/" className="text-[#3b85c1] font-semibold underline">See Policy</Link>
+              {t.policy}{" "}
+              <Link href="/" className="text-[#3b85c1] font-semibold underline">{t.seePolicy}</Link>
             </p>
           </aside>
 
-          {/* ─── Right: Contact Form ─── */}
+          {/* Contact Form */}
           <div className="lg:col-span-3">
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="px-6 pt-6 pb-5 border-b border-gray-100">
-                <h1 className="text-xl font-black text-gray-900">Confirm Your Booking</h1>
-                <p className="text-gray-400 text-sm mt-1">Enter your contact info to complete the reservation.</p>
+                <h1 className="text-xl font-black text-gray-900">{t.title}</h1>
+                <p className="text-gray-400 text-sm mt-1">{t.subtitle}</p>
               </div>
 
               <div className="p-6 space-y-5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Contact Information</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t.contactInfo}</p>
 
                 <div>
-                  <label className={labelCls}>Full Name <span className="text-red-400">*</span></label>
+                  <label className={labelCls}>{t.fullName} <span className="text-red-400">{t.required}</span></label>
                   <input
                     type="text" required
                     value={form.fullName}
                     onChange={e => set("fullName", e.target.value)}
-                    placeholder="Enter your full name"
+                    placeholder={t.fullNamePh}
                     className={fieldCls}
                   />
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Email Address <span className="text-red-400">*</span></label>
+                    <label className={labelCls}>{t.email} <span className="text-red-400">{t.required}</span></label>
                     <input
                       type="email" required
                       value={form.email}
                       onChange={e => set("email", e.target.value)}
-                      placeholder="name@example.com"
+                      placeholder={t.emailPh}
                       className={fieldCls}
                     />
                   </div>
                   <div>
-                    <label className={labelCls}>Phone Number <span className="text-red-400">*</span></label>
+                    <label className={labelCls}>{t.phone} <span className="text-red-400">{t.required}</span></label>
                     <div className="flex gap-2 items-stretch">
                       <CountrySelect
                         countries={countries}
                         value={dialCountry}
                         onChange={setDialCountry}
+                        isRTL={isRTL}
+                        placeholder={t.searchCountry}
                       />
                       <input
                         type="tel" required
                         value={form.phone}
                         onChange={e => set("phone", e.target.value)}
-                        placeholder="123 456 7890"
+                        placeholder={t.phonePh}
                         className={`${fieldCls} flex-1`}
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Included note */}
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-2">
-                  {["Comprehensive insurance included", "Free cancellation up to 24 hours before pickup", "24/7 roadside support"].map(item => (
+                  {t.included.map(item => (
                     <div key={item} className="flex items-center gap-2.5 text-xs text-blue-700">
                       <CheckCircle2 size={14} className="shrink-0 text-blue-500" />
                       {item}
@@ -399,12 +482,11 @@ export default function PaymentPage() {
                 </div>
 
                 <p className="text-xs text-gray-400 text-center">
-                  Already have an account?{" "}
-                  <Link href="/sign-in" className="text-[#3b85c1] font-bold hover:underline">Sign In</Link>
+                  {t.alreadyAccount}{" "}
+                  <Link href="/sign-in" className="text-[#3b85c1] font-bold hover:underline">{t.signIn}</Link>
                 </p>
               </div>
 
-              {/* CTA */}
               <div className="px-6 pb-6">
                 <button
                   type="submit"
@@ -412,7 +494,7 @@ export default function PaymentPage() {
                   className="w-full flex items-center justify-center gap-2.5 py-4 bg-gradient-to-r from-[#264787] to-[#3b85c1] text-white text-base font-black rounded-xl shadow-lg shadow-[#264787]/25 hover:brightness-110 transition-all disabled:opacity-70"
                 >
                   <CheckCircle2 size={18} />
-                  {submitting ? "Processing…" : "Confirm Booking"}
+                  {submitting ? t.processing : t.confirmBtn}
                 </button>
               </div>
             </form>
