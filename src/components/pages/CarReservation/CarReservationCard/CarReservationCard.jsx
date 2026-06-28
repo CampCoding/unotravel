@@ -1,191 +1,119 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { Star, Zap, Wind, Users } from "lucide-react";
 
-export default function CarReservationCard({ car, itemVariants, imageVariants }) {
+const CATEGORY_COLORS = {
+  ECONOMY:  { bg: "bg-emerald-500", text: "text-white" },
+  SEDAN:    { bg: "bg-blue-500",    text: "text-white" },
+  PREMIUM:  { bg: "bg-amber-500",   text: "text-white" },
+  POPULAR:  { bg: "bg-rose-500",    text: "text-white" },
+};
+
+const featureIcons = {
+  Automatic: <Zap size={11} />,
+  AC:        <Wind size={11} />,
+};
+
+export default function CarReservationCard({ car, itemVariants }) {
   const router = useRouter();
-  const [isBookNowModal , setIsBookNowModal] = useState(false);
-  
+  const catColor = CATEGORY_COLORS[car.category] ?? { bg: "bg-gray-500", text: "text-white" };
+
   return (
     <motion.div
-      key={car.id}
       variants={itemVariants}
-      whileHover={{ y: -12, scale: 1.01 }}
-      className="
-        group relative bg-white rounded-[1.75rem]
-        shadow-xl hover:shadow-2xl
-        transition-all duration-500 overflow-hidden
-        border-2 border-gray-100 hover:border-[#3b85c1]/30
-        w-full
-      "
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.25 }}
+      className="group relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-gray-100 transition-shadow duration-300 flex flex-col"
     >
-      {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#3b85c1]/0 via-transparent to-[#264787]/0 group-hover:from-[#3b85c1]/5 group-hover:to-[#264787]/5 transition-all duration-500 pointer-events-none" />
+      {/* ── Image Block ── */}
+      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 to-blue-50">
+        <motion.img
+          src={car.imgUrl}
+          alt={car.model}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = `https://placehold.co/600x300/dbeafe/264787?text=${encodeURIComponent(car.model)}`;
+          }}
+        />
 
-      <div className="flex flex-col lg:flex-row">
-        {/* Image Section */}
-        <div
-          className="
-            lg:w-2/5
-            relative overflow-hidden
-            bg-gradient-to-br from-blue-50 via-white to-blue-50/50
-          "
-        >
-          <motion.div
-            variants={imageVariants}
-            className="
-              h-auto
-              p-2 sm:p-7 lg:p-10
-              flex items-center
-            "
-          >
-            <motion.img
-              whileHover={{ scale: 1.15, rotate: 3 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              src={car.imgUrl}
-              alt={car.model}
-              className="
-                w-full h-full object-cover
-                rounded-[1.5rem]
-                drop-shadow-2xl
-              "
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = `https://placehold.co/400x250/e0f2fe/264787?text=${car.model.split(
-                  " "
-                )[0]}`;
-              }}
-            />
-          </motion.div>
+        {/* Bottom gradient so content doesn't clash */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
 
-          {/* Decorative circles */}
-          <div className="absolute -bottom-10 -left-10 w-32 h-32 sm:w-40 sm:h-40 bg-[#3b85c1]/10 rounded-full blur-3xl" />
-          <div className="absolute -top-10 -right-10 w-32 h-32 sm:w-40 sm:h-40 bg-[#264787]/10 rounded-full blur-3xl" />
+        {/* Category badge */}
+        <span className={`absolute top-3 left-3 ${catColor.bg} ${catColor.text} text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg`}>
+          {car.category}
+        </span>
+
+        {/* Rating badge */}
+        {car.rating && (
+          <span className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm text-amber-500 text-[11px] font-black px-2.5 py-1 rounded-full shadow">
+            <Star size={11} fill="currentColor" />
+            {car.rating}
+          </span>
+        )}
+
+        {/* Model name overlay at bottom of image */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h3 className="text-white font-black text-lg leading-tight drop-shadow-md">
+            {car.model}
+          </h3>
         </div>
+      </div>
 
-        {/* Content Section */}
-        <div
-          className="
-            lg:w-3/5
-            p-3
-            flex flex-col justify-between
-            relative
-          "
-        >
+      {/* ── Content Block ── */}
+      <div className="flex flex-col flex-1 p-5 gap-4">
+        {/* Description */}
+        <p className="text-gray-500 text-xs leading-relaxed line-clamp-2">
+          {car.description}
+        </p>
+
+        {/* Feature tags */}
+        {car.features?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {car.features.map((feat) => (
+              <span
+                key={feat}
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-600 text-[10px] font-semibold rounded-lg"
+              >
+                {featureIcons[feat] ?? <Users size={11} />}
+                {feat}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Divider */}
+        <div className="h-px bg-gray-100" />
+
+        {/* Price + CTA */}
+        <div className="flex items-end justify-between gap-3 mt-auto">
           <div>
-            {/* Category Badge & (space for rating if added later) */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-              <span className="inline-block px-4 sm:px-5 py-1.5 sm:py-2 bg-gradient-to-r from-[#264787]/10 to-[#3b85c1]/10 text-[#264787] text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-full border border-[#3b85c1]/20">
-                {car.category}
+            <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">
+              Daily Rate
+            </p>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-black text-[#264787] leading-none">
+                {parseFloat(car.price).toLocaleString()}
               </span>
+              <span className="text-xs font-bold text-gray-400">{car.currency}</span>
             </div>
-
-            {/* Car Model */}
-            <p
-              className="
-                text-md!
-                font-black text-gray-900 mb-0
-                group-hover:text-[#264787]
-                transition-colors duration-300
-                leading-snug sm:leading-tight
-              "
-            >
-              {car.model}
-            </p>
-
-            {/* Description */}
-            <p
-              className="
-                text-sm
-                text-gray-600 leading-relaxed
-                mb-2
-              "
-            >
-              {car.description}
-            </p>
+            <p className="text-[10px] text-gray-400 mt-0.5">per day</p>
           </div>
 
-          {/* Price and CTA Section */}
-          <div
-            className="
-              flex flex-col sm:flex-row
-              items-start sm:items-end
-              justify-between gap-5
-              pt-2
-              border-t border-gray-100
-            "
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => router.push(`/our-services/car-reservation/${car.id}`)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#264787] to-[#3b85c1] text-white text-xs font-black rounded-xl shadow-lg shadow-[#264787]/30 hover:shadow-[#3b85c1]/40 transition-shadow duration-300 shrink-0"
           >
-            <div>
-              <p className="text-[10px]  text-gray-500 font-bold uppercase tracking-[0.15em] mb-1.5">
-                Daily Rate
-              </p>
-              <div className="flex items-baseline flex-wrap gap-1.5 sm:gap-2">
-                <span
-                  className="
-                    text-md!
-                    font-black
-                    bg-gradient-to-r from-[#264787] to-[#3b85c1]
-                    bg-clip-text text-transparent
-                  "
-                >
-                  {car?.price}
-                </span>
-                <span className="text-sm! font-bold text-gray-400">
-                  {car?.currency}
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 mt-1 font-medium">
-                per day
-              </p>
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="
-                relative w-full sm:w-auto
-                group/btn overflow-hidden
-                bg-gradient-to-r from-[#264787] to-[#3b85c1]
-                text-white font-black
-                px-2 py-1.5
-                !rounded-2xl
-                shadow-xl shadow-[#3b85c1]/30
-                hover:shadow-2xl hover:shadow-[#3b85c1]/40
-                transition-all duration-300
-                focus:outline-none focus:ring-4 focus:ring-[#3b85c1]/50
-                text-xs 
-              "
-              onClick={() => router.push(`/our-services/car-reservation/${car?.id}`)}
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                <span className="text-sm!">Book Now</span>
-                <motion.svg
-                  className="w-4 h-4"
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 1.5,
-                    ease: "easeInOut",
-                    repeatDelay: 3,
-                  }}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </motion.svg>
-              </span>
-
-              {/* Hover background animation */}
-              {/* <div className="absolute inset-0 bg-gradient-to-r from-[#3b85c1] to-[#264787] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" /> */}
-            </motion.button>
-          </div>
+            Book Now
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </motion.button>
         </div>
       </div>
     </motion.div>

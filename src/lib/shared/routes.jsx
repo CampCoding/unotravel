@@ -18,4 +18,6 @@ export const apiRoutes = {
   visa_apply:        "pages/visa-apply",
   legal_doc:         (slug) => `pages/legal/${slug}`,
   online_payment:    "pages/online-payment",
+  car_reservation_page: "pages/car-reservation",
+  car_reservation_book: "pages/car-reservation/book",
 };

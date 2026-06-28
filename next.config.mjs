@@ -18,12 +18,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "uno-travel.camp-coding.site",
+        hostname: "api.unotravelsweden.com",
         pathname: "/uploads/**",
       },
       {
         protocol: "http",
-        hostname: "uno-travel.camp-coding.site",
+        hostname: "api.unotravelsweden.com",
         pathname: "/uploads/**",
       },
       {
