@@ -3,9 +3,10 @@ import { Eye, Heart, Clock, Calendar } from "lucide-react";
 import React, { useState } from "react";
 import UmraPackageModal from "../UmraPackageModal/UmraPackageModal";
 import { useLockBodyScroll } from "../../../../../../../hooks/useLockBodyScroll";
+import { useUmrahFavorites } from "@/hooks/useUmrahFavorites";
 
 export default function UmraPackage({ data }) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggle } = useUmrahFavorites();
   const [openModal, setOpenModal] = useState(false);
 
   useLockBodyScroll(openModal);
@@ -38,10 +39,10 @@ export default function UmraPackage({ data }) {
             )}
             {/* Favorite */}
             <button
-              onClick={() => setIsFavorite(p => !p)}
+              onClick={() => toggle(data)}
               className="absolute top-2 right-2 w-8 h-8 flex justify-center items-center bg-white/80 backdrop-blur-sm rounded-full shadow transition hover:scale-110"
             >
-              <Heart size={16} color={isFavorite ? "#FF5B5B" : "#aaa"} fill={isFavorite ? "#FF5B5B" : "none"} />
+              <Heart size={16} color={isFavorite(data?.id) ? "#FF5B5B" : "#aaa"} fill={isFavorite(data?.id) ? "#FF5B5B" : "none"} />
             </button>
           </div>
 

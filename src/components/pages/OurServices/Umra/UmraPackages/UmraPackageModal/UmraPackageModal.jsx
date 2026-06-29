@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useLockBodyScroll } from "../../../../../../../hooks/useLockBodyScroll";
 import { useUmrah } from "@/context/UmrahContext";
+import { useUmrahFavorites } from "@/hooks/useUmrahFavorites";
 
 export default function UmraPackageModal({ open, setOpen, data }) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggle } = useUmrahFavorites();
   const [adults, setAdults] = useState(2);
   const router = useRouter();
   const { setSelectedPackage } = useUmrah();
@@ -69,8 +70,8 @@ export default function UmraPackageModal({ open, setOpen, data }) {
               {/* Title + favorite */}
               <div className="flex flex-wrap gap-4 items-center mb-4">
                 <h2 className="text-[#264787] font-bold text-lg sm:text-2xl">{data?.title}</h2>
-                <button onClick={() => setIsFavorite(p => !p)} className="w-[50px] h-[50px] rounded-full flex justify-center items-center bg-[#e4e6ec] transition">
-                  <Heart color={isFavorite ? "#FF5B5B" : "white"} fill={isFavorite ? "#FF5B5B" : "#fff"} />
+                <button onClick={() => toggle(data)} className="w-[50px] h-[50px] rounded-full flex justify-center items-center bg-[#e4e6ec] transition hover:scale-110">
+                  <Heart color={isFavorite(data?.id) ? "#FF5B5B" : "#aaa"} fill={isFavorite(data?.id) ? "#FF5B5B" : "none"} />
                 </button>
               </div>
 
