@@ -97,40 +97,48 @@ export default function OfferDetailPage() {
     }
     setFormErr("");
     setSubmitting(true);
+
+    const fullPhone = `${form.countryCode}${form.phone}`;
+    const notes     = [travelers > 1 ? `Travelers: ${travelers}` : "", form.notes].filter(Boolean).join("\n") || null;
+    const payableAmount = finalPrice ?? (parseFloat(offer?.offer_value) || 0);
+
     try {
+      if (payableAmount > 0) {
+        // Payment-first: booking saved ONLY after Viva confirms
+        deleteDraft("offer");
+        await startPayment({
+          booking_type: "offer_register",
+          amount:       payableAmount,
+          currency:     "EUR",
+          description:  `Offer Registration — ${offerName || offer?.offer_name || "Offer"}`,
+          booking_data: {
+            offer_id:   offer?.offer_id   ?? null,
+            offer_name: offerName || offer?.offer_name || null,
+            full_name:  form.fullName,
+            phone:      fullPhone,
+            email:      form.email || null,
+            notes,
+          },
+        });
+        // startPayment redirects the page — nothing below runs
+        return;
+      }
+
+      // Free offer → save booking immediately and show confirmation
       const res = await _post("pages/offer-register", {
         offer_id:   offer?.offer_id   ?? null,
         offer_name: offer?.offer_name ?? null,
         full_name:  form.fullName,
-        phone:      `${form.countryCode}${form.phone}`,
+        phone:      fullPhone,
         email:      form.email || null,
-        notes:      [travelers > 1 ? `Travelers: ${travelers}` : "", form.notes].filter(Boolean).join("\n") || null,
+        notes,
       });
       deleteDraft("offer");
       handleBookingResponse(res?.data?.data);
-      const bookingId = res?.data?.data?.id ?? null;
-
-      // If offer has a price → go to Viva payment
-      const payableAmount = finalPrice ?? (parseFloat(offer?.offer_value) || 0);
-      if (payableAmount > 0 && bookingId) {
-        await startPayment({
-          booking_type: "offer_register",
-          booking_id:   bookingId,
-          amount:       payableAmount,
-          currency:     "EUR",
-          description:  `Offer Registration — ${offerName || offer?.offer_name}`,
-          email:        form.email || undefined,
-          full_name:    form.fullName,
-          phone:        `${form.countryCode}${form.phone}`,
-        });
-        return; // startPayment redirects the page
-      }
-
-      // No price → show confirmation directly
       setSubmitted({
         ...form,
-        phone:      `${form.countryCode}${form.phone}`,
-        bookingId,
+        phone:      fullPhone,
+        bookingId:  res?.data?.data?.id ?? null,
         travelers,
         offerName:  offer?.offer_name,
         offerImg:   offer?.image_url,
