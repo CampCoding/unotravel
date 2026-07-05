@@ -41,4 +41,5 @@ export const apiRoutes = {
   ride_book:               "pages/ride-book",
   offer_detail:            (offerId) => `pages/offers/${offerId}`,
   site_settings:           "pages/site-settings",
+  viva_create_order:       "viva/create-order",
 };

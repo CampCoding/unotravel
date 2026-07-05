@@ -9,8 +9,9 @@ import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfir
 import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
 import { useUserForm } from "@/hooks/useUserForm";
 import { useServiceTracker } from "@/hooks/useServiceTracker";
+import { useVivaPayment } from "@/hooks/useVivaPayment";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
-import { Tag, Percent, BadgePercent, ChevronLeft } from "lucide-react";
+import { Tag, Percent, BadgePercent, ChevronLeft, CreditCard } from "lucide-react";
 
 const inp = "w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 transition placeholder-gray-400 text-base text-gray-800";
 
@@ -31,6 +32,7 @@ export default function OfferDetailPage() {
   const router  = useRouter();
   const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
   const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  const { startPayment, paying, payError } = useVivaPayment();
   useServiceTracker("offer");
 
   const [offer,     setOffer]     = useState(null);
@@ -106,10 +108,29 @@ export default function OfferDetailPage() {
       });
       deleteDraft("offer");
       handleBookingResponse(res?.data?.data);
+      const bookingId = res?.data?.data?.id ?? null;
+
+      // If offer has a price → go to Viva payment
+      const payableAmount = finalPrice ?? (parseFloat(offer?.offer_value) || 0);
+      if (payableAmount > 0 && bookingId) {
+        await startPayment({
+          booking_type: "offer_register",
+          booking_id:   bookingId,
+          amount:       payableAmount,
+          currency:     "EUR",
+          description:  `Offer Registration — ${offerName || offer?.offer_name}`,
+          email:        form.email || undefined,
+          full_name:    form.fullName,
+          phone:        `${form.countryCode}${form.phone}`,
+        });
+        return; // startPayment redirects the page
+      }
+
+      // No price → show confirmation directly
       setSubmitted({
         ...form,
         phone:      `${form.countryCode}${form.phone}`,
-        bookingId:  res?.data?.data?.id ?? null,
+        bookingId,
         travelers,
         offerName:  offer?.offer_name,
         offerImg:   offer?.image_url,
@@ -354,17 +375,21 @@ export default function OfferDetailPage() {
                     className="w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 transition placeholder-gray-400 resize-none h-28 text-base text-gray-800" />
                 </div>
 
-                {formErr && <p className="text-red-500 text-sm">{formErr}</p>}
+                {(formErr || payError) && <p className="text-red-500 text-sm">{formErr || payError}</p>}
 
-                <button type="submit" disabled={submitting}
+                <button type="submit" disabled={submitting || paying}
                   className="w-full flex items-center justify-center gap-2 bg-[#264787] hover:bg-[#3B85C1] text-white font-black py-4 rounded-xl transition disabled:opacity-60 text-base">
-                  {submitting && (
+                  {(submitting || paying) && (
                     <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                     </svg>
                   )}
-                  {submitting ? "Submitting..." : "Register Now"}
+                  {paying ? "Redirecting to payment…" : submitting ? "Submitting…" : (
+                    (finalPrice ?? parseFloat(offer?.offer_value ?? 0)) > 0
+                      ? <><CreditCard size={16}/> Register & Pay Now</>
+                      : "Register Now"
+                  )}
                 </button>
               </form>
             </div>
