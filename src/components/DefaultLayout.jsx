@@ -9,6 +9,12 @@ import AosAnimation from "@/components/shared/AosComponent/AosComponent";
 import SplashLoader from "@/components/shared/SplashLoader/SplashLoader";
 import { usePathname } from "next/navigation";
 import { UmrahProvider } from "@/context/UmrahContext";
+import { usePageVisit } from "@/hooks/usePageVisit";
+
+function VisitTracker() {
+  usePageVisit();
+  return null;
+}
 
 export default function DefaultLayout({ children }) {
   const pathname = usePathname();
@@ -17,6 +23,7 @@ export default function DefaultLayout({ children }) {
   return (
     <Provider store={store}>
       <UmrahProvider>
+        <VisitTracker />
         <SplashLoader />
         {!hideLayout && <Header />}
         <main style={{ overflowY: "auto", minHeight: "100vh" }}>

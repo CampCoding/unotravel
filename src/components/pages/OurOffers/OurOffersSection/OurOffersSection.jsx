@@ -43,7 +43,7 @@ export default function OurOffersSection({ data, sectionName, langId }) {
   const handleOfferClick = (offerData) => {
     if (!offerData) return;
     sessionStorage.setItem("uno_selected_offer", JSON.stringify(offerData));
-    router.push("/our-offers/register");
+    router.push(`/our-offers/toursDetails/${offerData.offer_id}`);
   };
 
   return (

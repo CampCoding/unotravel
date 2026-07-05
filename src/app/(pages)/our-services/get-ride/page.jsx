@@ -5,6 +5,7 @@ import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { Navigation, Clock } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const MapSection = dynamic(() => import("./_MapSection"), { ssr: false });
 
@@ -19,13 +20,14 @@ const Step = ({ n, label, active, done }) => (
 
 export default function GetRidePage() {
   const router = useRouter();
+  const { calcTripPrice, currency } = useSiteSettings();
   const [mode, setMode] = useState(null);
   const [from, setFrom] = useState({ addr: "", coords: [24.7136, 46.6753] });
   const [to,   setTo]   = useState({ addr: "", coords: [24.7136, 46.6753] });
   const [routeInfo, setRouteInfo] = useState(null);
   const [date, setDate] = useState(null);
 
-  const pickupFee = routeInfo ? Math.max(2, parseFloat((parseFloat(routeInfo.distanceKm) * 0.5).toFixed(1))) : 0;
+  const pickupFee = routeInfo ? parseFloat(calcTripPrice(parseFloat(routeInfo.distanceKm)).toFixed(2)) : 0;
   const bothSet = !!from.addr && !!to.addr && !(from.coords[0] === to.coords[0] && from.coords[1] === to.coords[1]);
 
   const handleNext = () => {
@@ -116,7 +118,7 @@ export default function GetRidePage() {
               <span className="w-px h-4 bg-[#264787]/20" />
               <span className="flex items-center gap-1.5 text-[#264787]"><Clock size={13} />~{routeInfo.durationMin} min</span>
               <span className="w-px h-4 bg-[#264787]/20" />
-              <span className="text-emerald-600">Pickup fee ≈ {pickupFee} USD</span>
+              <span className="text-emerald-600">Pickup fee ≈ {pickupFee} {currency}</span>
             </div>
           )}
 

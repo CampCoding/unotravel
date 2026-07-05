@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import { MapPin, Lock, Navigation, Clock } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { MapContainer, Marker, Polyline, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -52,7 +53,7 @@ const T = {
     distanceLabel:   (km) => `${km} km`,
     durationLabel:   (min) => `~${min} min drive`,
     pickupFeeLabel:  (fee, cur) => `Pickup fee: ${fee.toLocaleString()} ${cur}`,
-    pickupFeeNote:   (cur) => `(0.5 ${cur}/km, min 2)`,
+    pickupFeeNote:   (rate, cur) => `(${rate} ${cur}/km)`,
   },
   ar: {
     header:          "أكمل حجزك",
@@ -75,7 +76,7 @@ const T = {
     distanceLabel:   (km) => `${km} كم`,
     durationLabel:   (min) => `~${min} دقيقة`,
     pickupFeeLabel:  (fee, cur) => `رسوم الاستلام: ${fee.toLocaleString()} ${cur}`,
-    pickupFeeNote:   (cur) => `(0.5 ${cur}/كم، الحد الأدنى 2)`,
+    pickupFeeNote:   (rate, cur) => `(${rate} ${cur}/كم)`,
   },
 };
 
@@ -152,6 +153,7 @@ const DRAFT_KEY = "car_booking_draft";
 
 // ── Component ────────────────────────────────────
 export default function ReservationForm({ selectedCar, onPriceChange, isRTL = false }) {
+  const { calcTripPrice, pricePerKm, currency: siteCurrency } = useSiteSettings();
   const t = T[isRTL ? "ar" : "en"];
   const DEFAULT_PICKUP  = [30.7865, 30.9975];
   const DEFAULT_DROPOFF = [30.8025, 31.0125];
@@ -191,12 +193,11 @@ export default function ReservationForm({ selectedCar, onPriceChange, isRTL = fa
   });
   const router = useRouter();
 
-  const PICKUP_RATE = 0.5;
   const dailyRate   = parseFloat(selectedCar?.price ?? 0);
   const totalDays   = dateRange[0] && dateRange[1] ? dateRange[1].diff(dateRange[0], "day") || 1 : 0;
   const totalPrice  = totalDays > 0 && !isNaN(dailyRate) ? totalDays * dailyRate : 0;
   const pickupFee   = routeInfo
-    ? Math.max(2, parseFloat((parseFloat(routeInfo.distanceKm) * PICKUP_RATE).toFixed(1)))
+    ? parseFloat(calcTripPrice(parseFloat(routeInfo.distanceKm)).toFixed(2))
     : 0;
 
   useEffect(() => { onPriceChange?.(totalDays, totalPrice, pickupFee); }, [totalDays, totalPrice, pickupFee]);
@@ -399,7 +400,7 @@ export default function ReservationForm({ selectedCar, onPriceChange, isRTL = fa
                 <div className="w-px h-4 bg-[#264787]/20" />
                 <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
                   {t.pickupFeeLabel(pickupFee, selectedCar?.currency)}
-                  <span className="font-normal text-gray-400">{t.pickupFeeNote(selectedCar?.currency)}</span>
+                  <span className="font-normal text-gray-400">{t.pickupFeeNote(pricePerKm, selectedCar?.currency ?? siteCurrency)}</span>
                 </div>
               </div>
             )}

@@ -23,8 +23,8 @@ export default function FlightFareBestTravels({ data, sectionName, langId }) {
         const t = getTranslation(item, langId);
         return {
           id: item.traveler_id ?? i,
-          name: t.traveler_name || "",
-          location: t.traveler_location || "",
+          name: t.traveler_name || item.traveler_name || "",
+          location: t.traveler_location || item.traveler_location || "",
           cityImage: item.image_url || FALLBACK_IMAGES[i % FALLBACK_IMAGES.length],
           avatar: "/images/avatar.png",
         };

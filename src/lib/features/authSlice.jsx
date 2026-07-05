@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { _get, _post, _put } from "../shared/api";
 import { apiRoutes } from "../shared/routes";
+import { requestFCMToken } from "../firebase";
 
 const TOKEN_KEY = process.env.NEXT_PUBLIC_LOCAL_STORAGE_TOKEN_NAME || "uno_user_token";
 const USER_KEY  = process.env.NEXT_PUBLIC_LOCAL_STORAGE_USER_NAME  || "uno_user_profile";
@@ -32,7 +33,8 @@ const { user: storedUser, token: storedToken } = loadStoredAuth();
 
 export const handleLogin = createAsyncThunk("auth/login", async (credentials, { rejectWithValue }) => {
   try {
-    const res = await _post(apiRoutes.auth_login, credentials);
+    const fcm_token = await requestFCMToken().catch(() => null);
+    const res = await _post(apiRoutes.auth_login, { ...credentials, ...(fcm_token ? { fcm_token } : {}) });
     return res.data?.data;
   } catch (e) {
     return rejectWithValue(e.response?.data?.message || "Login failed");
@@ -41,7 +43,8 @@ export const handleLogin = createAsyncThunk("auth/login", async (credentials, { 
 
 export const handleRegister = createAsyncThunk("auth/register", async (data, { rejectWithValue }) => {
   try {
-    const res = await _post(apiRoutes.auth_register, data);
+    const fcm_token = await requestFCMToken().catch(() => null);
+    const res = await _post(apiRoutes.auth_register, { ...data, ...(fcm_token ? { fcm_token } : {}) });
     return res.data?.data;
   } catch (e) {
     return rejectWithValue(e.response?.data?.message || "Registration failed");
