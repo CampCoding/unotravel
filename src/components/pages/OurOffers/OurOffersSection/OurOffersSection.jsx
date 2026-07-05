@@ -7,7 +7,6 @@ import { Autoplay, Navigation } from "swiper/modules";
 import { useRouter } from "next/navigation";
 import "swiper/css";
 import "swiper/css/navigation";
-import Image from "next/image";
 
 const FALLBACK_OFFERS = [
   "/images/Uno Offers (1).webp",
@@ -98,13 +97,13 @@ export default function OurOffersSection({ data, sectionName, langId }) {
                   className="w-[235px] h-[300px] rounded-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] relative group"
                   onClick={() => handleOfferClick(offer.offerData)}
                 >
-                  <Image
-                    src={offer.src}
+                  {/* Use plain <img> so external https URLs are never blocked by next/image domain restrictions */}
+                  <img
+                    src={offer.src || "/images/fallback.png"}
                     alt={offer.alt || `Offer ${index + 1}`}
-                    width={235}
-                    height={300}
                     className="w-full h-full object-contain"
                     loading="lazy"
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/fallback.png"; }}
                   />
                   {offer.offerData && (
                     <div className="absolute inset-0 bg-[#264787]/0 group-hover:bg-[#264787]/20 transition-all duration-300 flex items-end justify-center pb-4">
