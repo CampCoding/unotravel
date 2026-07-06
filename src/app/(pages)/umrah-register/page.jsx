@@ -3,13 +3,11 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useUmrah } from "@/context/UmrahContext";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { _post } from "@/lib/shared/api";
-import { apiRoutes } from "@/lib/shared/routes";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
-import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
 import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
 import { useUserForm } from "@/hooks/useUserForm";
 import { useServiceTracker } from "@/hooks/useServiceTracker";
+import { useVivaPayment } from "@/hooks/useVivaPayment";
 
 function InfoRow({ icon, label, value }) {
   if (!value) return null;
@@ -35,7 +33,8 @@ export default function Page() {
   const { selectedPackage } = useUmrah();
   const router = useRouter();
   const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
-  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  const { prefill, suggestions, locked } = useUserForm();
+  const { startPayment, paying, payError } = useVivaPayment();
   useServiceTracker("umrah");
 
   const costs    = selectedPackage?.costs ?? [];
@@ -62,9 +61,8 @@ export default function Page() {
     if (prefill.email)    set("email",    prefill.email);
     if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d+/, "").trim());
   }, [prefill.fullName]);
-  const [loading,   setLoading]   = useState(false);
-  const [error,     setError]     = useState("");
-  const [submitted, setSubmitted] = useState(null);
+  const loading = paying;
+  const [error, setError] = useState("");
 
   const set = (field, val) => setForm(p => ({ ...p, [field]: val }));
 
@@ -88,9 +86,13 @@ export default function Page() {
       return;
     }
     setError("");
-    setLoading(true);
-    try {
-      const res = await _post(apiRoutes.umrah_register, {
+    deleteDraft(DRAFT_KEY);
+    await startPayment({
+      booking_type: "umrah_register",
+      amount: parseFloat(parseFloat(totalPrice).toFixed(2)),
+      currency: "EUR",
+      description: `Umrah — ${selectedPackage?.name ?? ""}`.trim(),
+      booking_data: {
         package_id:      selectedPackage?.id    ?? null,
         package_title:   selectedPackage?.name  ?? null,
         full_name:       form.fullName,
@@ -104,58 +106,12 @@ export default function Page() {
         ].filter(Boolean).join("\n") || null,
         travelers:   adults,
         total_price: totalPrice,
-      });
-      deleteDraft(DRAFT_KEY);
-      handleBookingResponse(res?.data?.data);
-      setSubmitted({
-        ...form,
-        phone:       `${form.countryCode}${form.phone}`,
-        bookingId:   res?.data?.data?.id ?? null,
-        roomLabel:   costOptions[selectedCost]?.label ?? null,
-        adults,
-        totalPrice,
-        packageName: selectedPackage?.name,
-        packageImg:  selectedPackage?.image,
-        duration:    selectedPackage?.duration,
-        travelDates: selectedPackage?.travel_dates,
-      });
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+      },
+    });
+    if (payError) setError(payError);
   };
 
   const inp = "w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 text-base";
-
-  /* ── Confirmation screen ── */
-  if (submitted) {
-    const isRTL = (selectedLanguage || 1) === 2;
-    return (
-      <BookingConfirmUI
-        type="umrah"
-        bookingId={submitted.bookingId}
-        title={submitted.packageName}
-        image={submitted.packageImg ?? null}
-        details={[
-          { emoji: "⏱",  label: isRTL ? "المدة"       : "Duration",    value: submitted.duration },
-          { emoji: "📅",  label: isRTL ? "مواعيد السفر": "Travel Dates",value: submitted.travelDates },
-          { emoji: "👥",  label: isRTL ? "البالغون"    : "Adults",      value: `${submitted.adults}` },
-          { emoji: "🛏",  label: isRTL ? "نوع الغرفة"  : "Room Type",   value: submitted.roomLabel },
-          { emoji: "👤",  label: isRTL ? "الاسم"       : "Full Name",   value: submitted.fullName },
-          { emoji: "📞",  label: isRTL ? "الهاتف"      : "Phone",       value: submitted.phone },
-          { emoji: "🪪",  label: isRTL ? "جواز السفر"  : "Passport",    value: submitted.passportNumber },
-        ]}
-        price={submitted.totalPrice}
-        currency="USD"
-        accentColor="from-[#1a6645] to-[#2ea86e]"
-        isRTL={isRTL}
-        onBack={() => router.push("/our-services/umrah")}
-        onHome={() => router.push("/")}
-        backLabel={isRTL ? "العودة للعمرة" : "← Back to Umrah"}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 overflow-y-auto">
@@ -339,12 +295,12 @@ export default function Page() {
               className="w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[var(--main-light-color)] transition placeholder-gray-400 resize-none h-28 text-base" />
           </div>
 
-          {error && <p className="mt-3 text-red-500 text-sm">{error}</p>}
+          {(error || payError) && <p className="mt-3 text-red-500 text-sm">{error || payError}</p>}
 
           <div className="flex justify-end mt-6">
             <button type="submit" disabled={loading}
               className="flex items-center gap-2 font-[filson-bold] text-white px-8 py-3 rounded-xl bg-[var(--main-light-color)] hover:bg-[var(--main-dark-color)] hover:scale-105 transition-all disabled:opacity-60 text-base">
-              {loading ? "Submitting..." : "Submit Registration"}
+              {loading ? "Redirecting to Payment…" : "Confirm & Pay"}
             </button>
           </div>
         </form>

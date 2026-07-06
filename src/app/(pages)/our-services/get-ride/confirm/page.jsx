@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Search } from "lucide-react";
 import Link from "next/link";
-import { _get, _post } from "@/lib/shared/api";
+import { _get } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
 import { useUserForm } from "@/hooks/useUserForm";
 import { useServiceTracker } from "@/hooks/useServiceTracker";
 import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
+import { useVivaPayment } from "@/hooks/useVivaPayment";
 
 const DIAL = {
   AF:"+93",AL:"+355",DZ:"+213",AD:"+376",AO:"+244",AG:"+1268",AR:"+54",AM:"+374",AU:"+61",AT:"+43",AZ:"+994",BS:"+1242",BH:"+973",BD:"+880",BB:"+1246",BY:"+375",BE:"+32",BZ:"+501",BJ:"+229",BT:"+975",BO:"+591",BA:"+387",BW:"+267",BR:"+55",BN:"+673",BG:"+359",BF:"+226",BI:"+257",CV:"+238",KH:"+855",CM:"+237",CA:"+1",CF:"+236",TD:"+235",CL:"+56",CN:"+86",CO:"+57",KM:"+269",CG:"+242",CD:"+243",CR:"+506",HR:"+385",CU:"+53",CY:"+357",CZ:"+420",DK:"+45",DJ:"+253",DM:"+1767",DO:"+1809",EC:"+593",EG:"+20",SV:"+503",GQ:"+240",ER:"+291",EE:"+372",SZ:"+268",ET:"+251",FJ:"+679",FI:"+358",FR:"+33",GA:"+241",GM:"+220",GE:"+995",DE:"+49",GH:"+233",GR:"+30",GD:"+1473",GT:"+502",GN:"+224",GW:"+245",GY:"+592",HT:"+509",HN:"+504",HU:"+36",IS:"+354",IN:"+91",ID:"+62",IR:"+98",IQ:"+964",IE:"+353",IL:"+972",IT:"+39",JM:"+1876",JP:"+81",JO:"+962",KZ:"+7",KE:"+254",KI:"+686",KP:"+850",KR:"+82",KW:"+965",KG:"+996",LA:"+856",LV:"+371",LB:"+961",LS:"+266",LR:"+231",LY:"+218",LI:"+423",LT:"+370",LU:"+352",MG:"+261",MW:"+265",MY:"+60",MV:"+960",ML:"+223",MT:"+356",MH:"+692",MR:"+222",MU:"+230",MX:"+52",FM:"+691",MD:"+373",MC:"+377",MN:"+976",ME:"+382",MA:"+212",MZ:"+258",MM:"+95",NA:"+264",NR:"+674",NP:"+977",NL:"+31",NZ:"+64",NI:"+505",NE:"+227",NG:"+234",MK:"+389",NO:"+47",OM:"+968",PK:"+92",PW:"+680",PA:"+507",PG:"+675",PY:"+595",PE:"+51",PH:"+63",PL:"+48",PT:"+351",QA:"+974",RO:"+40",RU:"+7",RW:"+250",KN:"+1869",LC:"+1758",VC:"+1784",WS:"+685",SM:"+378",ST:"+239",SA:"+966",SN:"+221",RS:"+381",SC:"+248",SL:"+232",SG:"+65",SK:"+421",SI:"+386",SB:"+677",SO:"+252",ZA:"+27",SS:"+211",ES:"+34",LK:"+94",SD:"+249",SR:"+597",SE:"+46",CH:"+41",SY:"+963",TW:"+886",TJ:"+992",TZ:"+255",TH:"+66",TL:"+670",TG:"+228",TO:"+676",TT:"+1868",TN:"+216",TR:"+90",TM:"+993",TV:"+688",UG:"+256",UA:"+380",AE:"+971",GB:"+44",US:"+1",UY:"+598",UZ:"+998",VU:"+678",VE:"+58",VN:"+84",YE:"+967",ZM:"+260",ZW:"+263",PS:"+970",XK:"+383",HK:"+852",MO:"+853",AW:"+297",BM:"+1441",KY:"+1345",GU:"+1671",CW:"+599",CK:"+682",AI:"+1264",
@@ -69,7 +70,8 @@ const labelCls = "block text-sm font-bold text-gray-800 mb-2";
 
 export default function ConfirmPage() {
   const router = useRouter();
-  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  const { prefill, suggestions, locked } = useUserForm();
+  const { startPayment, paying, payError } = useVivaPayment();
   useServiceTracker("ride");
 
   const [step1,       setStep1]       = useState(null);
@@ -77,7 +79,7 @@ export default function ConfirmPage() {
   const [countries,   setCountries]   = useState([]);
   const [dialCountry, setDialCountry] = useState("SA");
   const [form,        setForm]        = useState({ fullName: "", email: "", phone: "" });
-  const [submitting,  setSubmitting]  = useState(false);
+  const submitting = paying;
   const [error,       setError]       = useState("");
 
   useEffect(() => {
@@ -104,37 +106,46 @@ export default function ConfirmPage() {
     e.preventDefault();
     if (!form.fullName.trim()) return setError("Full name is required.");
     if (!form.phone.trim())    return setError("Phone number is required.");
-    setError(""); setSubmitting(true);
-    try {
-      const payload = {
-        car_id: car.id ?? null, car_model: car.model ?? null, car_category: car.category ?? null,
+    setError("");
+    await startPayment({
+      booking_type: "ride_book",
+      amount: parseFloat(parseFloat(total).toFixed(2)),
+      currency: car.currency ?? "EUR",
+      description: `Ride — ${step1?.from ?? ""} → ${step1?.to ?? ""}`.trim(),
+      booking_data: {
+        car_id: car.id ?? null,
+        car_model: car.model ?? null,
+        car_category: car.category ?? null,
         car_image_url: car.imgUrl ?? car.image_url ?? null,
-        full_name: form.fullName, email: form.email, phone: form.phone,
+        full_name: form.fullName,
+        email: form.email,
+        phone: form.phone,
         dial_code: DIAL[dialCountry] ?? null,
-        from_location: step1?.from ?? null, to_location: step1?.to ?? null,
-        from_lat: step1?.fromCoords?.[0] ?? null, from_lng: step1?.fromCoords?.[1] ?? null,
-        to_lat: step1?.toCoords?.[0] ?? null, to_lng: step1?.toCoords?.[1] ?? null,
+        pickup_location: step1?.from ?? null,
+        dropoff_location: step1?.to ?? null,
+        pickup_lat: step1?.fromCoords?.[0] ?? null,
+        pickup_lng: step1?.fromCoords?.[1] ?? null,
+        dropoff_lat: step1?.toCoords?.[0] ?? null,
+        dropoff_lng: step1?.toCoords?.[1] ?? null,
         ride_date: step1?.date ? new Date(step1.date).toISOString().slice(0,10) : null,
-        passengers: step2?.adults ?? 1, children: step2?.children ?? 0,
+        passengers: step2?.adults ?? 1,
+        children: step2?.children ?? 0,
         children_ages: JSON.stringify(step2?.childAges ?? []),
-        bags: step2?.bags ?? 0, name_on_sign: step2?.nameOnSign ?? null,
-        flight_details: step2?.comment ?? null, coupon_code: step2?.coupon ?? null,
-        discount: 0, car_price: carPrice, pickup_fee: pickupFee, tax, total_price: total,
-        currency: car.currency ?? "USD",
-        route_distance_km: step1?.routeInfo?.distanceKm ?? null,
-        route_duration_min: step1?.routeInfo?.durationMin ?? null,
-      };
-      const res = await _post(apiRoutes.ride_book, payload);
-      handleBookingResponse?.(res?.data?.data);
-      try {
-        localStorage.setItem("ride_confirm", JSON.stringify({ bookingId: res?.data?.data?.id, status: res?.data?.data?.status ?? "pending", ...payload, car }));
-        localStorage.removeItem("ride_step1");
-        localStorage.removeItem("ride_step2");
-      } catch {}
-      router.push("/our-services/get-ride/success");
-    } catch (err) {
-      setError(err?.response?.data?.message || "Something went wrong. Please try again.");
-    } finally { setSubmitting(false); }
+        bags: step2?.bags ?? 0,
+        name_on_sign: step2?.nameOnSign ?? null,
+        flight_details: step2?.comment ?? null,
+        coupon_code: step2?.coupon ?? null,
+        discount: 0,
+        car_price: carPrice,
+        pickup_fee: pickupFee,
+        tax,
+        distance_km: step1?.routeInfo?.distanceKm ?? null,
+        duration_min: step1?.routeInfo?.durationMin ?? null,
+        price: total,
+        currency: car.currency ?? "EUR",
+      },
+    });
+    if (payError) setError(payError);
   };
 
   return (
@@ -189,11 +200,11 @@ export default function ConfirmPage() {
                 </div>
               </div>
 
-              {error && <p className="text-red-500 text-xs bg-red-50 rounded-xl p-3">{error}</p>}
+              {(error || payError) && <p className="text-red-500 text-xs bg-red-50 rounded-xl p-3">{error || payError}</p>}
 
               <button type="submit" disabled={submitting}
                 className="w-full py-4 bg-[#264787] hover:bg-[#1e3a6e] text-white font-black text-base rounded-2xl shadow-lg shadow-[#264787]/25 transition-all disabled:opacity-70 mt-2">
-                {submitting ? "Booking…" : "Confirm Booking"}
+                {submitting ? "Redirecting to Payment…" : "Confirm & Pay"}
               </button>
             </form>
           </div>

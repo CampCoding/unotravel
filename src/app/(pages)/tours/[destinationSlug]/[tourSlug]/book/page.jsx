@@ -4,12 +4,11 @@ import dynamic from "next/dynamic";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { handleGetTourDetail, handleGetTourDetailById } from "../../../../../../lib/features/layoutSlice";
-import { _post } from "../../../../../../lib/shared/api";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
-import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
 import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
 import { useUserForm } from "@/hooks/useUserForm";
 import { useServiceTracker } from "@/hooks/useServiceTracker";
+import { useVivaPayment } from "@/hooks/useVivaPayment";
 
 const PickupMapPicker = dynamic(
   () => import("@/components/shared/PickupMapPicker/PickupMapPicker"),
@@ -45,7 +44,8 @@ export default function TourBookPage() {
   const searchParams = useSearchParams();
   const dispatch     = useDispatch();
   const { tour_detail_data, selectedLanguage } = useSelector((s) => s.layout);
-  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  const { prefill, suggestions, locked } = useUserForm();
+  const { startPayment, paying, payError } = useVivaPayment();
   useServiceTracker("tour");
 
   const destSlug = params?.destinationSlug;
@@ -86,9 +86,8 @@ export default function TourBookPage() {
     if (prefill.phone)    set("phone",    prefill.phone.replace(/^\+\d{1,4}\s?/, "").trim());
   }, [prefill.fullName]);
   const [pickupLocation, setPickupLocation] = useState({ lat: null, lng: null });
-  const [loading,   setLoading]   = useState(false);
-  const [error,     setError]     = useState("");
-  const [submitted, setSubmitted] = useState(null);
+  const loading = paying;
+  const [error, setError] = useState("");
 
   // Map center: tour's pickup_point_lat/lng if set, else Cairo
   const mapCenter = (tour?.pickup_point_lat && Number(tour.pickup_point_lat) !== 0)
@@ -115,15 +114,18 @@ export default function TourBookPage() {
       setError("Full name and phone are required.");
       return;
     }
+    if (meetingOption === "pickup" && !pickupLocation.lat) {
+      setError("Please select your pickup location on the map.");
+      return;
+    }
     setError("");
-    setLoading(true);
-    try {
-      if (meetingOption === "pickup" && !pickupLocation.lat) {
-        setError("Please select your pickup location on the map.");
-        setLoading(false);
-        return;
-      }
-      const res = await _post("pages/tour-book", {
+    deleteDraft("tour");
+    await startPayment({
+      booking_type: "tour_book",
+      amount: parseFloat(parseFloat(totalPrice).toFixed(2)),
+      currency: "EUR",
+      description: `Tour Booking — ${title}`.trim(),
+      booking_data: {
         tour_id:          tour?.tour_id ?? null,
         tour_title:       title,
         tour_slug:        tourSlug,
@@ -138,47 +140,10 @@ export default function TourBookPage() {
         pickup_lat:       meetingOption === "pickup" ? pickupLocation.lat  : null,
         pickup_lng:       meetingOption === "pickup" ? pickupLocation.lng  : null,
         total_price:      totalPrice,
-      });
-      deleteDraft("tour");
-      handleBookingResponse(res?.data?.data);
-      setSubmitted({
-        ...form,
-        phone:      `${form.countryCode}${form.phone}`,
-        bookingId:  res?.data?.data?.booking_id ?? null,
-      });
-    } catch {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+      },
+    });
+    if (payError) setError(payError);
   };
-
-  /* ── Success / Confirmation screen ── */
-  if (submitted) {
-    const isRTL = (selectedLanguage || 1) === 2;
-    return (
-      <BookingConfirmUI
-        type="tour"
-        bookingId={submitted.bookingId}
-        title={title}
-        image={mainImg?.media_url ?? null}
-        details={[
-          { emoji: "📅", label: isRTL ? "تاريخ الحجز"    : "Booking Date",    value: selectedDate },
-          { emoji: "👥", label: isRTL ? "المسافرون"       : "Travelers",       value: `${travelers} ${travelers !== 1 ? (isRTL ? "أشخاص" : "persons") : (isRTL ? "شخص" : "person")}` },
-          { emoji: "📍", label: isRTL ? "خيار اللقاء"     : "Meeting Option",  value: meetingOption === "pickup" ? (isRTL ? "نقطة استلام" : "Pickup Point") : (isRTL ? "نقطة لقاء (مجانًا)" : "Meeting Point (Free)") },
-          { emoji: "👤", label: isRTL ? "الاسم الكامل"    : "Full Name",       value: submitted.fullName },
-          { emoji: "📞", label: isRTL ? "الهاتف"          : "Phone",           value: submitted.phone },
-          { emoji: "✉️", label: isRTL ? "البريد"          : "Email",           value: submitted.email },
-        ]}
-        price={totalPrice}
-        currency="USD"
-        isRTL={isRTL}
-        onBack={() => router.push(`/tours/${destSlug}`)}
-        onHome={() => router.push("/")}
-        backLabel={isRTL ? "العودة للجولات" : "← Back to Tours"}
-      />
-    );
-  }
 
   /* ── Booking form ── */
   return (
@@ -279,7 +244,7 @@ export default function TourBookPage() {
               placeholder="Any special requests..." className="w-full bg-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#3B85C1]/40 transition placeholder-gray-400 resize-none h-28 text-base text-gray-800" />
           </div>
 
-          {error && <p className="mt-3 text-red-500 text-sm">{error}</p>}
+          {(error || payError) && <p className="mt-3 text-red-500 text-sm">{error || payError}</p>}
 
           <div className="flex gap-3 justify-end mt-6">
             <button type="button" onClick={() => router.back()}
@@ -289,7 +254,7 @@ export default function TourBookPage() {
             <button type="submit" disabled={loading}
               className="flex items-center gap-2 bg-[#264787] hover:bg-[#3B85C1] text-white font-bold px-8 py-3 rounded-xl transition disabled:opacity-60 text-base">
               {loading && <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>}
-              {loading ? "Submitting..." : "Confirm Booking"}
+              {loading ? "Redirecting to Payment…" : "Confirm & Pay"}
             </button>
           </div>
         </form>

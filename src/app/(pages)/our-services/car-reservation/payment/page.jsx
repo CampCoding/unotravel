@@ -5,11 +5,12 @@ import { Lock, ChevronLeft, ChevronRight, Calendar, Users, CheckCircle2, Chevron
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { _get, _post } from "@/lib/shared/api";
+import { _get } from "@/lib/shared/api";
 import { apiRoutes } from "@/lib/shared/routes";
 import SuggestionInput from "@/components/shared/SuggestionInput/SuggestionInput";
 import { useUserForm } from "@/hooks/useUserForm";
 import { useServiceTracker } from "@/hooks/useServiceTracker";
+import { useVivaPayment } from "@/hooks/useVivaPayment";
 
 const fieldCls =
   "w-full px-4 py-3 text-sm text-gray-800 border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#3b85c1]/25 focus:border-[#3b85c1] transition-all placeholder:text-gray-400";
@@ -201,7 +202,8 @@ function CountrySelect({ countries, value, onChange, isRTL, placeholder }) {
 export default function PaymentPage() {
   const router = useRouter();
   const { selectedLanguage } = useSelector((s) => s?.layout ?? {});
-  const { prefill, suggestions, locked, handleBookingResponse } = useUserForm();
+  const { prefill, suggestions, locked } = useUserForm();
+  const { startPayment, paying, payError } = useVivaPayment();
   useServiceTracker("car");
   const langId = selectedLanguage || 1;
   const isRTL  = langId === 2;
@@ -212,7 +214,7 @@ export default function PaymentPage() {
   const [countries, setCountries]     = useState([]);
   const [dialCountry, setDialCountry] = useState("EG");
   const [form, setForm]               = useState({ fullName: "", email: "", phone: "" });
-  const [submitting, setSubmitting]   = useState(false);
+  const submitting = paying;
 
   useEffect(() => {
     try {
@@ -242,18 +244,19 @@ export default function PaymentPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     const car = booking?.car ?? {};
-    let bookingId = null;
-    let bookingStatus = "pending";
-    try {
-      const res = await _post(apiRoutes.car_reservation_book, {
+    await startPayment({
+      booking_type: "car_book",
+      amount:       parseFloat(grandTotal.toFixed(2)),
+      currency:     car.currency ?? "EUR",
+      description:  `Car Reservation — ${car.model ?? ""}`.trim(),
+      booking_data: {
         car_id:             car.id ?? null,
         car_model:          car.model ?? null,
         car_category:       car.category ?? null,
         car_image_url:      car.imgUrl ?? car.image_url ?? null,
         full_name:          form.fullName,
-        email:              form.email,
+        email:              form.email || null,
         phone:              form.phone,
         dial_code:          DIAL[dialCountry] ?? null,
         start_date:         booking?.startDate ?? null,
@@ -270,38 +273,9 @@ export default function PaymentPage() {
         pickup_fee:         pickupFee,
         tax:                parseFloat(tax.toFixed(2)),
         total_price:        parseFloat(grandTotal.toFixed(2)),
-        currency:           car.currency ?? "USD",
-      });
-      bookingId     = res?.data?.data?.id ?? null;
-      bookingStatus = res?.data?.data?.status ?? "pending";
-      handleBookingResponse(res?.data?.data);
-    } catch { /* proceed to success regardless */ }
-    try {
-      localStorage.setItem("car_booking_confirm", JSON.stringify({
-        bookingId,
-        status: bookingStatus,
-        car,
-        fullName:        form.fullName,
-        email:           form.email,
-        totalDays:       booking?.totalDays ?? 1,
-        totalPrice,
-        pickupFee,
-        tax:             parseFloat(tax.toFixed(2)),
-        grandTotal:      parseFloat(grandTotal.toFixed(2)),
-        currency:        car.currency ?? "USD",
-        startDate:       booking?.startDate ?? null,
-        endDate:         booking?.endDate ?? null,
-        pickupLocation:  booking?.pickupLocation ?? null,
-        dropoffLocation: booking?.dropoffLocation ?? null,
-        routeInfo:       booking?.routeInfo ?? null,
-        passengers:      booking?.passengers ?? 1,
-        children:        booking?.children ?? 0,
-        bags:            booking?.bags ?? 0,
-      }));
-      localStorage.removeItem("car_booking");
-      localStorage.removeItem("car_booking_draft");
-    } catch {}
-    router.push("/our-services/car-reservation/success");
+        currency:           car.currency ?? "EUR",
+      },
+    });
   };
 
   const formatDate = (iso) => {
@@ -488,6 +462,9 @@ export default function PaymentPage() {
               </div>
 
               <div className="px-6 pb-6">
+                {payError && (
+                  <p className="text-red-500 text-sm mb-3 text-center">{payError}</p>
+                )}
                 <button
                   type="submit"
                   disabled={submitting}
