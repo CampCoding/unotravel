@@ -213,25 +213,19 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Policy links — from API */}
+        {/* Legal — same links as header */}
         <div className="flex flex-col text-left">
           <h2 className="!text-[18px] 2xl:!text-lg text-[#16294F] font-[filson-bold] !font-bold">
             Legal
           </h2>
           <ul className="flex flex-col gap-4 mt-4 ms-0 ps-0 text-left">
-            {layout_data?.data?.data?.footer?.policyLinks?.length > 0
-              ? layout_data.data.data.footer.policyLinks.map((item) => (
-                  <li key={item?.item_id ?? item?.id}>
-                    <Link href={item?.item_url || "#"} className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">
-                      {item?.label}
-                    </Link>
-                  </li>
-                ))
-              : <>
-                  <li><Link href="/terms-condition" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">Terms &amp; Conditions</Link></li>
-                  <li><Link href="/privacy-policy"  className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">Privacy Policy</Link></li>
-                </>
-            }
+            {layout_data?.data?.data?.header?.links?.filter(l => l?.item_type === "link")?.map((item) => (
+              <li key={item?.item_id}>
+                <Link href={`${item?.item_url}`} className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">
+                  {item?.item_label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 
