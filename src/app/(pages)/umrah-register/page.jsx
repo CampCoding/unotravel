@@ -87,6 +87,7 @@ export default function Page() {
     }
     setError("");
     deleteDraft(DRAFT_KEY);
+    try { localStorage.removeItem("umrah_selected_package"); } catch {}
     await startPayment({
       booking_type: "umrah_register",
       amount: parseFloat(parseFloat(totalPrice).toFixed(2)),
