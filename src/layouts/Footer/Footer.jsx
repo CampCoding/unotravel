@@ -221,13 +221,18 @@ export default function Footer() {
           <ul className="flex flex-col gap-4 mt-4 ms-0 ps-0 text-left">
             {layout_data?.data?.data?.header?.links
               ?.find(l => l?.link_type === "service")
-              ?.routes?.map((item, i) => (
-                <li key={i}>
-                  <Link href={item?.item_url || "#"} className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">
-                    {item?.item_label}
-                  </Link>
-                </li>
-              ))}
+              ?.routes?.map((item, i) => {
+                const href = item?.service_origin_type && item.service_origin_type !== "internal"
+                  ? `/?service_id=${item.service_id}`
+                  : item?.item_url?.startsWith("/") ? item.item_url : `/our-services/${item?.item_url || ""}`;
+                return (
+                  <li key={i}>
+                    <Link href={href} className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">
+                      {item?.item_label}
+                    </Link>
+                  </li>
+                );
+              })}
           </ul>
         </div>
 
