@@ -191,38 +191,34 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Navigation — same links as header */}
         <div className="flex flex-col text-left">
-          <h2 className="!text-[18px]  2xl:!text-lg text-[#16294F] font-[filson-bold] !font-bold">
-            Services
+          <h2 className="!text-[18px] 2xl:!text-lg text-[#16294F] font-[filson-bold] !font-bold">
+            Navigation
           </h2>
           <ul className="flex gap-3 lg:gap-0 flex-col h-full mt-4 !items-stretch ms-0 ps-0 !justify-between text-left">
-            {layout_data?.data?.data?.footer?.servicesLinks?.length > 0 && layout_data?.data?.data?.footer?.servicesLinks?.map((service) => (
-              <li
-                key={service?.item_id}
-                className="text-sm 2xl:text-base  text-[#16294F] font-[filson] cursor-pointer font-normal"
-              >
-                <Link 
-                href={`${service?.item_url}`}
-                 className="text-sm 2xl:text-base  !text-[#16294F] font-[filson-regular] cursor-pointer font-normal"
-                >{service?.label}</Link>
+            {layout_data?.data?.data?.header?.links?.filter(l => l?.item_type === "link")?.map((item) => (
+              <li key={item?.item_id} className="text-sm 2xl:text-base text-[#16294F] font-[filson] cursor-pointer font-normal">
+                <Link href={`${item?.item_url}`} className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] cursor-pointer font-normal">
+                  {item?.item_label}
+                </Link>
               </li>
             ))}
           </ul>
         </div>
 
+        {/* Policy links — fixed routes */}
         <div className="flex flex-col text-left">
-          <ul className="flex flex-col h-full gap-3 lg:gap-0 !items-stretch ms-0 ps-0 !justify-between text-left">
-            {layout_data?.data?.data?.footer?.policyLinks?.length > 0 && layout_data?.data?.data?.footer?.policyLinks?.map((service) => (
-              <li
-                key={service?.id}
-                className="text-sm 2xl:text-base  text-[#16294F] font-[filson] cursor-pointer font-normal"
-              >
-                <Link 
-                 href={`${service?.item_url}`}
-                 className="text-sm 2xl:text-base  !text-[#16294F] font-[filson-regular] cursor-pointer font-normal"
-                >{service?.label}</Link>
-              </li>
-            ))}
+          <h2 className="!text-[18px] 2xl:!text-lg text-[#16294F] font-[filson-bold] !font-bold">
+            Legal
+          </h2>
+          <ul className="flex flex-col h-full gap-3 lg:gap-0 mt-4 !items-stretch ms-0 ps-0 !justify-between text-left">
+            <li className="text-sm 2xl:text-base text-[#16294F] font-[filson] cursor-pointer font-normal">
+              <Link href="/terms-condition" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular]">Terms &amp; Conditions</Link>
+            </li>
+            <li className="text-sm 2xl:text-base text-[#16294F] font-[filson] cursor-pointer font-normal">
+              <Link href="/privacy-policy" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular]">Privacy Policy</Link>
+            </li>
           </ul>
         </div>
 

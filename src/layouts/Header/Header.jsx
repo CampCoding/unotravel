@@ -48,7 +48,7 @@ const profile_drop_down = [
   { id: 4, name: "Support", route: "/", icon: <MessageCircleDashed size={18} className="text-[#3B85C1]" /> },
   { id: 5, name: "About Us", route: "/about-us", icon: <Info size={18} className="text-[#3B85C1]" /> },
   { id: 6, name: "Terms & Conditions", route: "/terms-condition", icon: <FileCog size={18} className="text-[#3B85C1]" /> },
-  { id: 7, name: "Privacy Policy", route: "/privacy", icon: <ShieldUser size={18} className="text-[#3B85C1]" /> },
+  { id: 7, name: "Privacy Policy", route: "/privacy-policy", icon: <ShieldUser size={18} className="text-[#3B85C1]" /> },
   { id: 8, name: "Sign Out", route: "/logout", danger: true, icon: <LogOut size={18} className="text-[#3B85C1]" /> },
 ];
 
