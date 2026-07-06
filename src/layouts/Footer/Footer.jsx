@@ -169,25 +169,31 @@ export default function Footer() {
           </div>
 
           <div className="flex gap-[35px] mt-4 items-center">
-            <a href={layout_data?.data?.data?.settings?.facebook_url} target="_blank">
-              <Facebook fill="#16294F" color="#16294F" size={20} />
-            </a>
-
-            <a href={layout_data?.data?.data?.settings?.twitter_url} target="_blank">
-            <Twitter fill="#16294F" color="#16294F" size={20} />
-            </a>
-
-            <a href={layout_data?.data?.data?.settings?.linkedin_url} target="_blank">
-            <Linkedin fill="#16294F" color="#16294F" size={20} />
-            </a>
-
-            <a href={layout_data?.data?.data?.settings?.instagram_url} target="_blank">
-            <Instagram color="#16294F" size={20} />
-            </a>
-
-            <a href={layout_data?.data?.data?.settings?.youtube_url} target="_blank">
-            <Youtube color="#16294F" size={20} />
-            </a>
+            {mainFooterData?.facebook_url && (
+              <a href={mainFooterData.facebook_url} target="_blank" rel="noreferrer">
+                <Facebook fill="#16294F" color="#16294F" size={20} />
+              </a>
+            )}
+            {mainFooterData?.twitter_url && (
+              <a href={mainFooterData.twitter_url} target="_blank" rel="noreferrer">
+                <Twitter fill="#16294F" color="#16294F" size={20} />
+              </a>
+            )}
+            {mainFooterData?.linkedin_url && (
+              <a href={mainFooterData.linkedin_url} target="_blank" rel="noreferrer">
+                <Linkedin fill="#16294F" color="#16294F" size={20} />
+              </a>
+            )}
+            {mainFooterData?.instagram_url && (
+              <a href={mainFooterData.instagram_url} target="_blank" rel="noreferrer">
+                <Instagram color="#16294F" size={20} />
+              </a>
+            )}
+            {mainFooterData?.youtube_url && (
+              <a href={mainFooterData.youtube_url} target="_blank" rel="noreferrer">
+                <Youtube color="#16294F" size={20} />
+              </a>
+            )}
           </div>
         </div>
 
@@ -207,18 +213,25 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Policy links — fixed routes */}
+        {/* Policy links — from API */}
         <div className="flex flex-col text-left">
           <h2 className="!text-[18px] 2xl:!text-lg text-[#16294F] font-[filson-bold] !font-bold">
             Legal
           </h2>
           <ul className="flex flex-col gap-4 mt-4 ms-0 ps-0 text-left">
-            <li>
-              <Link href="/terms-condition" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">Terms &amp; Conditions</Link>
-            </li>
-            <li>
-              <Link href="/privacy-policy" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">Privacy Policy</Link>
-            </li>
+            {layout_data?.data?.data?.footer?.policyLinks?.length > 0
+              ? layout_data.data.data.footer.policyLinks.map((item) => (
+                  <li key={item?.item_id ?? item?.id}>
+                    <Link href={item?.item_url || "#"} className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">
+                      {item?.label}
+                    </Link>
+                  </li>
+                ))
+              : <>
+                  <li><Link href="/terms-condition" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">Terms &amp; Conditions</Link></li>
+                  <li><Link href="/privacy-policy"  className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">Privacy Policy</Link></li>
+                </>
+            }
           </ul>
         </div>
 
@@ -265,24 +278,14 @@ export default function Footer() {
               </p>
               <p className="my-0 py-0">Org nr. {layout_data?.data?.data?.footer?.settings?.org_number}</p>
             </li>
-            <li className="text-sm 2xl:text-base  text-[#16294F] font-[filson-regular] cursor-pointer ">
-              <p className="my-0 py-0">Post Address:</p>
-              <p className="my-0 py-0">SWEDEN</p>
-              <p className="my-0 py-0">GERMANY</p>
-              <p className="my-0 py-0">NETHERLAND</p>
-              <p className="my-0 py-0">ENGLAND</p>
-              <p className="my-0 py-0">SYRIA</p>
-            </li>
-
-            {/* <li className="text-sm 2xl:text-base flex flex-col  text-[#16294F] font-[filson-regular] cursor-pointer ">
-              <p className="my-0 py-0">PELARGANGEN 1</p>
-              <p className="my-0 py-0">BOX 182 POST 19046 ARLANDA</p>
-            </li>
-
-            <li className="text-sm 2xl:text-base flex flex-col  text-[#16294F] font-[filson-regular] cursor-pointer ">
-              <p className="my-0 py-0">Uno Travel Sweden (City Branch) </p>
-              <p className="my-0 py-0">Vårberg centrum Stockholm</p>
-            </li> */}
+            {mainFooterData?.post_address && (
+              <li className="text-sm 2xl:text-base flex flex-col text-[#16294F] font-[filson-regular]">
+                <p className="my-0 py-0 font-semibold">Post Address:</p>
+                {mainFooterData.post_address.split("\n").map((line, i) => (
+                  <p key={i} className="my-0 py-0">{line}</p>
+                ))}
+              </li>
+            )}
           </ul>
         </div>
       </div>
