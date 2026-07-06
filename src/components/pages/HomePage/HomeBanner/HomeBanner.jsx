@@ -176,7 +176,7 @@ export default function HomeBanner({ hero_services = [], forcedServiceId = null 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
 
                 {/* Content */}
-                <div className="py-4 !z-[9999] container absolute bottom-0 flex flex-col justify-center items-center sm:bottom-10 left-1/2 -translate-x-1/2 w-full px-4 sm:px-6 text-white">
+                <div className="py-4 !z-[9999] container absolute inset-0 flex flex-col justify-center items-center left-1/2 -translate-x-1/2 w-full px-4 sm:px-6 text-white">
                   <div className= "w-full  h-fit">
                     {/* Title */}
                     <motion.h2
