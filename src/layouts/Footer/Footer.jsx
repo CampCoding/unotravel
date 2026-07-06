@@ -196,10 +196,10 @@ export default function Footer() {
           <h2 className="!text-[18px] 2xl:!text-lg text-[#16294F] font-[filson-bold] !font-bold">
             Navigation
           </h2>
-          <ul className="flex gap-3 lg:gap-0 flex-col h-full mt-4 !items-stretch ms-0 ps-0 !justify-between text-left">
+          <ul className="flex flex-col gap-4 mt-4 ms-0 ps-0 text-left">
             {layout_data?.data?.data?.header?.links?.filter(l => l?.item_type === "link")?.map((item) => (
-              <li key={item?.item_id} className="text-sm 2xl:text-base text-[#16294F] font-[filson] cursor-pointer font-normal">
-                <Link href={`${item?.item_url}`} className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] cursor-pointer font-normal">
+              <li key={item?.item_id}>
+                <Link href={`${item?.item_url}`} className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">
                   {item?.item_label}
                 </Link>
               </li>
@@ -212,12 +212,12 @@ export default function Footer() {
           <h2 className="!text-[18px] 2xl:!text-lg text-[#16294F] font-[filson-bold] !font-bold">
             Legal
           </h2>
-          <ul className="flex flex-col h-full gap-3 lg:gap-0 mt-4 !items-stretch ms-0 ps-0 !justify-between text-left">
-            <li className="text-sm 2xl:text-base text-[#16294F] font-[filson] cursor-pointer font-normal">
-              <Link href="/terms-condition" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular]">Terms &amp; Conditions</Link>
+          <ul className="flex flex-col gap-4 mt-4 ms-0 ps-0 text-left">
+            <li>
+              <Link href="/terms-condition" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">Terms &amp; Conditions</Link>
             </li>
-            <li className="text-sm 2xl:text-base text-[#16294F] font-[filson] cursor-pointer font-normal">
-              <Link href="/privacy-policy" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular]">Privacy Policy</Link>
+            <li>
+              <Link href="/privacy-policy" className="text-sm 2xl:text-base !text-[#16294F] font-[filson-regular] hover:text-[#3B85C1] transition-colors">Privacy Policy</Link>
             </li>
           </ul>
         </div>
@@ -226,7 +226,7 @@ export default function Footer() {
           <h2 className="!text-[18px] 2xl:!text-lg text-[#16294F] font-[filson-bold] ">
             Contact
           </h2>
-          <ul className="flex flex-col h-full mt-4 !items-stretch ms-0 ps-0 !justify-between text-left">
+          <ul className="flex flex-col gap-4 mt-4 ms-0 ps-0 text-left">
            {layout_data?.data?.data?.footer?.branches?.length > 0 &&
            layout_data?.data?.data?.footer?.branches?.map(item =>
             <li 
