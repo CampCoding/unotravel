@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { handleGetTourDetail } from "../../../../../../lib/features/layoutSlice";
+import { handleGetTourDetail, handleGetTourDetailById } from "../../../../../../lib/features/layoutSlice";
 import { _post } from "../../../../../../lib/shared/api";
 import { saveDraft, deleteDraft } from "@/lib/utils/draft";
 import BookingConfirmUI from "@/components/shared/BookingConfirmUI/BookingConfirmUI";
@@ -57,7 +57,10 @@ export default function TourBookPage() {
   const totalPrice    = Number(searchParams.get("totalPrice") ?? 0);
 
   useEffect(() => {
-    if (destSlug && tourSlug) dispatch(handleGetTourDetail({ destSlug, tourSlug }));
+    if (!destSlug || !tourSlug) return;
+    const isId = /^\d+$/.test(tourSlug);
+    if (isId) dispatch(handleGetTourDetailById({ tourId: tourSlug }));
+    else dispatch(handleGetTourDetail({ destSlug, tourSlug }));
   }, [destSlug, tourSlug, dispatch]);
 
   const tour  = tour_detail_data?.data?.data ?? tour_detail_data?.data ?? null;

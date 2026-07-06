@@ -106,6 +106,14 @@ export const handleGetTourDetail = createAsyncThunk(
   }
 );
 
+export const handleGetTourDetailById = createAsyncThunk(
+  "layoutSlice/handleGetTourDetailById",
+  async ({ tourId }) => {
+    const response = await _get(apiRoutes.tour_detail_by_id(tourId));
+    return response;
+  }
+);
+
 export const layoutSlice = createSlice({
   name: "layoutSlice",
   initialState,
@@ -165,7 +173,11 @@ export const layoutSlice = createSlice({
 
       .addCase(handleGetTourDetail.pending, (state) => { state.tour_detail_loading = true; })
       .addCase(handleGetTourDetail.fulfilled, (state, action) => { state.tour_detail_data = action.payload; state.tour_detail_loading = false; })
-      .addCase(handleGetTourDetail.rejected, (state) => { state.tour_detail_loading = false; });
+      .addCase(handleGetTourDetail.rejected, (state) => { state.tour_detail_loading = false; })
+
+      .addCase(handleGetTourDetailById.pending, (state) => { state.tour_detail_loading = true; })
+      .addCase(handleGetTourDetailById.fulfilled, (state, action) => { state.tour_detail_data = action.payload; state.tour_detail_loading = false; })
+      .addCase(handleGetTourDetailById.rejected, (state) => { state.tour_detail_loading = false; });
   },
 });
 

@@ -103,7 +103,7 @@ export default function OurOfferModal({ open, setOpen, destination, langId }) {
                 const desc     = truncate(rawDesc, 110);
                 const price    = item.base_price ?? item.price ?? "0";
                 const image    = item.thumbnail  || item.image || "/images/default-image.jpg";
-                const slug     = item.tour_slug;
+                const tourId   = item.tour_id;
                 const destSlug = item.destination_slug || destination?.slug;
 
                 return (
@@ -156,7 +156,7 @@ export default function OurOfferModal({ open, setOpen, destination, langId }) {
                           <button
                             onClick={() => {
                               setOpen(false);
-                              if (destSlug && slug) router.push(`/tours/${destSlug}/${slug}`);
+                              if (destSlug && tourId) router.push(`/tours/${destSlug}/${tourId}`);
                             }}
                             className="flex items-center gap-2 bg-[#264787] hover:bg-[#3B85C1] text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
                           >

@@ -7,7 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import { handleGetTourDetail } from "../../../../../lib/features/layoutSlice";
+import { handleGetTourDetail, handleGetTourDetailById } from "../../../../../lib/features/layoutSlice";
 
 const FALLBACK_IMAGE = "https://res.cloudinary.com/dbz6ebekj/image/upload/v1757495567/tickets-for-barcelona-bus-turistic-a_xqynzq.jpg";
 
@@ -56,7 +56,7 @@ export default function TourDetailPage() {
   const { tour_detail_data, tour_detail_loading, selectedLanguage } = useSelector((s) => s.layout);
 
   const destSlug = params?.destinationSlug;
-  const tourSlug = params?.tourSlug;
+  const tourParam = params?.tourSlug; // may be a numeric ID or a slug
 
   const [travelers,     setTravelers]     = useState(2);
   const [selectedDate,  setSelectedDate]  = useState(() => new Date().toISOString().split("T")[0]);
@@ -64,8 +64,14 @@ export default function TourDetailPage() {
   const [openFaq,       setOpenFaq]       = useState(null);
 
   useEffect(() => {
-    if (destSlug && tourSlug) dispatch(handleGetTourDetail({ destSlug, tourSlug }));
-  }, [destSlug, tourSlug, dispatch]);
+    if (!destSlug || !tourParam) return;
+    const isId = /^\d+$/.test(tourParam);
+    if (isId) {
+      dispatch(handleGetTourDetailById({ tourId: tourParam }));
+    } else {
+      dispatch(handleGetTourDetail({ destSlug, tourSlug: tourParam }));
+    }
+  }, [destSlug, tourParam, dispatch]);
 
   const tour = tour_detail_data?.data?.data ?? tour_detail_data?.data ?? null;
   const t    = getTranslation(tour, selectedLanguage);
@@ -97,7 +103,7 @@ export default function TourDetailPage() {
       meeting:    meetingOption,
       totalPrice: String(totalPrice.toFixed(2)),
     });
-    router.push(`/tours/${destSlug}/${tourSlug}/book?${params.toString()}`);
+    router.push(`/tours/${destSlug}/${tour?.tour_id ?? tourParam}/book?${params.toString()}`);
   };
 
   if (tour_detail_loading) {
