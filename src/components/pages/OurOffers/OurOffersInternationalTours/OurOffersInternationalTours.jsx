@@ -29,7 +29,7 @@ export default function OurOffersInternationalTours({ data, sectionName, langId 
         const t = getTranslation(item, langId);
         return {
           id: item.destination_id,
-          city: t.city_name || item.destination_slug || "",
+          city: t.city_name || item.city_name || item.destination_slug || "",
           image: item.destination_image || "",
           slug: item.destination_slug,
         };
