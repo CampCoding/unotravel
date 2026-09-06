@@ -115,20 +115,32 @@ export default function HomeBanner({ hero_services = [], forcedServiceId = null 
     if (match) setSelectedTab(match);
   }, [forcedServiceId, hero_services]);
 
-  // Handle iframe resize messages (A2Z widget protocol)
+  // Handle iframe resize messages (New Farefinder / VTD widget protocol)
   useEffect(() => {
     const handleMessage = (e) => {
       if (typeof e.data === "string" && e.data.indexOf("documentHeight") > -1) {
         const height = e.data.split("documentHeight:")[1];
-        const newHeight = parseInt(height) + 75;
+        const newHeight = parseInt(height, 10) + 55;
         document.querySelectorAll("#fb-widget").forEach((w) => {
           w.style.height = newHeight + "px";
+          w.height = newHeight + "px";
         });
       }
     };
     window.addEventListener("message", handleMessage, false);
     return () => window.removeEventListener("message", handleMessage);
   }, [selectedTab]);
+
+  // Compute widget src URL dynamically based on origin and document language
+  const getWidgetSrc = () => {
+    if (typeof window === "undefined") {
+      return "https://ut.farefinder.dk/en?client_base_url=" + encodeURIComponent("https://unotravelsweden.com") + "&auth_key=8f6c5b6d72e480162a3ce7182bb97e40";
+    }
+    const baseUrl = window.location.origin;
+    let lang = document.documentElement.lang || "en";
+    lang = lang.substring(0, 2).toLowerCase() || "en";
+    return "https://ut.farefinder.dk/" + lang + "?client_base_url=" + encodeURIComponent(baseUrl) + "&auth_key=8f6c5b6d72e480162a3ce7182bb97e40";
+  };
 
   // If no external services, render nothing
   if (!externalServices.length || !selectedTab) {
@@ -243,24 +255,20 @@ export default function HomeBanner({ hero_services = [], forcedServiceId = null 
                       transition={{ delay: 0.4, duration: 0.6 }}
                       style={{ width: "100%" }}
                     >
-                      {selectedTab?.iframe_link && (
-                        <motion.iframe
-                          key={selectedTab?.service_id}
-                          id="fb-widget"
-                          title={selectedTab?.service_name || "Booking Widget"}
-                          allowTransparency={true}
-                          allowFullScreen
-                          scrolling="no"
-                          style={{
-                            position: "relative",
-                            width: "100%",
-                            border: "none",
-                            minHeight: "200px",
-                            marginTop: "20px",
-                          }}
-                          src={selectedTab?.iframe_link}
-                        />
-                      )}
+                      <iframe
+                        id="fb-widget"
+                        frameBorder="0"
+                        scrolling="no"
+                        allowTransparency="true"
+                        allowFullScreen=""
+                        style={{
+                          border: 0,
+                          width: "100%",
+                          minHeight: "135px",
+                          marginTop: "20px",
+                        }}
+                        src={getWidgetSrc()}
+                      />
                     </motion.div>
 
                     {/* Forms per tab (if you want to re-enable later)
