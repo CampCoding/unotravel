@@ -80,7 +80,7 @@ export default function UmraPackage({ data }) {
               <div>
                 <span className="text-xs text-gray-400 block leading-none mb-0.5">Starting from</span>
                 <span className="text-[#3B85C1] font-bold text-xl sm:text-2xl">
-                  ${price.toLocaleString()}
+                  {price.toLocaleString()} SEK
                 </span>
               </div>
               <button

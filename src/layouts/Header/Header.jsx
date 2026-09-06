@@ -61,7 +61,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openProfileSetting, setProfileSetting] = useState(false);
   const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState("EUR");
+  const [selectedCurrency, setSelectedCurrency] = useState("SEK");
 
   const langMenuRef = useRef(null);
   const dropdownRef = useRef(null);

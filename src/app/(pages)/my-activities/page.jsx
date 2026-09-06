@@ -100,7 +100,7 @@ function ActivityCard({ item, index }) {
         <div className="flex flex-col items-end gap-1.5 shrink-0">
           {item.total_price > 0 && (
             <span className="text-sm font-black text-[#264787]">
-              {Number(item.total_price).toLocaleString()} {item.currency ?? "USD"}
+              {Number(item.total_price).toLocaleString()} {item.currency ?? "SEK"}
             </span>
           )}
           {item.travelers > 0 && (

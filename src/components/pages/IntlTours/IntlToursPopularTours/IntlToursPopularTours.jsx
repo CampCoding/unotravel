@@ -37,7 +37,7 @@ function TourCard({ item, langId }) {
           </p>
         )}
         <div className="flex items-center justify-between gap-2">
-          <p className="font-bold text-[18px] text-[#3B85C1]">{item.price} <span className="text-sm">USD</span></p>
+          <p className="font-bold text-[18px] text-[#3B85C1]">{item.price} <span className="text-sm">SEK</span></p>
           <div className="flex gap-2">
             <button
               onClick={() => router.push(`/our-offers/toursDetails/${item.id}`)}

@@ -58,7 +58,7 @@ function CopyBtn({ value, label, copiedLabel }) {
  *   image       string|null — image URL
  *   details     Array<{ label: string, value: string|null, emoji?: string }>
  *   price       number|null
- *   currency    string — default "USD"
+ *   currency    string — default "SEK"
  *   isRTL       boolean
  *   accentColor string — tailwind bg class, default "from-[#264787] to-[#3b85c1]"
  *   onHome      () => void
@@ -72,7 +72,7 @@ export default function BookingConfirmUI({
   image = null,
   details = [],
   price = null,
-  currency = "USD",
+  currency = "SEK",
   isRTL = false,
   accentColor = "from-[#264787] to-[#3b85c1]",
   onHome,

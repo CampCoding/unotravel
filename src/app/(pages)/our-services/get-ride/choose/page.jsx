@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
@@ -143,7 +143,7 @@ export default function ChoosePage() {
                   </div>
                   {car.price && (
                     <div className="py-1.5 text-center text-xs font-bold text-[#264787] bg-white">
-                      {car.price} {car.currency || "USD"}
+                      {car.price} {car.currency || "SEK"}
                     </div>
                   )}
                 </button>
@@ -198,13 +198,13 @@ export default function ChoosePage() {
           <div className="bg-[#fff8ef] rounded-2xl p-5 mb-5">
             <p className="text-xs font-black text-[#264787] uppercase tracking-wider mb-3">Price Summary</p>
             <div className="space-y-2">
-              <div className="flex justify-between text-sm text-gray-600"><span>Car Price</span><span className="font-semibold">{carPrice} USD</span></div>
-              <div className="flex justify-between text-sm text-gray-600"><span>Pickup Point Fee</span><span className="font-semibold">{pickupFee} USD</span></div>
+              <div className="flex justify-between text-sm text-gray-600"><span>Car Price</span><span className="font-semibold">{carPrice} SEK</span></div>
+              <div className="flex justify-between text-sm text-gray-600"><span>Pickup Point Fee</span><span className="font-semibold">{pickupFee} SEK</span></div>
               <div className="flex justify-between text-sm text-gray-600"><span>Tax</span><span className="font-semibold">15 %</span></div>
             </div>
             <div className="mt-3 bg-gradient-to-r from-red-500 to-orange-400 rounded-xl px-5 py-3.5 flex justify-between items-center">
               <span className="text-white font-black text-sm">Total ( Include Tax )</span>
-              <span className="text-white font-black text-lg">{total.toFixed(0)} $</span>
+              <span className="text-white font-black text-lg">{total.toFixed(0)} SEK</span>
             </div>
           </div>
         )}

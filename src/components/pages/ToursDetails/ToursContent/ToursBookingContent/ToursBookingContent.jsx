@@ -108,7 +108,7 @@ className="flex sm:flex-nowrap flex-wrap gap-2 items-center justify-between"    
             </div>
             <div className="flex gap-2 items-center">
               <p className="text-[#E44C4A] !text-base my-auto 2xl:!text-[22px]">
-                Extra <span className="font-bold">50</span> $
+                Extra <span className="font-bold">50</span> SEK
               </p>
               <div className="2xl:!w-[43px] w-[33px] h-[33px] 2xl:!h-[43px] !rounded-lg flex justify-center items-center bg-[#E44C4A]">
                 <MapPin color="white" size={23} />
@@ -121,7 +121,7 @@ className="flex sm:flex-nowrap flex-wrap gap-2 items-center justify-between"    
               Total Price (Including Tax)
             </p>
             <p className="!text-xl !text-white !my-auto 2xl:!text-10">
-              <span className="font-bold !text-white !text-xl 2xl:!text-10">250</span>$
+              <span className="font-bold !text-white !text-xl 2xl:!text-10">250</span> SEK
             </p>
           </div>
 

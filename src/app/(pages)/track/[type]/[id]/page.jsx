@@ -30,7 +30,7 @@ const TYPE_CONFIG = {
       { icon: Users,    label: t.pass,     value: b.passengers > 0 ? `${b.passengers}` : null },
     ],
     price: (b) => b.total_price,
-    currency: (b) => b.currency ?? "USD",
+    currency: (b) => b.currency ?? "SEK",
   },
   tour: {
     apiRoute:     (id) => apiRoutes.tour_booking_tracking(id),
@@ -45,7 +45,7 @@ const TYPE_CONFIG = {
       { icon: MapPin,   label: t.meeting,  value: b.meeting_option },
     ],
     price: (b) => b.total_price,
-    currency: () => "USD",
+    currency: () => "SEK",
   },
   umrah: {
     apiRoute:     (id) => apiRoutes.umrah_booking_tracking(id),
@@ -59,7 +59,7 @@ const TYPE_CONFIG = {
       { icon: Users,    label: t.gender,   value: b.gender },
     ],
     price: (b) => b.total_price,
-    currency: () => "USD",
+    currency: () => "SEK",
   },
   offer: {
     apiRoute:     (id) => apiRoutes.offer_booking_tracking(id),
@@ -71,7 +71,7 @@ const TYPE_CONFIG = {
       { icon: Tag, label: t.offer, value: b.offer_name },
     ],
     price: () => null,
-    currency: () => "USD",
+    currency: () => "SEK",
   },
   visa: {
     apiRoute:     (id) => apiRoutes.visa_app_tracking(id),
@@ -85,7 +85,7 @@ const TYPE_CONFIG = {
       { icon: Users,      label: t.passport,    value: b.passport_type },
     ],
     price: () => null,
-    currency: () => "USD",
+    currency: () => "SEK",
   },
   payment: {
     apiRoute:     (id) => apiRoutes.payment_tracking(id),
@@ -98,7 +98,7 @@ const TYPE_CONFIG = {
       { icon: PayIcon, label: t.link,  value: b.link },
     ],
     price: () => null,
-    currency: () => "USD",
+    currency: () => "SEK",
   },
 };
 

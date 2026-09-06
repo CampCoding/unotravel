@@ -115,7 +115,7 @@ export default function UmraPackageModal({ open, setOpen, data }) {
               {/* Total price */}
               <div className="w-full rounded-xl bg-[#3B85C1] my-4 p-[27px] text-white flex justify-between items-center">
                 <p className="text-white text-sm">Total Price (Including Tax)</p>
-                <p className="font-bold text-xl">{totalPrice.toFixed(0)} $</p>
+                <p className="font-bold text-xl">{totalPrice.toFixed(0)} SEK</p>
               </div>
 
               <button

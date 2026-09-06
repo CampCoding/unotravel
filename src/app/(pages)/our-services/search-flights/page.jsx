@@ -96,7 +96,7 @@ export const flightResultsMock = [
     refundable: true,
     refundableType: "Refundable",
     priceTitle: "Price for 1 Person(s)",
-    price: "720.00 USD",
+    price: "720.00 SEK",
     priceSub: "per Adult: 720.00",
   },
   {
@@ -127,7 +127,7 @@ export const flightResultsMock = [
     refundable: true,
     refundableType: "Refundable",
     priceTitle: "Price for 1 Person(s)",
-    price: "890.00 EUR",
+    price: "890.00 SEK",
     priceSub: "per Adult: 890.00",
   },
   {
@@ -158,7 +158,7 @@ export const flightResultsMock = [
     refundable: false,
     refundableType: "Non-Refundable",
     priceTitle: "Price for 1 Person(s)",
-    price: "680.00 EUR",
+    price: "680.00 SEK",
     priceSub: "per Adult: 680.00",
   },
 
@@ -190,7 +190,7 @@ export const flightResultsMock = [
     refundable: true,
     refundableType: "Refundable",
     priceTitle: "Price for 1 Person(s)",
-    price: "3,950.00 EGP",
+    price: "3,950.00 SEK",
     priceSub: "per Adult: 3,950.00",
   },
   {
@@ -221,7 +221,7 @@ export const flightResultsMock = [
     refundable: false,
     refundableType: "Non-Refundable",
     priceTitle: "Price for 1 Person(s)",
-    price: "210.00 EUR",
+    price: "210.00 SEK",
     priceSub: "per Adult: 210.00",
   },
   {
@@ -252,7 +252,7 @@ export const flightResultsMock = [
     refundable: true,
     refundableType: "Refundable",
     priceTitle: "Price for 1 Person(s)",
-    price: "150.00 USD",
+    price: "150.00 SEK",
     priceSub: "per Adult: 150.00",
   },
   {
@@ -283,7 +283,7 @@ export const flightResultsMock = [
     refundable: false,
     refundableType: "Non-Refundable",
     priceTitle: "Price for 1 Person(s)",
-    price: "1,120.00 EUR",
+    price: "1,120.00 SEK",
     priceSub: "per Adult: 1,120.00",
   },
   {
@@ -314,7 +314,7 @@ export const flightResultsMock = [
     refundable: true,
     refundableType: "Refundable",
     priceTitle: "Price for 1 Person(s)",
-    price: "260.00 EUR",
+    price: "260.00 SEK",
     priceSub: "per Adult: 260.00",
   },
 ];

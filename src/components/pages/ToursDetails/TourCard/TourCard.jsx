@@ -39,7 +39,7 @@ export default function TourCard({ item }) {
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
             <p className="font-bold !text-[18px] sm:text-[20px] 2xl:text-[30px] text-[#3B85C1]">
-              {item?.price} $
+              {item?.price} SEK
             </p>
 
             <div className="flex gap-2 items-center">

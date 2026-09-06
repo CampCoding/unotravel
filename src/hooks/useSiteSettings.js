@@ -17,12 +17,12 @@ export function useSiteSettings() {
     if (_listeners.size === 1) {
       _get("pages/site-settings")
         .then(res => {
-          const data = res?.data?.data ?? { price_per_km: 0, pickup_base_fee: 0, currency: "USD" };
+          const data = res?.data?.data ?? { price_per_km: 0, pickup_base_fee: 0, currency: "SEK" };
           _cache = data;
           _listeners.forEach(fn => fn(data));
         })
         .catch(() => {
-          const fallback = { price_per_km: 0, pickup_base_fee: 0, currency: "USD" };
+          const fallback = { price_per_km: 0, pickup_base_fee: 0, currency: "SEK" };
           _cache = fallback;
           _listeners.forEach(fn => fn(fallback));
         })
@@ -42,7 +42,7 @@ export function useSiteSettings() {
     loading,
     pricePerKm:    settings?.price_per_km    ?? 0,
     pickupBaseFee: settings?.pickup_base_fee ?? 0,
-    currency:      settings?.currency        ?? "USD",
+    currency:      settings?.currency        ?? "SEK",
     calcTripPrice,
   };
 }
