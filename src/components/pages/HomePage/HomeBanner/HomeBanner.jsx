@@ -14,6 +14,9 @@ import "swiper/css/navigation";
 import "./style.css";
 import ErrorImage from "../../../shared/ErrorImage";
 import { useRouter } from "next/navigation";
+import HomeBannerFlight from "./HomeBannerFlight/HomeBannerFlight";
+import HomeBannerTour from "./HomeBannerTour/HomeBannerTour";
+import HomeBannerRide from "./HomeBannerRide/HomeBannerRide";
 
 const data = [
   {
@@ -248,14 +251,38 @@ export default function HomeBanner({ hero_services = [], forcedServiceId = null 
                       ))}
                     </motion.div>
 
-                    {/* Booking Widget */}
+                    {/* Booking Widget / Search Form */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4, duration: 0.6 }}
                       style={{ width: "100%" }}
                     >
-                      {selectedTab?.service_slug === "search-flights" || selectedTab?.service_id === 1 ? (
+                      {selectedTab?.service_slug === "international-tours" ? (
+                        <div className="mt-4">
+                          <HomeBannerTour />
+                        </div>
+                      ) : selectedTab?.service_slug === "get-a-ride" || selectedTab?.service_slug === "get-ride" ? (
+                        <div className="mt-4">
+                          <HomeBannerRide
+                            openAdultModal={openAdultModal}
+                            setOpenAdultModal={setOpenAdultModal}
+                          />
+                        </div>
+                      ) : ["hotels-booking", "hotel-booking", "rent-a-car", "car-reservation", "get-a-helicopter", "get-helicopter", "low-fare-flight", "fare-flight"].includes(selectedTab?.service_slug) ? (
+                        <div className="mt-5 w-full bg-white/95 backdrop-blur-md rounded-2xl p-6 sm:p-8 text-center text-[#16294F] shadow-xl border border-white/20">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B85C1]/10 text-[#264787] text-xs sm:text-sm font-bold mb-3">
+                            <span className="w-2 h-2 rounded-full bg-[#3B85C1] animate-ping" />
+                            <span>Under Development</span>
+                          </div>
+                          <h3 className="text-xl sm:text-2xl font-[filson-bold] text-[#16294F] mb-1">
+                            {selectedTab?.service_hero_title || selectedTab?.service_name} - Coming Soon
+                          </h3>
+                          <p className="text-gray-600 text-xs sm:text-sm max-w-md mx-auto">
+                            This service is currently being prepared and will be available for booking soon.
+                          </p>
+                        </div>
+                      ) : (
                         <iframe
                           id="fb-widget"
                           frameBorder="0"
@@ -270,19 +297,6 @@ export default function HomeBanner({ hero_services = [], forcedServiceId = null 
                           }}
                           src={getWidgetSrc()}
                         />
-                      ) : (
-                        <div className="mt-5 w-full bg-white/95 backdrop-blur-md rounded-2xl p-6 sm:p-8 text-center text-[#16294F] shadow-xl border border-white/20">
-                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B85C1]/10 text-[#264787] text-xs sm:text-sm font-bold mb-3">
-                            <span className="w-2 h-2 rounded-full bg-[#3B85C1] animate-ping" />
-                            <span>Under Development</span>
-                          </div>
-                          <h3 className="text-xl sm:text-2xl font-[filson-bold] text-[#16294F] mb-1">
-                            {selectedTab?.service_hero_title || selectedTab?.service_name} - Coming Soon
-                          </h3>
-                          <p className="text-gray-600 text-xs sm:text-sm max-w-md mx-auto">
-                            This service is currently being prepared and will be available for booking soon.
-                          </p>
-                        </div>
                       )}
                     </motion.div>
 
